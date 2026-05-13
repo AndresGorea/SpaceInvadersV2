@@ -53,7 +53,7 @@ public class Batallon {
     }
     //Métodos
     //Mover los escuadrones
-    public void mover(float anchoPantalla, float altoPantalla, float cuantoBaja){ //Nos deberán pasar el ancho de la pantalla el alto de la pantalla y cuanto queremos que baje cada vez que llega al borde
+    public void mover(float anchoPantalla, float altoPantalla, float cuantoBaja, float delta){ //Nos deberán pasar el ancho de la pantalla el alto de la pantalla y cuanto queremos que baje cada vez que llega al borde
         if (escuadrones == null || escuadrones.length == 0) return; //Si por lo que sea no se ha inicializado todavía no hacemos nada
 
         boolean tocarBorde = false;
@@ -65,16 +65,16 @@ public class Batallon {
             }
         }
         if (tocarBorde){ //En ese caso cambiamos la dirección y bajamos el batallón, utilizando el método cambiarDireccionYBajarse
-            cambiarDireccionYBajarse(cuantoBaja);
+            cambiarDireccionYBajarse(cuantoBaja, delta);
         }
         else {
             for (Escuadron esc : escuadrones) { //Caso contrario, movemos los escuadrones lateralmente usando el método implementado en escuadron
-                esc.moverLateralmente(direccionActual, velocidad);
+                esc.moverLateralmente(direccionActual, velocidad, delta);
             }
         }
     }
     //Invertir la dirección y bajar el batallón
-    private void cambiarDireccionYBajarse(float cuantoBaja) {
+    private void cambiarDireccionYBajarse(float cuantoBaja, float delta) {
         //Invertimos la dirección
         direccionActual = (direccionActual == Ovni.Direccion.DERECHA) ? Ovni.Direccion.IZQUIERDA : Ovni.Direccion.DERECHA;
         //Bajar el batallón completo usando el método de la clase escuadron
@@ -83,7 +83,7 @@ public class Batallon {
         }
         //Los movemos un pixel para que no este a true tocar borde por si acaso
         for (Escuadron esc : escuadrones) {
-            esc.moverLateralmente(direccionActual, velocidad);
+            esc.moverLateralmente(direccionActual, velocidad, delta);
         }
     }
 
@@ -95,9 +95,9 @@ public class Batallon {
     }
 
     //Gestionamos los disparos de los enemigos, batallón se lo pasa a escuadron y escuadron a nave Enemiga que se encarga del CRUD
-    public void gestionarDisparos(float limiteMuerte) {
+    public void gestionarDisparos(float limiteMuerte, float delta) {
         for (Escuadron esc : escuadrones) {
-            esc.gestionarDisparosEnemigos(limiteMuerte);
+            esc.gestionarDisparosEnemigos(limiteMuerte, delta);
         }
     }
 

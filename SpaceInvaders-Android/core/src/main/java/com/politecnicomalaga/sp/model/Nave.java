@@ -63,5 +63,5 @@ public abstract class Nave extends Ovni{
 
     //Ambas naves disparan y gestionan sus disparos pero lo hacen de manera diferente, metodos abstracto
     public abstract void disparar();
-    public abstract void gestionarMisDisparos(float limiteMuerte);
+    public abstract void gestionarMisDisparos(float limiteMuerte, float delta);
 }
