@@ -19,8 +19,6 @@ public class Controlador {
     private static Controlador miSingle;
 
     /// CONFIGURACIÓN: NAVE AMIGA (Valores fijos)
-    private static final float NAVE_INICIO_X = 300f;
-    private static final float NAVE_INICIO_Y = 0f;
     private static final float NAVE_ANCHO = 60f;
     private static final float NAVE_ALTO = 60f;
     private static final int   NAVE_VIDAS = 3;
@@ -32,8 +30,6 @@ public class Controlador {
     private static final float BALA_AMI_VELOCIDAD = 600f;
 
     /// CONFIGURACIÓN: ENEMIGOS Y BATALLÓN
-
-    private static final float BAT_INICIO_X = 20f;
     private static final float BAT_ESPACIO_VERT = 10f;
     private static final float BAT_ESPACIO_HORIZ = 10f;
     private static final float BAT_VELOCIDAD = 80f;
@@ -68,9 +64,14 @@ public class Controlador {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
 
-        // Instanciamos la nave amiga (los saltos de línea mejoran la lectura)
+        // Calculamos posiciones dinámicas de inicio con LibGDX
+        // Centramos la nave horizontalmente y la separamos 10 píxeles del suelo
+        float naveInicioX = (Gdx.graphics.getWidth() / 2f) - (NAVE_ANCHO / 2f);
+        float naveInicioY = 10f;
+
+        // Instanciamos la nave amiga
         this.naveAmiga = new NaveAmi(
-            NAVE_INICIO_X, NAVE_INICIO_Y, NAVE_ANCHO, NAVE_ALTO,
+            naveInicioX, naveInicioY, NAVE_ANCHO, NAVE_ALTO,
             Ovni.Estado.VIVO,
             Ovni.Direccion.NOMOVER,
             "naveJugador.png",
@@ -79,12 +80,13 @@ public class Controlador {
             BALA_AMI_ANCHO, BALA_AMI_ALTO, BALA_AMI_VELOCIDAD
         );
 
-        // Calculamos la posición Y del batallón (depende de la pantalla, no puede ser estática)
-        float batInicioY = Gdx.graphics.getHeight() - 40f;
+        // Calculamos la posición inicial del batallón
+        float batInicioX = 20f; // Margen izquierdo
+        float batInicioY = Gdx.graphics.getHeight() - 40f; // Margen superior
 
         // Instanciamos el batallón enemigo
         this.batallon = new Batallon(
-            BAT_INICIO_X, batInicioY, BAT_ESPACIO_VERT,
+            batInicioX, batInicioY, BAT_ESPACIO_VERT,
             ENE_ANCHO, ENE_ALTO,
             Ovni.Estado.VIVO,
             Ovni.Direccion.DERECHA,
