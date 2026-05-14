@@ -11,9 +11,12 @@ import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.model.PowerUp;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class Controlador {
     /// SINGLETON
@@ -54,6 +57,10 @@ public class Controlador {
     private boolean jugando;
     private int puntuacion;
 
+    private List<PowerUp> powerUps;
+    private Random random = new Random();
+    private static final float PROB_DROP = 0.30f; // 30% probabilidad
+
     private final float velocidadNave = NAVE_VELOCIDAD;
     private final float cadenciaAmiga = NAVE_CADENCIA;
     private final float cadenciaEnemiga = ENE_CADENCIA;
@@ -66,6 +73,7 @@ public class Controlador {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
         this.puntuacion = 0;
+        this.powerUps = new ArrayList<>();
 
         // Calculamos posiciones dinámicas de inicio con LibGDX
         // Centramos la nave horizontalmente y la separamos 10 píxeles del suelo
@@ -143,6 +151,10 @@ public class Controlador {
             List<DisparoAmi> disparoAmis = naveAmiga.getMisDisparos();
             hematado(batallon, disparoAmis);
 
+            // Gestionar Power-ups
+            naveAmiga.actualizarPowerUps(delta);
+            gestionarPowerUps(delta);
+
             //me han tocado los aliens?
             meHanTocado(batallon, naveAmiga);
 
@@ -155,7 +167,7 @@ public class Controlador {
                 naveAmiga.setX(0);
                 naveAmiga.setDir(Ovni.Direccion.NOMOVER);
             }
-            naveAmiga.mover(naveAmiga.getDir(),velocidadNave, delta);
+            naveAmiga.mover(naveAmiga.getDir(),velocidadNave + naveAmiga.getVelocidadExtra(), delta);
 
             //SE MUEVE EL ESCUADRÓN
             batallon.mover(anchoPantalla,altoPantalla,20, delta);
@@ -195,6 +207,16 @@ public class Controlador {
             }
         }
 
+        //Pintar Power-ups
+        for (PowerUp p : powerUps) {
+            if (p.estaVivo()) {
+                Texture t = galeriaImagenes.get(p.getTextura());
+                if (t != null) {
+                    batch.draw(t, p.getX(), p.getY(), p.getWidth(), p.getHeight());
+                }
+            }
+        }
+
     }
 
     public void cambiarSentidoNaveAmiga (float x){
@@ -225,14 +247,55 @@ public class Controlador {
     public  void hematado(Batallon batallon, List<DisparoAmi> disparoAmis){
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (DisparoAmi disparoAmi: disparoAmis){
+            if (!disparoAmi.estaVivo()) continue;
             for (Escuadron escuadron: escuadrones){
                 NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-                if (disparoAmi.comprobarColision(navesEnemigas)) {
-                    puntuacion += 10;
+                for (NaveEne n : navesEnemigas) {
+                    if (n.estaVivo() && disparoAmi.colision(n)) {
+                        n.recibirDisparo();
+                        disparoAmi.setEstado(Ovni.Estado.MUERTO);
+                        puntuacion += 10;
+
+                        // Lógica de drop
+                        if (!n.estaVivo() && random.nextFloat() < PROB_DROP) {
+                            soltarPowerUp(n.getX(), n.getY());
+                        }
+                        break;
+                    }
                 }
+                if (!disparoAmi.estaVivo()) break;
             }
         }
 
+    }
+
+    private void soltarPowerUp(float x, float y) {
+        PowerUp.Tipo tipo = PowerUp.Tipo.values()[random.nextInt(PowerUp.Tipo.values().length)];
+        String textura = "disparoAmi.png";
+        if (tipo == PowerUp.Tipo.MULTI_DISPARO) textura = "disparoAmi.png";
+        if (tipo == PowerUp.Tipo.ESCUDO) textura = "naveJugador.png";
+        if (tipo == PowerUp.Tipo.VELOCIDAD) textura = "disparoEne.png";
+
+        powerUps.add(new PowerUp(x, y, 30, 30, tipo, textura));
+    }
+
+    private void gestionarPowerUps(float delta) {
+        for (int i = powerUps.size() - 1; i >= 0; i--) {
+            PowerUp p = powerUps.get(i);
+            if (p.estaVivo()) {
+                p.mover(Ovni.Direccion.ABAJO, 150f, delta);
+                p.desaparecer(0);
+
+                if (p.colision(naveAmiga)) {
+                    naveAmiga.activarPowerUp(p.getTipo());
+                    p.setEstado(Ovni.Estado.MUERTO);
+                }
+            }
+
+            if (!p.estaVivo()) {
+                powerUps.remove(i);
+            }
+        }
     }
 
     public void pintarHUD(SpriteBatch batch, Map<String, Texture> galeriaImagenes, BitmapFont font, float anchoPantalla, float altoPantalla) {
@@ -243,9 +306,9 @@ public class Controlador {
         float tamañoIcono = 30f;
         float margen = 10f;
         for (int i = 0; i < naveAmiga.getVidas(); i++) {
-            batch.draw(galeriaImagenes.get("naveJugador.png"), 
-                anchoPantalla - (i + 1) * (tamañoIcono + margen) - 10, 
-                altoPantalla - tamañoIcono - 15, 
+            batch.draw(galeriaImagenes.get("naveJugador.png"),
+                anchoPantalla - (i + 1) * (tamañoIcono + margen) - 10,
+                altoPantalla - tamañoIcono - 15,
                 tamañoIcono, tamañoIcono);
         }
     }
@@ -257,7 +320,7 @@ public class Controlador {
             for (NaveEne naveEne : navesEnemigas) {
                 if (naveEne.estaVivo() && naveEne.colision(naveAmiga)) {
                     naveEne.setEstado(Ovni.Estado.MUERTO);
-                    naveAmiga.setVidas(naveAmiga.getVidas() - 1);
+                    naveAmiga.recibirDisparo();
                 }
             }
         }
