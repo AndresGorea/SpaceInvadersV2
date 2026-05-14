@@ -1,27 +1,20 @@
 package com.politecnicomalaga.sp;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.view.MainMenuScreen;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
+public class Main extends Game {
     private SpriteBatch batch;
-    private Texture image;
     private BitmapFont font;
-
-    private float anchoPantalla,altoPantalla;
-
-    private float y,x;
-    Map<String,Texture> galeriaImagenes;
-
+    private Map<String,Texture> galeriaImagenes;
 
     @Override
     public void create() {
@@ -30,6 +23,7 @@ public class Main extends ApplicationAdapter {
         font.getData().setScale(2f);
         galeriaImagenes = new HashMap<>();
 
+        Texture image;
         image = new Texture("enemigo1.png");
         galeriaImagenes.put("enemigo1.png",image);
         image = new Texture("enemigo2.png");
@@ -41,31 +35,12 @@ public class Main extends ApplicationAdapter {
         image = new Texture("disparoEne.png");
         galeriaImagenes.put("disparoEne.png", image);
 
-        anchoPantalla = Gdx.graphics.getWidth();
-        altoPantalla = Gdx.graphics.getHeight();
-
+        this.setScreen(new MainMenuScreen(this));
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-
-        //Control de entrada
-        if(Gdx.input.justTouched()){
-            x= Gdx.input.getX();
-            y=Gdx.input.getY();
-            Controlador.getInstance().click(x,y);
-        }
-
-        //Control de estado
-        Controlador.getInstance().simulaMundo(anchoPantalla,altoPantalla, Gdx.graphics.getDeltaTime());
-
-
-        //Pintar el mundo
-        batch.begin();
-        Controlador.getInstance().pintar(batch, galeriaImagenes);
-        Controlador.getInstance().pintarHUD(batch, galeriaImagenes, font, anchoPantalla, altoPantalla);
-        batch.end();
+        super.render(); // important!
     }
 
     @Override
@@ -75,5 +50,20 @@ public class Main extends ApplicationAdapter {
         for (Texture imagen : galeriaImagenes.values()) {
             imagen.dispose();
         }
+        if (getScreen() != null) {
+            getScreen().dispose();
+        }
+    }
+
+    public SpriteBatch getBatch() {
+        return batch;
+    }
+
+    public BitmapFont getFont() {
+        return font;
+    }
+
+    public Map<String, Texture> getGaleriaImagenes() {
+        return galeriaImagenes;
     }
 }
