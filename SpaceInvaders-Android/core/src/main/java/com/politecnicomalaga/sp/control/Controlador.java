@@ -271,10 +271,18 @@ public class Controlador {
 
     private void soltarPowerUp(float x, float y) {
         PowerUp.Tipo tipo = PowerUp.Tipo.values()[random.nextInt(PowerUp.Tipo.values().length)];
-        String textura = "disparoAmi.png";
-        if (tipo == PowerUp.Tipo.MULTI_DISPARO) textura = "disparoAmi.png";
-        if (tipo == PowerUp.Tipo.ESCUDO) textura = "naveJugador.png";
-        if (tipo == PowerUp.Tipo.VELOCIDAD) textura = "disparoEne.png";
+        String textura = "";
+        switch (tipo) {
+            case MULTI_DISPARO:
+                textura = "DisparoMultiple.png";
+                break;
+            case ESCUDO:
+                textura = "Escudo.png";
+                break;
+            case VELOCIDAD:
+                textura = "Velocidad.png";
+                break;
+        }
 
         powerUps.add(new PowerUp(x, y, 30, 30, tipo, textura));
     }

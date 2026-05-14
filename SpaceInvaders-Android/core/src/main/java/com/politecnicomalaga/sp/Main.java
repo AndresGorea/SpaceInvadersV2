@@ -41,6 +41,11 @@ public class Main extends ApplicationAdapter {
         image = new Texture("disparoEne.png");
         galeriaImagenes.put("disparoEne.png", image);
 
+        // Power-ups
+        galeriaImagenes.put("DisparoMultiple.png", new Texture("DisparoMultiple.png"));
+        galeriaImagenes.put("Escudo.png", new Texture("Escudo.png"));
+        galeriaImagenes.put("Velocidad.png", new Texture("Velocidad.png"));
+
         anchoPantalla = Gdx.graphics.getWidth();
         altoPantalla = Gdx.graphics.getHeight();
 
