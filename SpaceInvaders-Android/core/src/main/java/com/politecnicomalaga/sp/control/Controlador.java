@@ -2,6 +2,7 @@ package com.politecnicomalaga.sp.control;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.DisparoAmi;
@@ -51,6 +52,7 @@ public class Controlador {
     private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
     private boolean jugando;
+    private int puntuacion;
 
     private final float velocidadNave = NAVE_VELOCIDAD;
     private final float cadenciaAmiga = NAVE_CADENCIA;
@@ -63,6 +65,7 @@ public class Controlador {
         this.jugando = true;
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
+        this.puntuacion = 0;
 
         // Calculamos posiciones dinámicas de inicio con LibGDX
         // Centramos la nave horizontalmente y la separamos 10 píxeles del suelo
@@ -224,10 +227,27 @@ public class Controlador {
         for (DisparoAmi disparoAmi: disparoAmis){
             for (Escuadron escuadron: escuadrones){
                 NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-                disparoAmi.comprobarColision(navesEnemigas);
+                if (disparoAmi.comprobarColision(navesEnemigas)) {
+                    puntuacion += 10;
+                }
             }
         }
 
+    }
+
+    public void pintarHUD(SpriteBatch batch, Map<String, Texture> galeriaImagenes, BitmapFont font, float anchoPantalla, float altoPantalla) {
+        // Pintar Puntuación (Arriba a la izquierda)
+        font.draw(batch, "Puntuación: " + puntuacion, 20, altoPantalla - 20);
+
+        // Pintar Vidas (Arriba a la derecha como iconos)
+        float tamañoIcono = 30f;
+        float margen = 10f;
+        for (int i = 0; i < naveAmiga.getVidas(); i++) {
+            batch.draw(galeriaImagenes.get("naveJugador.png"), 
+                anchoPantalla - (i + 1) * (tamañoIcono + margen) - 10, 
+                altoPantalla - tamañoIcono - 15, 
+                tamañoIcono, tamañoIcono);
+        }
     }
 
     public void meHanTocado(Batallon batallon, NaveAmi naveAmiga) {
