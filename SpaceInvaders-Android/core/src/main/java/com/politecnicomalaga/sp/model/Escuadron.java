@@ -45,10 +45,10 @@ public class Escuadron {
         }
         return false;
     }
-    public void moverLateralmente(Ovni.Direccion direccionActual, float velocidad) {
+    public void moverLateralmente(Ovni.Direccion direccionActual, float velocidad, float delta) {
         for (NaveEne naveEne : navesEnemigas) {
             if (naveEne.estaVivo()) {
-                naveEne.mover(direccionActual, velocidad);
+                naveEne.mover(direccionActual, velocidad, delta);
             }
         }
     }
@@ -56,14 +56,14 @@ public class Escuadron {
         for (NaveEne naveEne :navesEnemigas) {
             //Aqui solo bajan las naves que estén vivas por eso la comprobación
             if (naveEne.estaVivo()) {
-                naveEne.mover(Ovni.Direccion.ABAJO, cuantoBaja);
+                naveEne.mover(Ovni.Direccion.ABAJO, cuantoBaja, 1f);
             }
         }
     }
-    public void gestionarDisparosEnemigos(float limiteInferior) {
+    public void gestionarDisparosEnemigos(float limiteInferior, float delta) {
         for (NaveEne naveEne :navesEnemigas) {
             if (naveEne.estaVivo()) {
-                naveEne.gestionarMisDisparos(limiteInferior);
+                naveEne.gestionarMisDisparos(limiteInferior, delta);
             }
         }
     }

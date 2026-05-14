@@ -100,22 +100,22 @@ public class Ovni {
         return false;
     }
 
-    public void mover(Direccion direccion, float velocidad){
+    public void mover(Direccion direccion, float velocidad, float delta){
         switch (direccion){
             case ABAJO:
-                this.setY(this.y-velocidad);
+                this.setY(this.y-(velocidad * delta));
                 break;
 
             case ARRIBA:
-                this.setY(this.y+velocidad);
+                this.setY(this.y+(velocidad * delta));
                 break;
 
             case DERECHA:
-                this.setX(this.x+velocidad);
+                this.setX(this.x+(velocidad * delta));
                 break;
 
             case IZQUIERDA:
-                this.setX(this.x-velocidad);
+                this.setX(this.x-(velocidad * delta));
                 break;
         }
     }

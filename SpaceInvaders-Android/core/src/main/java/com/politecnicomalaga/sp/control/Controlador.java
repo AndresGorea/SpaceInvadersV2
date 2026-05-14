@@ -15,24 +15,88 @@ import java.util.List;
 import java.util.Map;
 
 public class Controlador {
+    /// SINGLETON
     private static Controlador miSingle;
+
+    /// CONFIGURACIÓN: NAVE AMIGA (Valores fijos)
+    private static final float NAVE_ANCHO = 60f;
+    private static final float NAVE_ALTO = 60f;
+    private static final int   NAVE_VIDAS = 3;
+    private static final float NAVE_VELOCIDAD = 400f;
+    private static final float NAVE_CADENCIA = 0.5f;
+
+    private static final float BALA_AMI_ANCHO = 15f;
+    private static final float BALA_AMI_ALTO = 30f;
+    private static final float BALA_AMI_VELOCIDAD = 600f;
+
+    /// CONFIGURACIÓN: ENEMIGOS Y BATALLÓN
+    private static final float BAT_ESPACIO_VERT = 10f;
+    private static final float BAT_ESPACIO_HORIZ = 10f;
+    private static final float BAT_VELOCIDAD = 80f;
+
+    private static final float ENE_ANCHO = 50f;
+    private static final float ENE_ALTO = 40f;
+    private static final int   ENE_VIDAS = 1;
+    private static final float ENE_CADENCIA = 1.5f;
+    private static final int   ENE_PROB_DISPARO = 7;
+
+    private static final float BALA_ENE_ANCHO = 5f;
+    private static final float BALA_ENE_ALTO = 30f;
+    private static final float BALA_ENE_VELOCIDAD = 400f;
+
+    /// VARIABLES DE ESTADO Y ENTIDADES
     private NaveAmi naveAmiga;
-    private final float velocidadNave;
-    private final int cadenciaAmiga,cadenciaEnemiga;
-    private int contadorTiempoAmigo, getContadorTiempoEnemigo;
     private Batallon batallon;
+
+    private float contadorTiempoAmigo;
+    private float contadorTiempoEnemigo;
     private boolean jugando;
 
-    //CONSTRUCTOR
+    private final float velocidadNave = NAVE_VELOCIDAD;
+    private final float cadenciaAmiga = NAVE_CADENCIA;
+    private final float cadenciaEnemiga = ENE_CADENCIA;
+
+
+    /// CONSTRUCTOR
     private Controlador() {
-        naveAmiga = new NaveAmi(300,0,60,60, Ovni.Estado.VIVO, Ovni.Direccion.NOMOVER,"naveJugador.png",1,120,15,30,8);
-        velocidadNave = 1f;
-        contadorTiempoAmigo=0;
-        getContadorTiempoEnemigo=0;
-        cadenciaAmiga= 180;
-        cadenciaEnemiga=180;
-        batallon=new Batallon(Gdx.graphics.getWidth()%2,Gdx.graphics.getHeight()-40,10, 50,40, Ovni.Estado.VIVO, Ovni.Direccion.DERECHA, "enemigo1.png",1,180,5,30,1,7,10,0.3f);
-        jugando=true;
+        // Inicializamos estado del juego
+        this.jugando = true;
+        this.contadorTiempoAmigo = 0f;
+        this.contadorTiempoEnemigo = 0f;
+
+        // Calculamos posiciones dinámicas de inicio con LibGDX
+        // Centramos la nave horizontalmente y la separamos 10 píxeles del suelo
+        float naveInicioX = (Gdx.graphics.getWidth() / 2f) - (NAVE_ANCHO / 2f);
+        float naveInicioY = 10f;
+
+        // Instanciamos la nave amiga
+        this.naveAmiga = new NaveAmi(
+            naveInicioX, naveInicioY, NAVE_ANCHO, NAVE_ALTO,
+            Ovni.Estado.VIVO,
+            Ovni.Direccion.NOMOVER,
+            "naveJugador.png",
+            NAVE_VIDAS,
+            NAVE_CADENCIA,
+            BALA_AMI_ANCHO, BALA_AMI_ALTO, BALA_AMI_VELOCIDAD
+        );
+
+        // Calculamos la posición inicial del batallón
+        float batInicioX = 20f; // Margen izquierdo
+        float batInicioY = Gdx.graphics.getHeight() - 40f; // Margen superior
+
+        // Instanciamos el batallón enemigo
+        this.batallon = new Batallon(
+            batInicioX, batInicioY, BAT_ESPACIO_VERT,
+            ENE_ANCHO, ENE_ALTO,
+            Ovni.Estado.VIVO,
+            Ovni.Direccion.DERECHA,
+            "enemigo1.png",
+            ENE_VIDAS,
+            ENE_CADENCIA,
+            BALA_ENE_ANCHO, BALA_ENE_ALTO, BALA_ENE_VELOCIDAD,
+            ENE_PROB_DISPARO,
+            BAT_ESPACIO_HORIZ, BAT_VELOCIDAD
+        );
     }
 
     //Otros métodos
@@ -45,7 +109,7 @@ public class Controlador {
     public void click (float x, float y){
         cambiarSentidoNaveAmiga(x);
     }
-    public void simulaMundo(float anchoPantalla, float altoPantalla){
+    public void simulaMundo(float anchoPantalla, float altoPantalla, float delta){
         //Comprobar si he muerto
         if (!naveAmiga.estaVivo()){
             jugando=false;
@@ -56,17 +120,17 @@ public class Controlador {
             jugando=comprobarSiGano(batallon);
 
             //disparo yo?
-            contadorTiempoAmigo++;
-            if (contadorTiempoAmigo==cadenciaAmiga){
+            contadorTiempoAmigo+=delta;
+            if (contadorTiempoAmigo>=cadenciaAmiga){
                 naveAmiga.disparar();
-                contadorTiempoAmigo=0;
+                contadorTiempoAmigo=0f;
             }
 
             //disparan los enemigos?
-            getContadorTiempoEnemigo++;
-            if (getContadorTiempoEnemigo==cadenciaEnemiga){
+            contadorTiempoEnemigo+=delta;
+            if (contadorTiempoEnemigo>=cadenciaEnemiga){
                 dispararTodosLosEnemigos(batallon);
-                getContadorTiempoEnemigo=0;
+                contadorTiempoEnemigo=0f;
             }
 
             //me han dado
@@ -88,17 +152,17 @@ public class Controlador {
                 naveAmiga.setX(0);
                 naveAmiga.setDir(Ovni.Direccion.NOMOVER);
             }
-            naveAmiga.mover(naveAmiga.getDir(),velocidadNave);
+            naveAmiga.mover(naveAmiga.getDir(),velocidadNave, delta);
 
             //SE MUEVE EL ESCUADRÓN
-            batallon.mover(anchoPantalla,altoPantalla,20);
+            batallon.mover(anchoPantalla,altoPantalla,20, delta);
 
             //gestiono todos los disparos
             //Los amigos
-            naveAmiga.gestionarMisDisparos(altoPantalla);
+            naveAmiga.gestionarMisDisparos(altoPantalla, delta);
 
             //Los enemigos
-            gestioanrDisparosBatallon( batallon, 0);
+            gestioanrDisparosBatallon( batallon, 0, delta);
         }
     }
 
@@ -191,12 +255,12 @@ public class Controlador {
         }
     }
 
-    public void gestioanrDisparosBatallon(Batallon batallon, float limiteSuperior){
+    public void gestioanrDisparosBatallon(Batallon batallon, float limiteSuperior, float delta){
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (Escuadron escuadron : escuadrones) {
             NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
             for (NaveEne naveEne : navesEnemigas) {
-                naveEne.gestionarMisDisparos(limiteSuperior);
+                naveEne.gestionarMisDisparos(limiteSuperior, delta);
             }
         }
     }

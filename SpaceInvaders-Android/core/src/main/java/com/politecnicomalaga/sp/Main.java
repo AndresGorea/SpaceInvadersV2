@@ -54,7 +54,7 @@ public class Main extends ApplicationAdapter {
         }
 
         //Control de estado
-        Controlador.getInstance().simulaMundo(anchoPantalla,altoPantalla);
+        Controlador.getInstance().simulaMundo(anchoPantalla,altoPantalla, Gdx.graphics.getDeltaTime());
 
 
         //Pintar el mundo

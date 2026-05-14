@@ -45,13 +45,13 @@ public class NaveEne extends Nave{
     }
     //Gestionar la salida de la pantalla de los disparos (Delete)
     @Override
-    public void gestionarMisDisparos(float limiteInferior) {
+    public void gestionarMisDisparos(float limiteInferior, float delta) {
         for (int i = misDisparos.size() - 1 ; i >= 0; i--){//Recorremos el array al reves para no liarla con los indices
             DisparoEne d = misDisparos.get(i);
 
             //Si el disparo esta vivo es decir no ha colisionado lo movemos
             if (d.getEstado() == Estado.VIVO){
-                d.mover(Direccion.ABAJO, getVelocidadBala());
+                d.mover(Direccion.ABAJO, getVelocidadBala(), delta);
                 d.desaparecer(limiteInferior); //Preguntamos si se ha salido de la pantalla y este setea el estado a muerto
             }
             if (d.getEstado() == Estado.MUERTO) misDisparos.remove(i); //Lo eliminamos si la comprobación de desaparecer de la pantalla ya nos da que esta Muerto
