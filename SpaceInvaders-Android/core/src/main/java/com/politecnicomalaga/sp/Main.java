@@ -3,6 +3,7 @@ package com.politecnicomalaga.sp;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.politecnicomalaga.sp.control.Controlador;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
+    private BitmapFont font;
 
     private float anchoPantalla,altoPantalla;
 
@@ -24,6 +26,8 @@ public class Main extends ApplicationAdapter {
     @Override
     public void create() {
         batch = new SpriteBatch();
+        font = new BitmapFont();
+        font.getData().setScale(2f);
         galeriaImagenes = new HashMap<>();
 
         image = new Texture("enemigo1.png");
@@ -60,12 +64,14 @@ public class Main extends ApplicationAdapter {
         //Pintar el mundo
         batch.begin();
         Controlador.getInstance().pintar(batch, galeriaImagenes);
+        Controlador.getInstance().pintarHUD(batch, galeriaImagenes, font, anchoPantalla, altoPantalla);
         batch.end();
     }
 
     @Override
     public void dispose() {
         batch.dispose();
+        font.dispose();
         for (Texture imagen : galeriaImagenes.values()) {
             imagen.dispose();
         }
