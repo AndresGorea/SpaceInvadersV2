@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
+import com.politecnicomalaga.sp.util.Assets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -243,7 +244,7 @@ public class MainMenuScreen implements Screen {
 
         for (int i = 0; i < 4; i++) {
             String texName = textures[MathUtils.random(0, textures.length - 1)];
-            Texture tex = game.getGaleriaImagenes().get(texName);
+            Texture tex = Assets.getInstance().getTexture(texName);
             floatingEntities.add(new FloatingEntity(new TextureRegion(tex)));
         }
     }
