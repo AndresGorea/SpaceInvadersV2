@@ -36,7 +36,7 @@ public class Controlador {
         if (gameState.isJugando()) {
             // Actualizar lógica del mundo
             worldManager.update(anchoPantalla, altoPantalla, delta);
-            
+
             // Comprobar colisiones
             collisionManager.checkCollisions(worldManager, gameState);
 
@@ -47,11 +47,11 @@ public class Controlador {
         }
     }
 
-    public void pintar(SpriteBatch batch, Map<String, Texture> galeriaImagenes) {
+    public void pintar(SpriteBatch batch) {
         worldRenderer.render(batch, worldManager);
     }
 
-    public void pintarHUD(SpriteBatch batch, Map<String, Texture> galeriaImagenes, BitmapFont font, float anchoPantalla, float altoPantalla) {
+    public void pintarHUD(SpriteBatch batch, BitmapFont font, float anchoPantalla, float altoPantalla) {
         worldRenderer.renderHUD(batch, gameState, font, anchoPantalla, altoPantalla);
     }
 

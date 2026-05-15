@@ -41,8 +41,8 @@ public class GameScreen implements Screen {
 
         //Pintar el mundo
         game.getBatch().begin();
-        Controlador.getInstance().pintar(game.getBatch(), null);
-        Controlador.getInstance().pintarHUD(game.getBatch(), null, game.getFont(), anchoPantalla, altoPantalla);
+        Controlador.getInstance().pintar(game.getBatch());
+        Controlador.getInstance().pintarHUD(game.getBatch(), game.getFont(), anchoPantalla, altoPantalla);
         game.getBatch().end();
     }
 
