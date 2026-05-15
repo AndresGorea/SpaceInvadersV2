@@ -5,6 +5,10 @@ import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.Ovni;
 
+/**
+ * Clase que gestiona la existencia y el comportamiento de todos los objetos en el mundo de juego.
+ * Controla el ciclo de vida, movimiento y acciones (como disparar) de naves y batallones.
+ */
 public class GestorMundo {
     private NaveAmi naveAmiga;
     private Batallon batallon;
@@ -17,7 +21,11 @@ public class GestorMundo {
         inicializarMundo();
     }
 
+    /**
+     * Configura la posición inicial y parámetros de las entidades al comenzar el juego.
+     */
     private void inicializarMundo() {
+        // Posicionamiento de la nave del jugador (centrada horizontalmente)
         float naveInicioX = (Gdx.graphics.getWidth() / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
         float naveInicioY = 10f;
 
@@ -31,6 +39,7 @@ public class GestorMundo {
             ConfiguracionJuego.BALA_AMI_ANCHO, ConfiguracionJuego.BALA_AMI_ALTO, ConfiguracionJuego.BALA_AMI_VELOCIDAD
         );
 
+        // Posicionamiento inicial del batallón enemigo
         float batInicioX = 20f;
         float batInicioY = Gdx.graphics.getHeight() - 40f;
 
@@ -48,22 +57,28 @@ public class GestorMundo {
         );
     }
 
+    /**
+     * Actualiza el estado de todas las entidades del juego basándose en el tiempo transcurrido.
+     * @param anchoPantalla Límite horizontal para el movimiento.
+     * @param altoPantalla Límite vertical para proyectiles.
+     * @param delta Tiempo desde el último frame.
+     */
     public void actualizar(float anchoPantalla, float altoPantalla, float delta) {
-        // Disparos Amigos
+        // Gestión de disparos automáticos del jugador según cadencia
         contadorTiempoAmigo += delta;
         if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
             naveAmiga.disparar();
             contadorTiempoAmigo = 0f;
         }
 
-        // Disparos Enemigos
+        // Gestión de disparos del batallón enemigo
         contadorTiempoEnemigo += delta;
         if (contadorTiempoEnemigo >= ConfiguracionJuego.ENE_CADENCIA) {
             batallon.disparar();
             contadorTiempoEnemigo = 0f;
         }
 
-        // Movimiento Nave Amiga
+        // Control de límites y movimiento de la nave amiga
         if (naveAmiga.getX() > anchoPantalla - naveAmiga.getWidth()) {
             naveAmiga.setX(anchoPantalla - naveAmiga.getWidth());
             naveAmiga.setDir(Ovni.Direccion.NOMOVER);
@@ -74,14 +89,18 @@ public class GestorMundo {
         }
         naveAmiga.mover(naveAmiga.getDir(), ConfiguracionJuego.NAVE_VELOCIDAD, delta);
 
-        // Movimiento Batallón
+        // Movimiento de la formación enemiga
         batallon.mover(anchoPantalla, altoPantalla, 20f, delta);
 
-        // Gestión de disparos
+        // Actualización de la posición de los proyectiles en pantalla
         naveAmiga.gestionarMisDisparos(altoPantalla, delta);
         batallon.gestionarDisparos(0f, delta);
     }
 
+    /**
+     * Cambia la dirección de movimiento de la nave del jugador según el punto de toque.
+     * @param x Coordenada X donde el usuario ha pulsado.
+     */
     public void cambiarSentidoNaveAmiga(float x) {
         if (x > naveAmiga.getX() && naveAmiga.getDir() != Ovni.Direccion.DERECHA) {
             naveAmiga.setDir(Ovni.Direccion.DERECHA);

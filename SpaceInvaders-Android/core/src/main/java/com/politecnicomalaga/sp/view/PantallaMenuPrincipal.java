@@ -27,13 +27,17 @@ import com.politecnicomalaga.sp.util.Recursos;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Pantalla de inicio del juego que presenta el menú principal
+ * Incluye efectos visuales de fondo como estrellas parallax y entidades flotantes.
+ */
 public class PantallaMenuPrincipal implements Screen {
 
     private final Main juego;
-    private Stage escenario;
+    private Stage escenario; // Contenedor para actores de la UI (Scene2D)
     private Skin apariencia;
 
-    // Elementos de fondo
+    // Elementos visuales de fondo
     private List<Estrella> estrellas;
     private Texture texturaEstrella1, texturaEstrella2, texturaEstrella3;
     private List<EntidadFlotante> entidadesFlotantes;
@@ -43,22 +47,24 @@ public class PantallaMenuPrincipal implements Screen {
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
 
+        // Inicialización de estética y elementos de fondo
         crearAparienciaBasica();
         crearEstrellas();
         crearEntidadesFlotantes();
 
+        // Estructura de la interfaz mediante una tabla de Scene2D
         Table tabla = new Table();
         tabla.setFillParent(true);
         escenario.addActor(tabla);
 
         // --- TÍTULO ---
-        Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc")); // Cyan-green
+        Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
         Label etiquetaTitulo = new Label("SPACE INVADERS", estiloTitulo);
         etiquetaTitulo.setFontScale(3.0f);
         etiquetaTitulo.setAlignment(Align.center);
         etiquetaTitulo.setOrigin(Align.center);
 
-        // Animación pulsante para el título
+        // Animación de escala pulsante para el título
         etiquetaTitulo.addAction(Actions.forever(
             Actions.sequence(
                 Actions.scaleTo(3.2f, 3.2f, 1.5f),
@@ -66,23 +72,16 @@ public class PantallaMenuPrincipal implements Screen {
             )
         ));
 
-        // --- SUBTÍTULO ---
-        Label.LabelStyle estiloSubtitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa"));
-        Label etiquetaSubtitulo = new Label("EDICIÓN ARCADE", estiloSubtitulo);
-        etiquetaSubtitulo.setFontScale(1.2f);
-        etiquetaSubtitulo.setAlignment(Align.center);
-
         // --- BOTONES ---
         TextButton botonIniciar = crearBotonAnimado("INICIAR");
         TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
         TextButton botonInfo = crearBotonAnimado("INFORMACIÓN");
         TextButton botonSalir = crearBotonAnimado("SALIR");
 
-        // Acciones de botones
+        // Acción para el botón Iniciar: transitar a la pantalla de juego
         botonIniciar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                // Pequeño retraso antes de cambiar de pantalla para que el efecto de clic termine
                 escenario.addAction(Actions.sequence(
                     Actions.delay(0.1f),
                     Actions.run(new Runnable() {
@@ -94,18 +93,8 @@ public class PantallaMenuPrincipal implements Screen {
                 ));
             }
         });
-        botonOpciones.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Opciones clickeado");
-            }
-        });
-        botonInfo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Información clickeado");
-            }
-        });
+
+        // Acción para el botón Salir: cerrar la aplicación
         botonSalir.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -121,9 +110,9 @@ public class PantallaMenuPrincipal implements Screen {
             }
         });
 
-        // --- DISEÑO ---
+        // Configuración del layout de la tabla
         tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(etiquetaSubtitulo).padBottom(50).row();
+        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(50).row();
 
         float anchoBoton = 300f;
         float altoBoton = 60f;
@@ -135,16 +124,19 @@ public class PantallaMenuPrincipal implements Screen {
         tabla.add(botonSalir).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
     }
 
+    /**
+     * Crea un botón con comportamientos reactivos al pasar el ratón o hacer click.
+     */
     private TextButton crearBotonAnimado(String texto) {
         final TextButton boton = new TextButton(texto, apariencia);
-        boton.setTransform(true); // Requerido para escalar/rotar
+        boton.setTransform(true);
         boton.setOrigin(Align.center);
 
         boton.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 super.enter(event, x, y, pointer, fromActor);
-                if (pointer == -1) { // Solo disparar al entrar el ratón, no al arrastrar el toque
+                if (pointer == -1) {
                     boton.clearActions();
                     boton.addAction(Actions.scaleTo(1.1f, 1.1f, 0.1f));
                 }
@@ -158,24 +150,47 @@ public class PantallaMenuPrincipal implements Screen {
                     boton.addAction(Actions.scaleTo(1f, 1f, 0.1f));
                 }
             }
-
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int buttonKey) {
-                boton.clearActions();
-                boton.addAction(Actions.scaleTo(0.9f, 0.9f, 0.05f));
-                return super.touchDown(event, x, y, pointer, buttonKey);
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int buttonKey) {
-                super.touchUp(event, x, y, pointer, buttonKey);
-                boton.clearActions();
-                boton.addAction(Actions.scaleTo(1.1f, 1.1f, 0.05f));
-            }
         });
         return boton;
     }
 
+    /**
+     * Dibuja los elementos estéticos de fondo (estrellas y naves flotantes).
+     */
+    private void actualizarYDibujarFondo(float delta) {
+        juego.getLote().begin();
+
+        // Efecto de estrellas con tres niveles de profundidad (parallax)
+        for (Estrella estrella : estrellas) {
+            estrella.y -= estrella.velocidad * delta;
+            if (estrella.y < 0) {
+                estrella.y = Gdx.graphics.getHeight();
+                estrella.x = MathUtils.random(0, Gdx.graphics.getWidth());
+            }
+
+            Texture tex = (estrella.capa == 1) ? texturaEstrella1 : (estrella.capa == 2 ? texturaEstrella2 : texturaEstrella3);
+            juego.getLote().draw(tex, estrella.x, estrella.y);
+        }
+
+        // Dibujar naves enemigas/jugador que flotan de forma aleatoria
+        for (EntidadFlotante entidad : entidadesFlotantes) {
+            entidad.actualizar(delta);
+            juego.getLote().draw(
+                entidad.regionTextura,
+                entidad.x, entidad.y,
+                entidad.ancho / 2f, entidad.alto / 2f,
+                entidad.ancho, entidad.alto,
+                1f, 1f,
+                entidad.rotacion
+            );
+        }
+
+        juego.getLote().end();
+    }
+
+    /**
+     * Define la apariencia visual de los componentes de la interfaz.
+     */
     private void crearAparienciaBasica() {
         apariencia = new Skin();
 
@@ -198,6 +213,9 @@ public class PantallaMenuPrincipal implements Screen {
         apariencia.add("default", estiloTextoBoton);
     }
 
+    /**
+     * Genera una textura procedimental para los botones.
+     */
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
         int ancho = 300;
         int alto = 60;
@@ -216,19 +234,25 @@ public class PantallaMenuPrincipal implements Screen {
         return textura;
     }
 
+    /**
+     * Genera el conjunto inicial de estrellas para el fondo.
+     */
     private void crearEstrellas() {
         estrellas = new ArrayList<>();
 
         // 3 capas de estrellas parallax
-        texturaEstrella1 = crearTexturaEstrella(1, Color.valueOf("444444")); // Lejos (lento, oscuro)
-        texturaEstrella2 = crearTexturaEstrella(2, Color.valueOf("888888")); // Medio (medio, gris)
-        texturaEstrella3 = crearTexturaEstrella(3, Color.valueOf("ffffff")); // Cerca (rápido, blanco)
+        texturaEstrella1 = crearTexturaEstrella(1, Color.valueOf("444444"));
+        texturaEstrella2 = crearTexturaEstrella(2, Color.valueOf("888888"));
+        texturaEstrella3 = crearTexturaEstrella(3, Color.valueOf("ffffff"));
 
         for (int i = 0; i < 80; i++) estrellas.add(new Estrella(1));
         for (int i = 0; i < 40; i++) estrellas.add(new Estrella(2));
         for (int i = 0; i < 20; i++) estrellas.add(new Estrella(3));
     }
 
+    /**
+     * Crea una textura pequeña para representar una estrella.
+     */
     private Texture crearTexturaEstrella(int tamano, Color color) {
         Pixmap pixmap = new Pixmap(tamano, tamano, Pixmap.Format.RGBA8888);
         pixmap.setColor(color);
@@ -238,6 +262,9 @@ public class PantallaMenuPrincipal implements Screen {
         return tex;
     }
 
+    /**
+     * Inicializa las naves que flotan decorativamente en el menú.
+     */
     private void crearEntidadesFlotantes() {
         entidadesFlotantes = new ArrayList<>();
         String[] texturas = {"enemigo1.png", "enemigo2.png", "naveJugador.png"};
@@ -247,40 +274,6 @@ public class PantallaMenuPrincipal implements Screen {
             Texture tex = Recursos.getInstancia().getTextura(nombreTex);
             entidadesFlotantes.add(new EntidadFlotante(new TextureRegion(tex)));
         }
-    }
-
-    private void actualizarYDibujarFondo(float delta) {
-        juego.getLote().begin();
-
-        // Dibujar estrellas parallax
-        for (Estrella estrella : estrellas) {
-            estrella.y -= estrella.velocidad * delta;
-            if (estrella.y < 0) {
-                estrella.y = Gdx.graphics.getHeight();
-                estrella.x = MathUtils.random(0, Gdx.graphics.getWidth());
-            }
-
-            Texture tex = texturaEstrella1;
-            if (estrella.capa == 2) tex = texturaEstrella2;
-            else if (estrella.capa == 3) tex = texturaEstrella3;
-
-            juego.getLote().draw(tex, estrella.x, estrella.y);
-        }
-
-        // Dibujar entidades flotantes (con rotación y onda sinusoidal)
-        for (EntidadFlotante entidad : entidadesFlotantes) {
-            entidad.actualizar(delta);
-            juego.getLote().draw(
-                entidad.regionTextura,
-                entidad.x, entidad.y,
-                entidad.ancho / 2f, entidad.alto / 2f, // origen para rotación
-                entidad.ancho, entidad.alto,
-                1f, 1f, // escala
-                entidad.rotacion
-            );
-        }
-
-        juego.getLote().end();
     }
 
     @Override
@@ -327,21 +320,32 @@ public class PantallaMenuPrincipal implements Screen {
 
     // --- Clases Auxiliares ---
 
+    /**
+     * Representa una estrella individual en el fondo con efecto parallax.
+     */
     private class Estrella {
         float x, y, velocidad;
         int capa;
 
+        /**
+         * Crea una estrella en una capa específica con velocidad aleatoria.
+         * @param capa Nivel de profundidad (1 lejos, 3 cerca).
+         */
         public Estrella(int capa) {
             this.capa = capa;
             this.x = MathUtils.random(0, Gdx.graphics.getWidth());
             this.y = MathUtils.random(0, Gdx.graphics.getHeight());
 
+            // La velocidad depende de la capa para crear el efecto de profundidad
             if (capa == 1) velocidad = MathUtils.random(10, 30);
             else if (capa == 2) velocidad = MathUtils.random(40, 70);
             else velocidad = MathUtils.random(90, 150);
         }
     }
 
+    /**
+     * Entidad decorativa que flota en el menú con movimiento sinusoidal y rotación.
+     */
     private class EntidadFlotante {
         TextureRegion regionTextura;
         float x, y, velocidadX;
@@ -356,22 +360,30 @@ public class PantallaMenuPrincipal implements Screen {
             reiniciarPosicion();
         }
 
+        /**
+         * Actualiza la posición y rotación de la entidad.
+         */
         public void actualizar(float delta) {
             x += velocidadX * delta;
 
-            // Movimiento de onda sinusoidal en el eje Y
+            // Movimiento oscilante en el eje Y usando la función seno
             tiempoSeno += delta;
             y = baseY + MathUtils.sin(tiempoSeno * frecuenciaSeno) * amplitudSeno;
 
-            // Rotación
+            // Rotación constante
             rotacion += velocidadRotacion * delta;
 
+            // Si sale de la pantalla por los lados, se reinicia
             if (x > Gdx.graphics.getWidth() + 100 || x < -100) {
                 reiniciarPosicion();
             }
         }
 
+        /**
+         * Reinicia la entidad con valores aleatorios para variar el movimiento.
+         */
         private void reiniciarPosicion() {
+            // Decide si aparece por la izquierda o por la derecha
             if (MathUtils.randomBoolean()) {
                 x = -ancho;
                 velocidadX = MathUtils.random(40, 120);
@@ -379,11 +391,14 @@ public class PantallaMenuPrincipal implements Screen {
                 x = Gdx.graphics.getWidth();
                 velocidadX = MathUtils.random(-120, -40);
             }
+            
+            // Valores para la oscilación sinusoidal
             baseY = MathUtils.random(50, Gdx.graphics.getHeight() - 50);
             tiempoSeno = MathUtils.random(0, 10);
             amplitudSeno = MathUtils.random(20, 80);
             frecuenciaSeno = MathUtils.random(1f, 3f);
 
+            // Valores para la rotación
             rotacion = MathUtils.random(0, 360);
             velocidadRotacion = MathUtils.random(-50, 50);
         }

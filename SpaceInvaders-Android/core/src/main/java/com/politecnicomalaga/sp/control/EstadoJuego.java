@@ -1,10 +1,18 @@
 package com.politecnicomalaga.sp.control;
 
+/**
+ * Clase que encapsula el estado persistente del juego durante una sesión.
+ * Mantiene información sobre si la partida sigue activa, la puntuación y las vidas restantes.
+ */
 public class EstadoJuego {
     private boolean jugando;
     private int puntuacion;
     private int vidas;
 
+    /**
+     * Constructor de EstadoJuego.
+     * @param vidasIniciales Número de vidas con las que comienza el jugador.
+     */
     public EstadoJuego(int vidasIniciales) {
         this.jugando = true;
         this.puntuacion = 0;
@@ -23,6 +31,10 @@ public class EstadoJuego {
         return puntuacion;
     }
 
+    /**
+     * Incrementa la puntuación actual.
+     * @param puntos Cantidad de puntos a sumar.
+     */
     public void addPuntuacion(int puntos) {
         this.puntuacion += puntos;
     }
@@ -35,6 +47,9 @@ public class EstadoJuego {
         this.vidas = vidas;
     }
 
+    /**
+     * Reduce una vida al jugador. Si las vidas llegan a cero, finaliza el juego.
+     */
     public void perderVida() {
         this.vidas--;
         if (this.vidas <= 0) {

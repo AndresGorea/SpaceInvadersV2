@@ -6,18 +6,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.politecnicomalaga.sp.util.Recursos;
 import com.politecnicomalaga.sp.view.PantallaMenuPrincipal;
 
-/** Implementación de {@link com.badlogic.gdx.ApplicationListener} compartida por todas las plataformas. */
+/** 
+ * Clase principal del juego que extiende de {@link com.badlogic.gdx.Game}.
+ * Se encarga de la inicialización de recursos globales y la gestión de pantallas.
+ */
 public class Main extends Game {
     private SpriteBatch lote;
     private BitmapFont fuente;
 
     @Override
     public void create() {
+        // Inicialización del lote de dibujo y fuente de texto
         lote = new SpriteBatch();
         fuente = new BitmapFont();
         fuente.getData().setScale(2f);
 
-        // Cargar texturas a través de Recursos
+        // Registro y carga de texturas base del juego
         Recursos recursos = Recursos.getInstancia();
         recursos.cargarTextura("enemigo1.png");
         recursos.cargarTextura("enemigo2.png");
@@ -25,16 +29,19 @@ public class Main extends Game {
         recursos.cargarTextura("disparoAmi.png");
         recursos.cargarTextura("disparoEne.png");
 
+        // Inicio del juego con la pantalla del menú principal
         this.setScreen(new PantallaMenuPrincipal(this));
     }
 
     @Override
     public void render() {
-        super.render(); // ¡importante!
+        // Delega el renderizado a la pantalla activa
+        super.render();
     }
 
     @Override
     public void dispose() {
+        // Liberación de recursos de memoria al cerrar la aplicación
         lote.dispose();
         fuente.dispose();
         Recursos.getInstancia().dispose();

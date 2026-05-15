@@ -15,16 +15,25 @@ import com.politecnicomalaga.sp.util.Recursos;
 
 import java.util.List;
 
+/**
+ * Clase especializada en el dibujo de las entidades del modelo en la pantalla.
+ * Separa la lógica de representación visual del estado del juego.
+ */
 public class RenderizadorMundo {
 
+    /**
+     * Dibuja todos los objetos del mundo (naves, enemigos, disparos).
+     * @param lote El SpriteBatch donde se realiza el dibujo.
+     * @param mundo El gestor del mundo que contiene las entidades a dibujar.
+     */
     public void renderizar(SpriteBatch lote, GestorMundo mundo) {
         Recursos recursos = Recursos.getInstancia();
         
-        // Pintar naveAmiga
+        // 1. Dibujar la nave del jugador
         NaveAmi naveAmiga = mundo.getNaveAmiga();
         lote.draw(recursos.getTextura(naveAmiga.getTextura()), naveAmiga.getX(), naveAmiga.getY(), naveAmiga.getWidth(), naveAmiga.getHeight());
 
-        // Pintar navesEnemigas y sus disparos
+        // 2. Dibujar el batallón de enemigos y sus proyectiles activos
         Batallon batallon = mundo.getBatallon();
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (Escuadron esc : escuadrones) {
@@ -40,7 +49,7 @@ public class RenderizadorMundo {
             }
         }
 
-        // Pintar disparosAmigos
+        // 3. Dibujar los proyectiles disparados por el jugador
         List<DisparoAmi> disparosAmigos = naveAmiga.getMisDisparos();
         for (DisparoAmi dispAmi : disparosAmigos) {
             if (dispAmi.estaVivo()) {
@@ -49,13 +58,21 @@ public class RenderizadorMundo {
         }
     }
 
+    /**
+     * Dibuja la interfaz de usuario superpuesta al juego.
+     * @param lote El SpriteBatch para el dibujo.
+     * @param estado Estado actual del juego (puntos, vidas).
+     * @param fuente Fuente para el texto.
+     * @param anchoPantalla Ancho para cálculos de posición.
+     * @param altoPantalla Alto para cálculos de posición.
+     */
     public void renderizarHUD(SpriteBatch lote, EstadoJuego estado, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
         Recursos recursos = Recursos.getInstancia();
         
-        // Pintar Puntuación
+        // Dibujar texto de puntuación en la esquina superior izquierda
         fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 20);
 
-        // Pintar Vidas
+        // Dibujar iconos de naves representando las vidas en la esquina superior derecha
         float tamanoIcono = 30f;
         float margen = 10f;
         for (int i = 0; i < estado.getVidas(); i++) {
