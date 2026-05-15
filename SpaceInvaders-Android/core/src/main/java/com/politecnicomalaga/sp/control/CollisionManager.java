@@ -19,18 +19,15 @@ public class CollisionManager {
     }
 
     private void checkPlayerHit(Batallon batallon, NaveAmi naveAmiga, GameState state) {
-        int vidasAntes = naveAmiga.getVidas();
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (Escuadron escuadron : escuadrones) {
             NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
             for (NaveEne naveEne : navesEnemigas) {
                 List<DisparoEne> disparosEnes = naveEne.getMisDisparos();
                 for (DisparoEne disparoEne : disparosEnes) {
-                    if (disparoEne.comprobarColision(naveAmiga)) {
-                        state.setVidas(naveAmiga.getVidas());
-                        if (naveAmiga.getVidas() <= 0) {
-                            state.setJugando(false);
-                        }
+                    if (disparoEne.getEstado() == Ovni.Estado.VIVO && disparoEne.comprobarColision(naveAmiga)) {
+                        state.perderVida();
+                        disparoEne.setEstado(Ovni.Estado.MUERTO);
                     }
                 }
             }
@@ -44,6 +41,7 @@ public class CollisionManager {
                 NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
                 if (disparoAmi.comprobarColision(navesEnemigas)) {
                     state.addPuntuacion(10);
+                    disparoAmi.setEstado(Ovni.Estado.MUERTO);
                 }
             }
         }
@@ -55,9 +53,8 @@ public class CollisionManager {
             NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
             for (NaveEne naveEne : navesEnemigas) {
                 if (naveEne.estaVivo() && naveEne.colision(naveAmiga)) {
-                    naveEne.setEstado(Ovni.Estado.MUERTO);
+                    naveEne.recibirDisparo();
                     state.perderVida();
-                    naveAmiga.setVidas(state.getVidas());
                 }
             }
         }
