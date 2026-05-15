@@ -61,10 +61,8 @@ public class Escuadron {
         }
     }
     public void gestionarDisparosEnemigos(float limiteInferior, float delta) {
-        for (NaveEne naveEne :navesEnemigas) {
-            if (naveEne.estaVivo()) {
-                naveEne.gestionarMisDisparos(limiteInferior, delta);
-            }
+        for (NaveEne naveEne : navesEnemigas) {
+            naveEne.gestionarMisDisparos(limiteInferior, delta);
         }
     }
     public boolean tieneNavesVivas(){
