@@ -10,15 +10,15 @@ import com.politecnicomalaga.sp.model.Ovni;
 
 import java.util.List;
 
-public class CollisionManager {
+public class GestorColisiones {
 
-    public void checkCollisions(WorldManager world, GameState state) {
-        checkPlayerHit(world.getBatallon(), world.getNaveAmiga(), state);
-        checkEnemiesHit(world.getBatallon(), world.getNaveAmiga().getMisDisparos(), state);
-        checkPlayerEnemiesCollision(world.getBatallon(), world.getNaveAmiga(), state);
+    public void comprobarColisiones(GestorMundo mundo, EstadoJuego estado) {
+        comprobarImpactoJugador(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
+        comprobarImpactoEnemigos(mundo.getBatallon(), mundo.getNaveAmiga().getMisDisparos(), estado);
+        comprobarColisionJugadorEnemigos(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
     }
 
-    private void checkPlayerHit(Batallon batallon, NaveAmi naveAmiga, GameState state) {
+    private void comprobarImpactoJugador(Batallon batallon, NaveAmi naveAmiga, EstadoJuego estado) {
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (Escuadron escuadron : escuadrones) {
             NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
@@ -26,7 +26,7 @@ public class CollisionManager {
                 List<DisparoEne> disparosEnes = naveEne.getMisDisparos();
                 for (DisparoEne disparoEne : disparosEnes) {
                     if (disparoEne.getEstado() == Ovni.Estado.VIVO && disparoEne.comprobarColision(naveAmiga)) {
-                        state.perderVida();
+                        estado.perderVida();
                         disparoEne.setEstado(Ovni.Estado.MUERTO);
                     }
                 }
@@ -34,27 +34,27 @@ public class CollisionManager {
         }
     }
 
-    private void checkEnemiesHit(Batallon batallon, List<DisparoAmi> disparosAmis, GameState state) {
+    private void comprobarImpactoEnemigos(Batallon batallon, List<DisparoAmi> disparosAmis, EstadoJuego estado) {
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (DisparoAmi disparoAmi : disparosAmis) {
             for (Escuadron escuadron : escuadrones) {
                 NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
                 if (disparoAmi.comprobarColision(navesEnemigas)) {
-                    state.addPuntuacion(10);
+                    estado.addPuntuacion(10);
                     disparoAmi.setEstado(Ovni.Estado.MUERTO);
                 }
             }
         }
     }
 
-    private void checkPlayerEnemiesCollision(Batallon batallon, NaveAmi naveAmiga, GameState state) {
+    private void comprobarColisionJugadorEnemigos(Batallon batallon, NaveAmi naveAmiga, EstadoJuego estado) {
         Escuadron[] escuadrones = batallon.getEscuadrones();
         for (Escuadron escuadron : escuadrones) {
             NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
             for (NaveEne naveEne : navesEnemigas) {
                 if (naveEne.estaVivo() && naveEne.colision(naveAmiga)) {
                     naveEne.recibirDisparo();
-                    state.perderVida();
+                    estado.perderVida();
                 }
             }
         }

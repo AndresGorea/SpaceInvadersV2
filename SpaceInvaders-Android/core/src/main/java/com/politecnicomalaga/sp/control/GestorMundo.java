@@ -5,60 +5,60 @@ import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.Ovni;
 
-public class WorldManager {
+public class GestorMundo {
     private NaveAmi naveAmiga;
     private Batallon batallon;
     private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
 
-    public WorldManager() {
+    public GestorMundo() {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
         inicializarMundo();
     }
 
     private void inicializarMundo() {
-        float naveInicioX = (Gdx.graphics.getWidth() / 2f) - (GameConfig.NAVE_ANCHO / 2f);
+        float naveInicioX = (Gdx.graphics.getWidth() / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
         float naveInicioY = 10f;
 
         this.naveAmiga = new NaveAmi(
-            naveInicioX, naveInicioY, GameConfig.NAVE_ANCHO, GameConfig.NAVE_ALTO,
+            naveInicioX, naveInicioY, ConfiguracionJuego.NAVE_ANCHO, ConfiguracionJuego.NAVE_ALTO,
             Ovni.Estado.VIVO,
             Ovni.Direccion.NOMOVER,
             "naveJugador.png",
-            GameConfig.NAVE_VIDAS,
-            GameConfig.NAVE_CADENCIA,
-            GameConfig.BALA_AMI_ANCHO, GameConfig.BALA_AMI_ALTO, GameConfig.BALA_AMI_VELOCIDAD
+            ConfiguracionJuego.NAVE_VIDAS,
+            ConfiguracionJuego.NAVE_CADENCIA,
+            ConfiguracionJuego.BALA_AMI_ANCHO, ConfiguracionJuego.BALA_AMI_ALTO, ConfiguracionJuego.BALA_AMI_VELOCIDAD
         );
 
         float batInicioX = 20f;
         float batInicioY = Gdx.graphics.getHeight() - 40f;
 
         this.batallon = new Batallon(
-            batInicioX, batInicioY, GameConfig.BAT_ESPACIO_VERT,
-            GameConfig.ENE_ANCHO, GameConfig.ENE_ALTO,
+            batInicioX, batInicioY, ConfiguracionJuego.BAT_ESPACIO_VERT,
+            ConfiguracionJuego.ENE_ANCHO, ConfiguracionJuego.ENE_ALTO,
             Ovni.Estado.VIVO,
             Ovni.Direccion.DERECHA,
             "enemigo1.png",
-            GameConfig.ENE_VIDAS,
-            GameConfig.ENE_CADENCIA,
-            GameConfig.BALA_ENE_ANCHO, GameConfig.BALA_ENE_ALTO, GameConfig.BALA_ENE_VELOCIDAD,
-            GameConfig.ENE_PROB_DISPARO,
-            GameConfig.BAT_ESPACIO_HORIZ, GameConfig.BAT_VELOCIDAD
+            ConfiguracionJuego.ENE_VIDAS,
+            ConfiguracionJuego.ENE_CADENCIA,
+            ConfiguracionJuego.BALA_ENE_ANCHO, ConfiguracionJuego.BALA_ENE_ALTO, ConfiguracionJuego.BALA_ENE_VELOCIDAD,
+            ConfiguracionJuego.ENE_PROB_DISPARO,
+            ConfiguracionJuego.BAT_ESPACIO_HORIZ, ConfiguracionJuego.BAT_VELOCIDAD
         );
     }
 
-    public void update(float anchoPantalla, float altoPantalla, float delta) {
+    public void actualizar(float anchoPantalla, float altoPantalla, float delta) {
         // Disparos Amigos
         contadorTiempoAmigo += delta;
-        if (contadorTiempoAmigo >= GameConfig.NAVE_CADENCIA) {
+        if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
             naveAmiga.disparar();
             contadorTiempoAmigo = 0f;
         }
 
         // Disparos Enemigos
         contadorTiempoEnemigo += delta;
-        if (contadorTiempoEnemigo >= GameConfig.ENE_CADENCIA) {
+        if (contadorTiempoEnemigo >= ConfiguracionJuego.ENE_CADENCIA) {
             batallon.disparar();
             contadorTiempoEnemigo = 0f;
         }
@@ -72,7 +72,7 @@ public class WorldManager {
             naveAmiga.setX(0);
             naveAmiga.setDir(Ovni.Direccion.NOMOVER);
         }
-        naveAmiga.mover(naveAmiga.getDir(), GameConfig.NAVE_VELOCIDAD, delta);
+        naveAmiga.mover(naveAmiga.getDir(), ConfiguracionJuego.NAVE_VELOCIDAD, delta);
 
         // Movimiento Batallón
         batallon.mover(anchoPantalla, altoPantalla, 20f, delta);

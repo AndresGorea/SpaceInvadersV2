@@ -1,6 +1,8 @@
 package com.politecnicomalaga.sp.control;
 
-public class GameConfig {
+public class ConfiguracionJuego {
+    /// TODA LA CONFIGURACIÓN DE TAMAÑO Y VELOCIDAD ESTA EN PIXELES, Y PIXELES POR SEGUNDO
+
     /// CONFIGURACIÓN: NAVE AMIGA
     public static final float NAVE_ANCHO = 60f;
     public static final float NAVE_ALTO = 60f;

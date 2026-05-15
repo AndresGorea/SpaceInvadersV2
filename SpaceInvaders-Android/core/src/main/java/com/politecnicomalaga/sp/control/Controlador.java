@@ -3,64 +3,71 @@ package com.politecnicomalaga.sp.control;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.politecnicomalaga.sp.view.WorldRenderer;
+import com.politecnicomalaga.sp.view.RenderizadorMundo;
 import java.util.Map;
 
 public class Controlador {
     private static Controlador miSingle;
 
-    private WorldManager worldManager;
-    private CollisionManager collisionManager;
-    private GameState gameState;
-    private WorldRenderer worldRenderer;
+    //Atributos
+    private GestorMundo gestorMundo;
+    private GestorColisiones gestorColisiones;
+    private EstadoJuego estadoJuego;
+    private RenderizadorMundo renderizadorMundo;
 
+    //Constructor
     private Controlador() {
-        this.gameState = new GameState(GameConfig.NAVE_VIDAS);
-        this.worldManager = new WorldManager();
-        this.collisionManager = new CollisionManager();
-        this.worldRenderer = new WorldRenderer();
+        this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
+        this.gestorMundo = new GestorMundo();
+        this.gestorColisiones = new GestorColisiones();
+        this.renderizadorMundo = new RenderizadorMundo();
     }
 
-    public static Controlador getInstance() {
+    //implementación del singleton
+    public static Controlador getInstancia() {
         if (miSingle == null) {
             miSingle = new Controlador();
         }
         return miSingle;
     }
 
+    //Cambio de sentido
     public void click(float x, float y) {
-        worldManager.cambiarSentidoNaveAmiga(x);
+        gestorMundo.cambiarSentidoNaveAmiga(x);
     }
 
+    //Bucle de la lógica del juego
     public void simulaMundo(float anchoPantalla, float altoPantalla, float delta) {
-        if (gameState.isJugando()) {
+        if (estadoJuego.isJugando()) {
             // Actualizar lógica del mundo
-            worldManager.update(anchoPantalla, altoPantalla, delta);
+            gestorMundo.actualizar(anchoPantalla, altoPantalla, delta);
 
             // Comprobar colisiones
-            collisionManager.checkCollisions(worldManager, gameState);
+            gestorColisiones.comprobarColisiones(gestorMundo, estadoJuego);
 
             // Comprobar si se ha ganado
-            if (!worldManager.getBatallon().tieneTropas()) {
-                gameState.setJugando(false);
+            if (!gestorMundo.getBatallon().tieneTropas()) {
+                estadoJuego.setJugando(false);
             }
         }
     }
 
-    public void pintar(SpriteBatch batch) {
-        worldRenderer.render(batch, worldManager);
+    //Pintar el juego principal
+    public void pintar(SpriteBatch lote) {
+        renderizadorMundo.renderizar(lote, gestorMundo);
     }
 
-    public void pintarHUD(SpriteBatch batch, BitmapFont font, float anchoPantalla, float altoPantalla) {
-        worldRenderer.renderHUD(batch, gameState, font, anchoPantalla, altoPantalla);
+    //Pintar el HUD
+    public void pintarHUD(SpriteBatch lote, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
+        renderizadorMundo.renderizarHUD(lote, estadoJuego, fuente, anchoPantalla, altoPantalla);
     }
 
-    // Getters para acceso si es necesario (aunque se prefiere delegación)
-    public GameState getGameState() {
-        return gameState;
+    //Obtener estados
+    public EstadoJuego getEstadoJuego() {
+        return estadoJuego;
     }
 
-    public WorldManager getWorldManager() {
-        return worldManager;
+    public GestorMundo getGestorMundo() {
+        return gestorMundo;
     }
 }

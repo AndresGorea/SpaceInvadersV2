@@ -7,14 +7,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.Controlador;
 
-public class GameScreen implements Screen {
+public class PantallaJuego implements Screen {
 
-    private final Main game;
+    private final Main juego;
     private float anchoPantalla, altoPantalla;
     private float x, y;
 
-    public GameScreen(Main game) {
-        this.game = game;
+    public PantallaJuego(Main juego) {
+        this.juego = juego;
         anchoPantalla = Gdx.graphics.getWidth();
         altoPantalla = Gdx.graphics.getHeight();
     }
@@ -29,21 +29,21 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
-        //Control de entrada
+        // Control de entrada
         if(Gdx.input.justTouched()){
-            x= Gdx.input.getX();
-            y=Gdx.input.getY();
-            Controlador.getInstance().click(x,y);
+            x = Gdx.input.getX();
+            y = Gdx.input.getY();
+            Controlador.getInstancia().click(x, y);
         }
 
-        //Control de estado
-        Controlador.getInstance().simulaMundo(anchoPantalla,altoPantalla, delta);
+        // Control de estado
+        Controlador.getInstancia().simulaMundo(anchoPantalla, altoPantalla, delta);
 
-        //Pintar el mundo
-        game.getBatch().begin();
-        Controlador.getInstance().pintar(game.getBatch());
-        Controlador.getInstance().pintarHUD(game.getBatch(), game.getFont(), anchoPantalla, altoPantalla);
-        game.getBatch().end();
+        // Pintar el mundo
+        juego.getLote().begin();
+        Controlador.getInstancia().pintar(juego.getLote());
+        Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
+        juego.getLote().end();
     }
 
     @Override

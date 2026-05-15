@@ -1,11 +1,11 @@
 package com.politecnicomalaga.sp.control;
 
-public class GameState {
+public class EstadoJuego {
     private boolean jugando;
     private int puntuacion;
     private int vidas;
 
-    public GameState(int vidasIniciales) {
+    public EstadoJuego(int vidasIniciales) {
         this.jugando = true;
         this.puntuacion = 0;
         this.vidas = vidasIniciales;
