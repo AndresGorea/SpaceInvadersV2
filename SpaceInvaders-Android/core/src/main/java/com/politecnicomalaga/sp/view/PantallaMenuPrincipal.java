@@ -36,7 +36,8 @@ public class PantallaMenuPrincipal implements Screen {
         Gdx.input.setInputProcessor(escenario);
 
         crearAparienciaBasica();
-        fondoEfectos = new FondoEfectos();
+        // El menú principal sí muestra los ovnis flotantes
+        fondoEfectos = new FondoEfectos(true);
 
         Table tabla = new Table();
         tabla.setFillParent(true);

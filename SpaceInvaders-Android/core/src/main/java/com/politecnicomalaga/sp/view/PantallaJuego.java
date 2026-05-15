@@ -23,7 +23,8 @@ public class PantallaJuego implements Screen {
         this.juego = juego;
         anchoPantalla = Gdx.graphics.getWidth();
         altoPantalla = Gdx.graphics.getHeight();
-        fondoEfectos = new FondoEfectos();
+        // Desactivamos los ovnis flotantes en el fondo durante el juego
+        fondoEfectos = new FondoEfectos(false);
     }
 
     @Override

@@ -21,6 +21,7 @@ public class FondoEfectos {
     // Colecciones de elementos visuales
     private List<Estrella> estrellas;
     private List<EntidadFlotante> entidadesFlotantes;
+    private boolean mostrarEntidadesFlotantes;
     
     // Texturas generadas procedimentalmente para las estrellas
     private Texture texturaEstrella1, texturaEstrella2, texturaEstrella3;
@@ -28,9 +29,16 @@ public class FondoEfectos {
     /**
      * Inicializa los efectos de fondo creando las estrellas y entidades decorativas.
      */
-    public FondoEfectos() {
+    public FondoEfectos(boolean mostrarEntidadesFlotantes) {
+        this.mostrarEntidadesFlotantes = mostrarEntidadesFlotantes;
         crearEstrellas();
-        crearEntidadesFlotantes();
+        if (mostrarEntidadesFlotantes) {
+            crearEntidadesFlotantes();
+        }
+    }
+
+    public FondoEfectos() {
+        this(true);
     }
 
     /**
@@ -100,16 +108,18 @@ public class FondoEfectos {
         }
 
         // 2. Dibujar entidades flotantes con sus transformaciones
-        for (EntidadFlotante entidad : entidadesFlotantes) {
-            entidad.actualizar(delta);
-            lote.draw(
-                entidad.regionTextura,
-                entidad.x, entidad.y,
-                entidad.ancho / 2f, entidad.alto / 2f, // Origen en el centro para rotación
-                entidad.ancho, entidad.alto,
-                1f, 1f, // Escala sin cambios
-                entidad.rotacion
-            );
+        if (mostrarEntidadesFlotantes) {
+            for (EntidadFlotante entidad : entidadesFlotantes) {
+                entidad.actualizar(delta);
+                lote.draw(
+                    entidad.regionTextura,
+                    entidad.x, entidad.y,
+                    entidad.ancho / 2f, entidad.alto / 2f, // Origen en el centro para rotación
+                    entidad.ancho, entidad.alto,
+                    1f, 1f, // Escala sin cambios
+                    entidad.rotacion
+                );
+            }
         }
     }
 
