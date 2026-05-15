@@ -40,10 +40,21 @@ public class PantallaJuego implements Screen {
         ScreenUtils.clear(0.01f, 0.01f, 0.05f, 1f);
 
         // 1. Entrada
-        if(Gdx.input.justTouched()){
+        if (Gdx.input.justTouched()) {
             x = Gdx.input.getX();
             y = Gdx.input.getY();
-            Controlador.getInstancia().click(x, y);
+            if (Controlador.getInstancia().esAndroid()) {
+                // Zona de disparo: cuarto inferior derecho de la pantalla
+                boolean enZonaDisparo = x > anchoPantalla * 0.6f && y > altoPantalla * 0.7f;
+                if (enZonaDisparo) {
+                    Controlador.getInstancia().dispararNaveAmiga();
+                } else {
+                    Controlador.getInstancia().click(x, y);
+                }
+            } else {
+                // En PC el toque del ratón también mueve
+                Controlador.getInstancia().click(x, y);
+            }
         }
 
         // Controles de teclado (solo PC)
