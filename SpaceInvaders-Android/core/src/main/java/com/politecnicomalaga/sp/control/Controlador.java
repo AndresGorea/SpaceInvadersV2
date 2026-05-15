@@ -58,6 +58,10 @@ public class Controlador {
         gestorMundo.moverNaveAmiga(direccion);
     }
 
+    public void dispararNaveAmiga() {
+        gestorMundo.dispararNaveAmiga();
+    }
+
     /**
      * Bucle principal de simulación del mundo.
      * Actualiza posiciones, comprueba colisiones y valida condiciones de victoria.

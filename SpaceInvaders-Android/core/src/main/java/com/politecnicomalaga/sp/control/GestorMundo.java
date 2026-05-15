@@ -12,11 +12,9 @@ import com.politecnicomalaga.sp.model.Ovni;
 public class GestorMundo {
     private NaveAmi naveAmiga;
     private Batallon batallon;
-    private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
 
     public GestorMundo() {
-        this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
         inicializarMundo();
     }
@@ -64,13 +62,6 @@ public class GestorMundo {
      * @param delta Tiempo desde el último frame.
      */
     public void actualizar(float anchoPantalla, float altoPantalla, float delta) {
-        // Gestión de disparos automáticos del jugador según cadencia
-        contadorTiempoAmigo += delta;
-        if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
-            naveAmiga.disparar();
-            contadorTiempoAmigo = 0f;
-        }
-
         // Gestión de disparos del batallón enemigo
         contadorTiempoEnemigo += delta;
         if (contadorTiempoEnemigo >= ConfiguracionJuego.ENE_CADENCIA) {
@@ -123,5 +114,9 @@ public class GestorMundo {
 
     public void moverNaveAmiga(Ovni.Direccion direccion) {
         naveAmiga.setDir(direccion);
+    }
+
+    public void dispararNaveAmiga() {
+        naveAmiga.disparar();
     }
 }

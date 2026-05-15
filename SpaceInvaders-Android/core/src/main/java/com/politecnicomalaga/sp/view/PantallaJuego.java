@@ -55,6 +55,9 @@ public class PantallaJuego implements Screen {
             } else {
                 Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
             }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                Controlador.getInstancia().dispararNaveAmiga();
+            }
         }
 
         // 2. Lógica física
