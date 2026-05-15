@@ -1,5 +1,6 @@
 package com.politecnicomalaga.sp.control;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -18,12 +19,14 @@ public class Controlador {
     private GestorColisiones gestorColisiones;
     private EstadoJuego estadoJuego;
     private RenderizadorMundo renderizadorMundo;
+    private boolean esAndroid;
 
     /**
      * Constructor privado para garantizar el patrón Singleton.
      * Inicializa los componentes básicos del juego.
      */
     private Controlador() {
+        esAndroid = com.badlogic.gdx.Gdx.app.getType() == Application.ApplicationType.Android;
         this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
         this.gestorMundo = new GestorMundo();
         this.gestorColisiones = new GestorColisiones();
@@ -98,5 +101,9 @@ public class Controlador {
 
     public GestorMundo getGestorMundo() {
         return gestorMundo;
+    }
+
+    public boolean esAndroid() {
+        return esAndroid;
     }
 }
