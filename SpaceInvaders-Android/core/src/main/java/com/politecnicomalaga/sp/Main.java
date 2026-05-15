@@ -1,79 +1,60 @@
 package com.politecnicomalaga.sp;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.util.Recursos;
+import com.politecnicomalaga.sp.view.PantallaMenuPrincipal;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
-    private BitmapFont font;
-
-    private float anchoPantalla,altoPantalla;
-
-    private float y,x;
-    Map<String,Texture> galeriaImagenes;
-
+/** 
+ * Clase principal del juego que extiende de {@link com.badlogic.gdx.Game}.
+ * Se encarga de la inicialización de recursos globales y la gestión de pantallas.
+ */
+public class Main extends Game {
+    private SpriteBatch lote;
+    private BitmapFont fuente;
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.getData().setScale(2f);
-        galeriaImagenes = new HashMap<>();
+        // Inicialización del lote de dibujo y fuente de texto
+        lote = new SpriteBatch();
+        fuente = new BitmapFont();
+        fuente.getData().setScale(2f);
 
-        image = new Texture("enemigo1.png");
-        galeriaImagenes.put("enemigo1.png",image);
-        image = new Texture("enemigo2.png");
-        galeriaImagenes.put("enemigo2.png",image);
-        image = new Texture("naveJugador.png");
-        galeriaImagenes.put("naveJugador.png",image);
-        image = new Texture("disparoAmi.png");
-        galeriaImagenes.put("disparoAmi.png", image);
-        image = new Texture("disparoEne.png");
-        galeriaImagenes.put("disparoEne.png", image);
+        // Registro y carga de texturas base del juego
+        Recursos recursos = Recursos.getInstancia();
+        recursos.cargarTextura("enemigo1.png");
+        recursos.cargarTextura("enemigo2.png");
+        recursos.cargarTextura("naveJugador.png");
+        recursos.cargarTextura("disparoAmi.png");
+        recursos.cargarTextura("disparoEne.png");
 
-        anchoPantalla = Gdx.graphics.getWidth();
-        altoPantalla = Gdx.graphics.getHeight();
-
+        // Inicio del juego con la pantalla del menú principal
+        this.setScreen(new PantallaMenuPrincipal(this));
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-
-        //Control de entrada
-        if(Gdx.input.justTouched()){
-            x= Gdx.input.getX();
-            y=Gdx.input.getY();
-            Controlador.getInstance().click(x,y);
-        }
-
-        //Control de estado
-        Controlador.getInstance().simulaMundo(anchoPantalla,altoPantalla, Gdx.graphics.getDeltaTime());
-
-
-        //Pintar el mundo
-        batch.begin();
-        Controlador.getInstance().pintar(batch, galeriaImagenes);
-        Controlador.getInstance().pintarHUD(batch, galeriaImagenes, font, anchoPantalla, altoPantalla);
-        batch.end();
+        // Delega el renderizado a la pantalla activa
+        super.render();
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
-        for (Texture imagen : galeriaImagenes.values()) {
-            imagen.dispose();
+        // Liberación de recursos de memoria al cerrar la aplicación
+        lote.dispose();
+        fuente.dispose();
+        Recursos.getInstancia().dispose();
+        if (getScreen() != null) {
+            getScreen().dispose();
         }
+    }
+
+    public SpriteBatch getLote() {
+        return lote;
+    }
+
+    public BitmapFont getFuente() {
+        return fuente;
     }
 }

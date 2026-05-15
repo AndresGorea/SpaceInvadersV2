@@ -57,4 +57,6 @@ public class NaveEne extends Nave{
             if (d.getEstado() == Estado.MUERTO) misDisparos.remove(i); //Lo eliminamos si la comprobación de desaparecer de la pantalla ya nos da que esta Muerto
         }
     }
+
+
 }
