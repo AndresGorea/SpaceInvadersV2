@@ -1,10 +1,12 @@
 package com.politecnicomalaga.sp.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.model.Ovni;
 
 /**
  * Representa la pantalla principal donde ocurre la acción del juego.
@@ -42,6 +44,17 @@ public class PantallaJuego implements Screen {
             x = Gdx.input.getX();
             y = Gdx.input.getY();
             Controlador.getInstancia().click(x, y);
+        }
+
+        // Controles de teclado (solo PC)
+        if (!Controlador.getInstancia().esAndroid()) {
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
+            } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
+            } else {
+                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
+            }
         }
 
         // 2. Lógica física

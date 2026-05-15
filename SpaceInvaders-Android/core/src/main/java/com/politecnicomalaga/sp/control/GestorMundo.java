@@ -120,4 +120,8 @@ public class GestorMundo {
     public Batallon getBatallon() {
         return batallon;
     }
+
+    public void moverNaveAmiga(Ovni.Direccion direccion) {
+        naveAmiga.setDir(direccion);
+    }
 }

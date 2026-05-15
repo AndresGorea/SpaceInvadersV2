@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.view.RenderizadorMundo;
 import java.util.Map;
 
@@ -51,6 +52,10 @@ public class Controlador {
      */
     public void click(float x, float y) {
         gestorMundo.cambiarSentidoNaveAmiga(x);
+    }
+
+    public void moverNaveAmiga(Ovni.Direccion direccion) {
+        gestorMundo.moverNaveAmiga(direccion);
     }
 
     /**
