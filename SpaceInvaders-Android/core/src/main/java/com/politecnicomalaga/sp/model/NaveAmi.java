@@ -1,6 +1,7 @@
 package com.politecnicomalaga.sp.model;
 
 import java.util.ArrayList;
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 
 public class NaveAmi extends Nave {
     //Atributos
@@ -10,7 +11,7 @@ public class NaveAmi extends Nave {
     private float tiempoEscudo = 0;
     private float tiempoVelocidad = 0;
 
-    private static final float DURACION_POWERUP = 10f;
+    //private static final float DURACION_POWERUP = 10f;
 
     //Constructor
     public NaveAmi(float x, float y, float width, float height, Estado estado, Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala, float velocidadBala) {
@@ -56,13 +57,13 @@ public class NaveAmi extends Nave {
     public void activarPowerUp(PowerUp.Tipo tipo) {
         switch (tipo) {
             case MULTI_DISPARO:
-                tiempoTripleDisparo = DURACION_POWERUP;
+                tiempoTripleDisparo = ConfiguracionJuego.DURACION_POWERUP;
                 break;
             case ESCUDO:
-                tiempoEscudo = DURACION_POWERUP;
+                tiempoEscudo = ConfiguracionJuego.DURACION_POWERUP;
                 break;
             case VELOCIDAD:
-                tiempoVelocidad = DURACION_POWERUP;
+                tiempoVelocidad = ConfiguracionJuego.DURACION_POWERUP;
                 break;
         }
     }
@@ -72,7 +73,7 @@ public class NaveAmi extends Nave {
     }
 
     public float getVelocidadExtra() {
-        return tiempoVelocidad > 0 ? 200f : 0f;
+        return tiempoVelocidad > 0 ? ConfiguracionJuego.VELOCIDAD_BONUS : 0f;
     }
 
     @Override
