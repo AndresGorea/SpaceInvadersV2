@@ -18,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
+import com.politecnicomalaga.sp.control.Controlador;
 
 /**
  * Pantalla de inicio del juego que presenta el menú principal.
@@ -71,6 +72,7 @@ public class PantallaMenuPrincipal implements Screen {
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
+                            Controlador.getInstancia().reiniciar();
                             juego.setScreen(new PantallaJuego(juego));
                         }
                     })

@@ -1,5 +1,6 @@
 package com.politecnicomalaga.sp.view;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -68,6 +69,7 @@ public class RenderizadorMundo {
      */
     public void renderizarHUD(SpriteBatch lote, EstadoJuego estado, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
         Recursos recursos = Recursos.getInstancia();
+        fuente.setColor(Color.WHITE);
         
         // Dibujar texto de puntuación en la esquina superior izquierda
         fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 20);

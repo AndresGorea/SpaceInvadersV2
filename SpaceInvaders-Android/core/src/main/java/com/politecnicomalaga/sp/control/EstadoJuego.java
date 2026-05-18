@@ -6,6 +6,7 @@ package com.politecnicomalaga.sp.control;
  */
 public class EstadoJuego {
     private boolean jugando;
+    private boolean pausado;
     private int puntuacion;
     private int vidas;
 
@@ -15,6 +16,7 @@ public class EstadoJuego {
      */
     public EstadoJuego(int vidasIniciales) {
         this.jugando = true;
+        this.pausado = false;
         this.puntuacion = 0;
         this.vidas = vidasIniciales;
     }
@@ -25,6 +27,14 @@ public class EstadoJuego {
 
     public void setJugando(boolean jugando) {
         this.jugando = jugando;
+    }
+
+    public boolean isPausado() {
+        return pausado;
+    }
+
+    public void setPausado(boolean pausado) {
+        this.pausado = pausado;
     }
 
     public int getPuntuacion() {
