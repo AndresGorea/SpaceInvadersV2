@@ -38,4 +38,6 @@ public class ConfiguracionJuego {
     public static final float PU_VELOCIDAD = 150f;
     public static final float PU_ANCHO = 30f;
     public static final float PU_ALTO = 30f;
+    public static final float DURACION_POWERUP = 10f;
+    public static final float VELOCIDAD_BONUS = 200f;
 }
