@@ -42,7 +42,6 @@ public class Controlador {
     /**
      * Gestiona la interacción del usuario (click/toque) para mover la nave.
      * @param x Coordenada X del toque.
-     * @param y Coordenada Y del toque.
      */
     public void click(float x) {
         gestorMundo.cambiarSentidoNaveAmiga(x);
