@@ -17,6 +17,7 @@ public class PantallaJuego implements Screen {
     private final Main juego;
     private float anchoPantalla, altoPantalla;
     private float x, y;
+    private float btnAncho, btnAlto;
 
     // Gestor de efectos visuales de fondo (reutilizable)
     private FondoEfectos fondoEfectos;
@@ -40,19 +41,36 @@ public class PantallaJuego implements Screen {
         ScreenUtils.clear(0.01f, 0.01f, 0.05f, 1f);
 
         // 1. Entrada
-        if (Gdx.input.justTouched()) {
-            x = Gdx.input.getX();
-            y = Gdx.input.getY();
-            if (Controlador.getInstancia().esAndroid()) {
-                // Zona de disparo: cuarto inferior derecho de la pantalla
-                boolean enZonaDisparo = x > anchoPantalla * 0.6f && y > altoPantalla * 0.7f;
-                if (enZonaDisparo) {
-                    Controlador.getInstancia().dispararNaveAmiga();
-                } else {
-                    Controlador.getInstancia().click(x, y);
-                }
-            } else {
-                // En PC el toque del ratón también mueve
+        // Dimensiones de botones
+        btnAncho = anchoPantalla * 0.2f;
+        btnAlto = altoPantalla * 0.15f;
+
+        // Zonas de botones Android (izquierda, derecha, disparo)
+        boolean tocandoIzq   = Gdx.input.isTouched() &&
+                               Gdx.input.getX() < btnAncho &&
+                               Gdx.input.getY() > altoPantalla - btnAlto;
+        boolean tocandoDer   = Gdx.input.isTouched() &&
+                               Gdx.input.getX() > btnAncho && Gdx.input.getX() < btnAncho * 2.5f &&
+                               Gdx.input.getY() > altoPantalla - btnAlto;
+        boolean tocandoFire  = Gdx.input.justTouched() &&
+                               Gdx.input.getX() > anchoPantalla - btnAncho &&
+                               Gdx.input.getY() > altoPantalla - btnAlto;
+
+        if (Controlador.getInstancia().esAndroid()) {
+            if (tocandoIzq) {
+                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
+            } else if (tocandoDer) {
+                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
+            } else if (!Gdx.input.isTouched()) {
+                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
+            }
+            if (tocandoFire) {
+                Controlador.getInstancia().dispararNaveAmiga();
+            }
+        } else {
+            if (Gdx.input.justTouched()) {
+                x = Gdx.input.getX();
+                y = Gdx.input.getY();
                 Controlador.getInstancia().click(x, y);
             }
         }
@@ -63,7 +81,7 @@ public class PantallaJuego implements Screen {
                 Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
             } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
                 Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
-            } else {
+            } else if (!Gdx.input.justTouched() && !Gdx.input.isTouched()) {
                 Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -82,6 +100,12 @@ public class PantallaJuego implements Screen {
         
         Controlador.getInstancia().pintar(juego.getLote());
         Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
+
+        // Dibujar botones táctiles en Android
+        if (Controlador.getInstancia().esAndroid()) {
+            Controlador.getInstancia().pintarBotonesAndroid(
+                juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
+        }
         
         juego.getLote().end();
     }

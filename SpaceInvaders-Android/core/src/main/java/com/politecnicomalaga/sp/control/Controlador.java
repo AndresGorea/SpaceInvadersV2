@@ -103,6 +103,19 @@ public class Controlador {
         renderizadorMundo.renderizarHUD(lote, estadoJuego, fuente, anchoPantalla, altoPantalla);
     }
 
+    public void pintarBotonesAndroid(SpriteBatch lote, BitmapFont fuente,
+                                  float anchoPantalla, float altoPantalla) {
+        float btnAncho = anchoPantalla * 0.2f;
+        float btnAlto  = altoPantalla  * 0.15f;
+        // Etiquetas visuales de los botones
+        fuente.draw(lote, "<<", btnAncho * 0.35f,
+                altoPantalla - btnAlto * 0.3f);
+        fuente.draw(lote, ">>", btnAncho * 1.4f,
+                altoPantalla - btnAlto * 0.3f);
+        fuente.draw(lote, "[FIRE]", anchoPantalla - btnAncho * 0.9f,
+                altoPantalla - btnAlto * 0.3f);
+    }
+
     //Obtener estados
     public EstadoJuego getEstadoJuego() {
         return estadoJuego;
