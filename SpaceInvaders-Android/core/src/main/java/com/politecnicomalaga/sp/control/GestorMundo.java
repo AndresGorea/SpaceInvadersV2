@@ -4,6 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.model.PowerUp;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Clase que gestiona la existencia y el comportamiento de todos los objetos en el mundo de juego.
@@ -12,12 +17,16 @@ import com.politecnicomalaga.sp.model.Ovni;
 public class GestorMundo {
     private NaveAmi naveAmiga;
     private Batallon batallon;
+    private List<PowerUp> powerUps;
+    private Random random;
     private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
 
     public GestorMundo() {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
+        this.powerUps = new ArrayList<>();
+        this.random = new Random();
         inicializarMundo();
     }
 
@@ -95,6 +104,36 @@ public class GestorMundo {
         // Actualización de la posición de los proyectiles en pantalla
         naveAmiga.gestionarMisDisparos(altoPantalla, delta);
         batallon.gestionarDisparos(0f, delta);
+
+        // Actualización de Power-ups
+        naveAmiga.actualizarPowerUps(delta);
+        actualizarPowerUps(delta);
+    }
+
+    private void actualizarPowerUps(float delta) {
+        for (int i = powerUps.size() - 1; i >= 0; i--) {
+            PowerUp p = powerUps.get(i);
+            if (p.estaVivo()) {
+                p.mover(Ovni.Direccion.ABAJO, ConfiguracionJuego.PU_VELOCIDAD, delta);
+                p.desaparecer(0);
+            }
+            if (p.getEstado() == Ovni.Estado.MUERTO) {
+                powerUps.remove(i);
+            }
+        }
+    }
+
+    public void soltarPowerUp(float x, float y) {
+        if (random.nextFloat() < ConfiguracionJuego.PU_PROB_DROP) {
+            PowerUp.Tipo tipo = PowerUp.Tipo.values()[random.nextInt(PowerUp.Tipo.values().length)];
+            String textura = "";
+            switch (tipo) {
+                case MULTI_DISPARO: textura = "DisparoMultiple.png"; break;
+                case ESCUDO: textura = "Escudo.png"; break;
+                case VELOCIDAD: textura = "Velocidad.png"; break;
+            }
+            powerUps.add(new PowerUp(x, y, ConfiguracionJuego.PU_ANCHO, ConfiguracionJuego.PU_ALTO, tipo, textura));
+        }
     }
 
     /**
@@ -119,5 +158,9 @@ public class GestorMundo {
 
     public Batallon getBatallon() {
         return batallon;
+    }
+
+    public List<PowerUp> getPowerUps() {
+        return powerUps;
     }
 }

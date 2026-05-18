@@ -1,10 +1,18 @@
 package com.politecnicomalaga.sp.model;
 
 import java.util.ArrayList;
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 
 public class NaveAmi extends Nave {
     //Atributos
     private ArrayList<DisparoAmi> misDisparos; //Para el crud de disparos
+
+    private float tiempoTripleDisparo = 0;
+    private float tiempoEscudo = 0;
+    private float tiempoVelocidad = 0;
+
+    //private static final float DURACION_POWERUP = 10f;
+
     //Constructor
     public NaveAmi(float x, float y, float width, float height, Estado estado, Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala, float velocidadBala) {
         super(x, y, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala);
@@ -31,7 +39,50 @@ public class NaveAmi extends Nave {
             DisparoAmi nuevoDisparo = new DisparoAmi(posX, posY, getAnchoBala(), getAltoBala(), Estado.VIVO, Direccion.ARRIBA, "disparoAmi.png");
             misDisparos.add(nuevoDisparo);
 
+            if (tiempoTripleDisparo > 0) {
+                DisparoAmi izq = new DisparoAmi(posX - 20, posY - 10, getAnchoBala(), getAltoBala(), Estado.VIVO, Direccion.ARRIBA, "disparoAmi.png");
+                DisparoAmi der = new DisparoAmi(posX + 20, posY - 10, getAnchoBala(), getAltoBala(), Estado.VIVO, Direccion.ARRIBA, "disparoAmi.png");
+                misDisparos.add(izq);
+                misDisparos.add(der);
+            }
         }
+    }
+
+    public void actualizarPowerUps(float delta) {
+        if (tiempoTripleDisparo > 0) tiempoTripleDisparo -= delta;
+        if (tiempoEscudo > 0) tiempoEscudo -= delta;
+        if (tiempoVelocidad > 0) tiempoVelocidad -= delta;
+    }
+
+    public void activarPowerUp(PowerUp.Tipo tipo) {
+        switch (tipo) {
+            case MULTI_DISPARO:
+                tiempoTripleDisparo = ConfiguracionJuego.DURACION_POWERUP;
+                break;
+            case ESCUDO:
+                tiempoEscudo = ConfiguracionJuego.DURACION_POWERUP;
+                break;
+            case VELOCIDAD:
+                tiempoVelocidad = ConfiguracionJuego.DURACION_POWERUP;
+                break;
+        }
+    }
+
+    public boolean tieneEscudo() {
+        return tiempoEscudo > 0;
+    }
+
+    public float getVelocidadExtra() {
+        return tiempoVelocidad > 0 ? ConfiguracionJuego.VELOCIDAD_BONUS : 0f;
+    }
+
+    @Override
+    public void recibirDisparo() {
+        if (tieneEscudo()) {
+            // No recibe daño si tiene escudo
+            return;
+        }
+        super.recibirDisparo();
     }
 
     //Gestionar la salida de la pantalla de los disparos (Delete)

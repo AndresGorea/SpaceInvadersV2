@@ -7,6 +7,7 @@ import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.model.PowerUp;
 
 import java.util.List;
 
@@ -23,8 +24,9 @@ public class GestorColisiones {
      */
     public void comprobarColisiones(GestorMundo mundo, EstadoJuego estado) {
         comprobarImpactoJugador(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
-        comprobarImpactoEnemigos(mundo.getBatallon(), mundo.getNaveAmiga().getMisDisparos(), estado);
+        comprobarImpactoEnemigos(mundo, estado);
         comprobarColisionJugadorEnemigos(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
+        comprobarRecogidaPowerUps(mundo);
     }
 
     /**
@@ -50,19 +52,41 @@ public class GestorColisiones {
     /**
      * Verifica si algún proyectil del jugador ha impactado en alguna nave enemiga.
      */
-    private void comprobarImpactoEnemigos(Batallon batallon, List<DisparoAmi> disparosAmis, EstadoJuego estado) {
+    private void comprobarImpactoEnemigos(GestorMundo mundo, EstadoJuego estado) {
+        Batallon batallon = mundo.getBatallon();
+        List<DisparoAmi> disparosAmis = mundo.getNaveAmiga().getMisDisparos();
         Escuadron[] escuadrones = batallon.getEscuadrones();
+
         for (DisparoAmi disparoAmi : disparosAmis) {
-            // Un disparo muerto no puede volver a impactar
             if (disparoAmi.getEstado() == Ovni.Estado.MUERTO) continue;
 
             for (Escuadron escuadron : escuadrones) {
                 NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-                if (disparoAmi.comprobarColision(navesEnemigas)) {
-                    estado.addPuntuacion(10);
-                    disparoAmi.setEstado(Ovni.Estado.MUERTO);
-                    break; // Salimos del bucle de escuadrones para este disparo
+                for (NaveEne n : navesEnemigas) {
+                    if (n.estaVivo() && disparoAmi.colision(n)) {
+                        n.recibirDisparo();
+                        disparoAmi.setEstado(Ovni.Estado.MUERTO);
+                        estado.addPuntuacion(10);
+
+                        // Si la nave muere, soltamos Power-up
+                        if (!n.estaVivo()) {
+                            mundo.soltarPowerUp(n.getX(), n.getY());
+                        }
+                        break;
+                    }
                 }
+                if (disparoAmi.getEstado() == Ovni.Estado.MUERTO) break;
+            }
+        }
+    }
+
+    private void comprobarRecogidaPowerUps(GestorMundo mundo) {
+        NaveAmi nave = mundo.getNaveAmiga();
+        List<PowerUp> powerUps = mundo.getPowerUps();
+        for (PowerUp p : powerUps) {
+            if (p.estaVivo() && p.colision(nave)) {
+                nave.activarPowerUp(p.getTipo());
+                p.setEstado(Ovni.Estado.MUERTO);
             }
         }
     }
