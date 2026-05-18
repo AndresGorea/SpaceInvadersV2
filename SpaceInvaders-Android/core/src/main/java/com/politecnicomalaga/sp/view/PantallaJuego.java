@@ -16,7 +16,7 @@ public class PantallaJuego implements Screen {
 
     private final Main juego;
     private float anchoPantalla, altoPantalla;
-    private float x, y;
+    private float x;
 
     // Gestor de efectos visuales de fondo (reutilizable)
     private FondoEfectos fondoEfectos;
@@ -48,8 +48,7 @@ public class PantallaJuego implements Screen {
         // 1. Entrada
         if(Gdx.input.justTouched()){
             x = Gdx.input.getX();
-            y = Gdx.input.getY();
-            Controlador.getInstancia().click(x, y);
+            Controlador.getInstancia().click(x);
         }
 
         // 2. Lógica física
@@ -57,13 +56,13 @@ public class PantallaJuego implements Screen {
 
         // 3. Renderizado
         juego.getLote().begin();
-        
+
         // El fondo se dibuja primero para que quede detrás de las naves
         fondoEfectos.renderizar(juego.getLote(), delta);
-        
+
         Controlador.getInstancia().pintar(juego.getLote());
         Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
-        
+
         // Mostrar texto de pausa si está activada
         if (Controlador.getInstancia().getEstadoJuego().isPausado()) {
             juego.getFuente().setColor(Color.YELLOW);

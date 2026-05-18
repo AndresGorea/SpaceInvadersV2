@@ -1,10 +1,8 @@
 package com.politecnicomalaga.sp.control;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.politecnicomalaga.sp.view.RenderizadorMundo;
-import java.util.Map;
 
 /**
  * Clase controladora principal que sigue el patrón Singleton.
@@ -17,7 +15,7 @@ public class Controlador {
     private GestorMundo gestorMundo;
     private GestorColisiones gestorColisiones;
     private EstadoJuego estadoJuego;
-    private RenderizadorMundo renderizadorMundo;
+    private final RenderizadorMundo renderizadorMundo;
 
     /**
      * Constructor privado para garantizar el patrón Singleton.
@@ -46,7 +44,7 @@ public class Controlador {
      * @param x Coordenada X del toque.
      * @param y Coordenada Y del toque.
      */
-    public void click(float x, float y) {
+    public void click(float x) {
         gestorMundo.cambiarSentidoNaveAmiga(x);
     }
 
