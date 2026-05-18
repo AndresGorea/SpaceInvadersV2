@@ -82,6 +82,7 @@ public class GestorMundo {
 
         // Gestión de disparos del batallón enemigo
         contadorTiempoEnemigo += delta;
+        contadorTiempoAmigo += delta;
         if (contadorTiempoEnemigo >= ConfiguracionJuego.ENE_CADENCIA) {
             batallon.disparar();
             contadorTiempoEnemigo = 0f;
@@ -162,5 +163,16 @@ public class GestorMundo {
 
     public List<PowerUp> getPowerUps() {
         return powerUps;
+    }
+
+    public void moverNaveAmiga(Ovni.Direccion direccion) {
+        naveAmiga.setDir(direccion);
+    }
+
+    public void dispararNaveAmiga() {
+        if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
+            naveAmiga.disparar();
+            contadorTiempoAmigo = 0f;
+        }
     }
 }

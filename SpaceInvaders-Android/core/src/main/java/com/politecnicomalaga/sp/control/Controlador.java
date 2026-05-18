@@ -1,8 +1,10 @@
 package com.politecnicomalaga.sp.control;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.view.RenderizadorMundo;
 import java.util.Map;
 
@@ -18,12 +20,14 @@ public class Controlador {
     private GestorColisiones gestorColisiones;
     private EstadoJuego estadoJuego;
     private RenderizadorMundo renderizadorMundo;
+    private boolean esAndroid;
 
     /**
      * Constructor privado para garantizar el patrón Singleton.
      * Inicializa los componentes básicos del juego.
      */
     private Controlador() {
+        esAndroid = com.badlogic.gdx.Gdx.app.getType() == Application.ApplicationType.Android;
         this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
         this.gestorMundo = new GestorMundo();
         this.gestorColisiones = new GestorColisiones();
@@ -48,6 +52,14 @@ public class Controlador {
      */
     public void click(float x, float y) {
         gestorMundo.cambiarSentidoNaveAmiga(x);
+    }
+
+    public void moverNaveAmiga(Ovni.Direccion direccion) {
+        gestorMundo.moverNaveAmiga(direccion);
+    }
+
+    public void dispararNaveAmiga() {
+        gestorMundo.dispararNaveAmiga();
     }
 
     /**
@@ -91,6 +103,19 @@ public class Controlador {
         renderizadorMundo.renderizarHUD(lote, estadoJuego, fuente, anchoPantalla, altoPantalla);
     }
 
+    public void pintarBotonesAndroid(SpriteBatch lote, BitmapFont fuente,
+                                  float anchoPantalla, float altoPantalla) {
+        float btnAncho = anchoPantalla * 0.2f;
+        float btnAlto  = altoPantalla  * 0.15f;
+        // Etiquetas visuales de los botones
+        fuente.draw(lote, "<<", btnAncho * 0.35f,
+                altoPantalla - btnAlto * 0.3f);
+        fuente.draw(lote, ">>", btnAncho * 1.4f,
+                altoPantalla - btnAlto * 0.3f);
+        fuente.draw(lote, "[FIRE]", anchoPantalla - btnAncho * 0.9f,
+                altoPantalla - btnAlto * 0.3f);
+    }
+
     //Obtener estados
     public EstadoJuego getEstadoJuego() {
         return estadoJuego;
@@ -98,5 +123,9 @@ public class Controlador {
 
     public GestorMundo getGestorMundo() {
         return gestorMundo;
+    }
+
+    public boolean esAndroid() {
+        return esAndroid;
     }
 }
