@@ -73,13 +73,6 @@ public class GestorMundo {
      * @param delta Tiempo desde el último frame.
      */
     public void actualizar(float anchoPantalla, float altoPantalla, float delta) {
-        // Gestión de disparos automáticos del jugador según cadencia
-        contadorTiempoAmigo += delta;
-        if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
-            naveAmiga.disparar();
-            contadorTiempoAmigo = 0f;
-        }
-
         // Gestión de disparos del batallón enemigo
         contadorTiempoEnemigo += delta;
         contadorTiempoAmigo += delta;
