@@ -12,6 +12,7 @@ import com.politecnicomalaga.sp.model.DisparoEne;
 import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
+import com.politecnicomalaga.sp.model.PowerUp;
 import com.politecnicomalaga.sp.util.Recursos;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class RenderizadorMundo {
      */
     public void renderizar(SpriteBatch lote, GestorMundo mundo) {
         Recursos recursos = Recursos.getInstancia();
-        
+
         // 1. Dibujar la nave del jugador
         NaveAmi naveAmiga = mundo.getNaveAmiga();
         lote.draw(recursos.getTextura(naveAmiga.getTextura()), naveAmiga.getX(), naveAmiga.getY(), naveAmiga.getWidth(), naveAmiga.getHeight());
@@ -57,6 +58,14 @@ public class RenderizadorMundo {
                 lote.draw(recursos.getTextura(dispAmi.getTextura()), dispAmi.getX(), dispAmi.getY(), dispAmi.getWidth(), dispAmi.getHeight());
             }
         }
+
+        // 4. Dibujar los Power-ups cayendo
+        List<PowerUp> powerUps = mundo.getPowerUps();
+        for (PowerUp p : powerUps) {
+            if (p.estaVivo()) {
+                lote.draw(recursos.getTextura(p.getTextura()), p.getX(), p.getY(), p.getWidth(), p.getHeight());
+            }
+        }
     }
 
     /**
@@ -70,7 +79,7 @@ public class RenderizadorMundo {
     public void renderizarHUD(SpriteBatch lote, EstadoJuego estado, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
         Recursos recursos = Recursos.getInstancia();
         fuente.setColor(Color.WHITE);
-        
+
         // Dibujar texto de puntuación en la esquina superior izquierda
         fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 20);
 
@@ -78,9 +87,9 @@ public class RenderizadorMundo {
         float tamanoIcono = 30f;
         float margen = 10f;
         for (int i = 0; i < estado.getVidas(); i++) {
-            lote.draw(recursos.getTextura("naveJugador.png"), 
-                anchoPantalla - (i + 1) * (tamanoIcono + margen) - 10, 
-                altoPantalla - tamanoIcono - 15, 
+            lote.draw(recursos.getTextura("naveJugador.png"),
+                anchoPantalla - (i + 1) * (tamanoIcono + margen) - 10,
+                altoPantalla - tamanoIcono - 15,
                 tamanoIcono, tamanoIcono);
         }
     }

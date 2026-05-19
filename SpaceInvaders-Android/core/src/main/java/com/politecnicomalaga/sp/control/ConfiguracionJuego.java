@@ -32,4 +32,12 @@ public class ConfiguracionJuego {
     public static final float BALA_ENE_ANCHO = 5f;
     public static final float BALA_ENE_ALTO = 30f;
     public static final float BALA_ENE_VELOCIDAD = 400f;
+
+    // --- Configuración: Power-Ups ---
+    public static final float PU_PROB_DROP = 0.15f;
+    public static final float PU_VELOCIDAD = 150f;
+    public static final float PU_ANCHO = 30f;
+    public static final float PU_ALTO = 30f;
+    public static final float DURACION_POWERUP = 10f;
+    public static final float VELOCIDAD_BONUS = 200f;
 }
