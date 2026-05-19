@@ -19,7 +19,7 @@ public class PantallaJuego implements Screen {
     private float x;
 
     // Gestor de efectos visuales de fondo (reutilizable)
-    private FondoEfectos fondoEfectos;
+    private final FondoEfectos fondoEfectos;
 
     public PantallaJuego(Main juego) {
         this.juego = juego;
