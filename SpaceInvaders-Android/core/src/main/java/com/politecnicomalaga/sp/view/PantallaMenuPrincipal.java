@@ -27,9 +27,9 @@ import com.politecnicomalaga.sp.control.Controlador;
 public class PantallaMenuPrincipal implements Screen {
 
     private final Main juego;
-    private Stage escenario;
+    private final Stage  escenario;
     private Skin apariencia;
-    private FondoEfectos fondoEfectos;
+    private final FondoEfectos fondoEfectos;
 
     public PantallaMenuPrincipal(final Main juego) {
         this.juego = juego;
