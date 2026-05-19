@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.view.RenderizadorMundo;
-import java.util.Map;
 
 /**
  * Clase controladora principal que sigue el patrón Singleton.
@@ -70,7 +69,7 @@ public class Controlador {
      * @param delta Tiempo transcurrido desde el último frame.
      */
     public void simulaMundo(float anchoPantalla, float altoPantalla, float delta) {
-        if (estadoJuego.isJugando()) {
+        if (estadoJuego.isJugando() && !estadoJuego.isPausado()) {
             // 1. Actualizar posiciones y estados de todos los objetos
             gestorMundo.actualizar(anchoPantalla, altoPantalla, delta);
 
@@ -82,6 +81,15 @@ public class Controlador {
                 estadoJuego.setJugando(false);
             }
         }
+    }
+
+    /**
+     * Reinicia el estado del juego para una nueva partida.
+     */
+    public void reiniciar() {
+        this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
+        this.gestorMundo = new GestorMundo();
+        this.gestorColisiones = new GestorColisiones();
     }
 
     /**

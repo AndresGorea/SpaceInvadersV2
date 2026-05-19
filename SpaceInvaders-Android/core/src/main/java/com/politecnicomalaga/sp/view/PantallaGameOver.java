@@ -3,7 +3,6 @@ package com.politecnicomalaga.sp.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -16,28 +15,32 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.Controlador;
 
 /**
- * Pantalla de inicio del juego que presenta el menú principal.
- * Utiliza FondoEfectos para el fondo animado y Scene2D para la interfaz.
+ * Pantalla que se muestra al finalizar el juego (Victoria o Derrota).
+ * Utiliza Scene2D para una interfaz pulida y animada similar al menú principal.
  */
-public class PantallaMenuPrincipal implements Screen {
+public class PantallaGameOver implements Screen {
 
     private final Main juego;
-    private final Stage  escenario;
+    private final boolean victoria;
+
+    private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
 
-    public PantallaMenuPrincipal(final Main juego) {
+    public PantallaGameOver(final Main juego, boolean victoria, int puntuacion) {
         this.juego = juego;
+        this.victoria = victoria;
+
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
 
         crearAparienciaBasica();
-        // El menú principal sí muestra los ovnis flotantes
         fondoEfectos = new FondoEfectos(true);
 
         Table tabla = new Table();
@@ -45,30 +48,37 @@ public class PantallaMenuPrincipal implements Screen {
         escenario.addActor(tabla);
 
         // --- TÍTULO ---
-        Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
-        Label etiquetaTitulo = new Label("SPACE INVADERS", estiloTitulo);
-        etiquetaTitulo.setFontScale(3.0f);
+        Color colorTitulo = victoria ? Color.valueOf("00ff00") : Color.valueOf("ff0000");
+        Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), colorTitulo);
+        String textoTitulo = victoria ? "¡VICTORIA!" : "GAME OVER";
+        Label etiquetaTitulo = new Label(textoTitulo, estiloTitulo);
+        etiquetaTitulo.setFontScale(3.5f);
         etiquetaTitulo.setAlignment(Align.center);
         etiquetaTitulo.setOrigin(Align.center);
 
+        // Animación de escala para el título
         etiquetaTitulo.addAction(Actions.forever(
             Actions.sequence(
-                Actions.scaleTo(3.2f, 3.2f, 1.5f),
-                Actions.scaleTo(2.8f, 2.8f, 1.5f)
+                Actions.scaleTo(1.1f, 1.1f, 1.2f),
+                Actions.scaleTo(0.9f, 0.9f, 1.2f)
             )
         ));
 
-        // --- BOTONES ---
-        TextButton botonIniciar = crearBotonAnimado("INICIAR");
-        TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
-        TextButton botonInfo = crearBotonAnimado("INFORMACIÓN");
-        TextButton botonSalir = crearBotonAnimado("SALIR");
+        // --- PUNTUACIÓN (Sin cuadrado/fondo) ---
+        Label.LabelStyle estiloPuntos = new Label.LabelStyle(juego.getFuente(), Color.WHITE);
+        Label etiquetaPuntos = new Label("PUNTUACIÓN FINAL: " + puntuacion, estiloPuntos);
+        etiquetaPuntos.setFontScale(1.5f);
+        etiquetaPuntos.setAlignment(Align.center);
 
-        botonIniciar.addListener(new ClickListener() {
+        // --- BOTONES ---
+        TextButton botonReintentar = crearBotonAnimado("REINTENTAR");
+        TextButton botonMenu = crearBotonAnimado("VOLVER AL MENÚ");
+
+        botonReintentar.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
+                    Actions.fadeOut(0.3f),
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
@@ -80,7 +90,7 @@ public class PantallaMenuPrincipal implements Screen {
             }
         });
 
-        botonSalir.addListener(new ClickListener() {
+        botonMenu.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 escenario.addAction(Actions.sequence(
@@ -88,24 +98,18 @@ public class PantallaMenuPrincipal implements Screen {
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            Gdx.app.exit();
+                            juego.setScreen(new PantallaMenuPrincipal(juego));
                         }
                     })
                 ));
             }
         });
 
-        tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(50).row();
-
-        float anchoBoton = 300f;
-        float altoBoton = 60f;
-        float rellenoBoton = 10f;
-
-        tabla.add(botonIniciar).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonOpciones).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonInfo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonSalir).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        // Configuración de la tabla
+        tabla.add(etiquetaTitulo).padBottom(30).row();
+        tabla.add(etiquetaPuntos).padBottom(40).row();
+        tabla.add(botonReintentar).width(350).height(70).padBottom(15).row();
+        tabla.add(botonMenu).width(350).height(70).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -119,7 +123,7 @@ public class PantallaMenuPrincipal implements Screen {
                 super.enter(event, x, y, pointer, fromActor);
                 if (pointer == -1) {
                     boton.clearActions();
-                    boton.addAction(Actions.scaleTo(1.1f, 1.1f, 0.1f));
+                    boton.addAction(Actions.scaleTo(1.05f, 1.05f, 0.1f));
                 }
             }
 
@@ -137,9 +141,13 @@ public class PantallaMenuPrincipal implements Screen {
 
     private void crearAparienciaBasica() {
         apariencia = new Skin();
-        apariencia.add("btn_up", crearTexturaBoton(Color.valueOf("0a0a1a"), Color.valueOf("00ffcc"), 2));
-        apariencia.add("btn_down", crearTexturaBoton(Color.valueOf("004433"), Color.valueOf("00ffcc"), 4));
-        apariencia.add("btn_hover", crearTexturaBoton(Color.valueOf("1a1a3a"), Color.valueOf("ffffff"), 2));
+        // Colores temáticos según victoria o derrota
+        Color principal = victoria ? Color.valueOf("00ffcc") : Color.valueOf("ff3333");
+        Color fondoBtn = victoria ? Color.valueOf("002211") : Color.valueOf("220000");
+
+        apariencia.add("btn_up", crearTexturaBoton(fondoBtn, principal, 2));
+        apariencia.add("btn_down", crearTexturaBoton(principal.cpy().lerp(Color.BLACK, 0.5f), principal, 4));
+        apariencia.add("btn_hover", crearTexturaBoton(fondoBtn.cpy().lerp(Color.WHITE, 0.1f), Color.WHITE, 2));
         apariencia.add("default", juego.getFuente());
 
         TextButton.TextButtonStyle estiloTextoBoton = new TextButton.TextButtonStyle();
@@ -147,7 +155,7 @@ public class PantallaMenuPrincipal implements Screen {
         estiloTextoBoton.down = apariencia.newDrawable("btn_down");
         estiloTextoBoton.over = apariencia.newDrawable("btn_hover");
         estiloTextoBoton.font = apariencia.getFont("default");
-        estiloTextoBoton.fontColor = Color.valueOf("00ffcc");
+        estiloTextoBoton.fontColor = principal;
         estiloTextoBoton.overFontColor = Color.WHITE;
         estiloTextoBoton.downFontColor = Color.YELLOW;
 
@@ -155,8 +163,8 @@ public class PantallaMenuPrincipal implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
-        int alto = 60;
+        int ancho = 350;
+        int alto = 70;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
         pixmap.fill();
@@ -171,15 +179,18 @@ public class PantallaMenuPrincipal implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(escenario);
         escenario.getRoot().getColor().a = 0;
-        escenario.addAction(Actions.fadeIn(0.5f));
+        escenario.addAction(Actions.fadeIn(0.6f));
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.01f, 0.01f, 0.05f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        // Fondo temático sutil
+        if (victoria) {
+            ScreenUtils.clear(0.0f, 0.1f, 0.05f, 1f);
+        } else {
+            ScreenUtils.clear(0.1f, 0.0f, 0.0f, 1f);
+        }
 
         juego.getLote().begin();
         fondoEfectos.renderizar(juego.getLote(), delta);
