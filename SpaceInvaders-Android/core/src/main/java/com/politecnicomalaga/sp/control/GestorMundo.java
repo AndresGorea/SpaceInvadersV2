@@ -52,6 +52,8 @@ public class GestorMundo {
         float batInicioX = 20f;
         float batInicioY = Gdx.graphics.getHeight() - 40f;
 
+        GestorPreferencias prefs = GestorPreferencias.getInstancia();
+
         this.batallon = new Batallon(
             batInicioX, batInicioY, ConfiguracionJuego.BAT_ESPACIO_VERT,
             ConfiguracionJuego.ENE_ANCHO, ConfiguracionJuego.ENE_ALTO,
@@ -60,9 +62,9 @@ public class GestorMundo {
             "enemigo1.png",
             ConfiguracionJuego.ENE_VIDAS,
             ConfiguracionJuego.ENE_CADENCIA,
-            ConfiguracionJuego.BALA_ENE_ANCHO, ConfiguracionJuego.BALA_ENE_ALTO, ConfiguracionJuego.BALA_ENE_VELOCIDAD,
-            ConfiguracionJuego.ENE_PROB_DISPARO,
-            ConfiguracionJuego.BAT_ESPACIO_HORIZ, ConfiguracionJuego.BAT_VELOCIDAD
+            ConfiguracionJuego.BALA_ENE_ANCHO, ConfiguracionJuego.BALA_ENE_ALTO, prefs.getVelocidadBalaEnemiga(),
+            prefs.getProbabilidadDisparo(),
+            ConfiguracionJuego.BAT_ESPACIO_HORIZ, prefs.getVelocidadBatallon()
         );
     }
 

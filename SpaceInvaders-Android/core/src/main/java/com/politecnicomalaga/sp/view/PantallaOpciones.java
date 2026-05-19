@@ -18,26 +18,23 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
-import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.control.GestorPreferencias;
 
-/**
- * Pantalla de inicio del juego que presenta el menú principal.
- * Utiliza FondoEfectos para el fondo animado y Scene2D para la interfaz.
- */
-public class PantallaMenuPrincipal implements Screen {
+public class PantallaOpciones implements Screen {
 
     private final Main juego;
-    private final Stage  escenario;
+    private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
+    private GestorPreferencias prefs;
 
-    public PantallaMenuPrincipal(final Main juego) {
+    public PantallaOpciones(final Main juego) {
         this.juego = juego;
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
+        prefs = GestorPreferencias.getInstancia();
 
         crearAparienciaBasica();
-        // El menú principal sí muestra los ovnis flotantes
         fondoEfectos = new FondoEfectos(true);
 
         Table tabla = new Table();
@@ -46,96 +43,79 @@ public class PantallaMenuPrincipal implements Screen {
 
         // --- TÍTULO ---
         Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
-        Label etiquetaTitulo = new Label("SPACE INVADERS", estiloTitulo);
-        etiquetaTitulo.setFontScale(3.0f);
+        Label etiquetaTitulo = new Label("CONFIGURACIÓN", estiloTitulo);
+        etiquetaTitulo.setFontScale(2.0f);
         etiquetaTitulo.setAlignment(Align.center);
-        etiquetaTitulo.setOrigin(Align.center);
-
-        etiquetaTitulo.addAction(Actions.forever(
-            Actions.sequence(
-                Actions.scaleTo(3.2f, 3.2f, 1.5f),
-                Actions.scaleTo(2.8f, 2.8f, 1.5f)
-            )
-        ));
 
         // --- BOTONES ---
-        TextButton botonIniciar = crearBotonAnimado("INICIAR");
-        TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
-        TextButton botonInfo = crearBotonAnimado("INFORMACIÓN");
-        TextButton botonSalir = crearBotonAnimado("SALIR");
+        final TextButton botonDificultad = crearBotonAnimado("Dificultad: " + prefs.getDificultadActual().name());
+        final TextButton botonMusica = crearBotonAnimado("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
+        final TextButton botonSfx = crearBotonAnimado("Efectos SFX: " + (prefs.isSfxActivado() ? "ON" : "OFF"));
+        final TextButton botonPantalla = crearBotonAnimado("Pantalla: " + (prefs.isPantallaCompleta() ? "COMPLETA" : "VENTANA"));
+        TextButton botonVolver = crearBotonAnimado("VOLVER");
 
-        botonIniciar.addListener(new ClickListener() {
+        botonDificultad.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                int ord = prefs.getDificultadActual().ordinal();
+                ord = (ord + 1) % GestorPreferencias.Dificultad.values().length;
+                GestorPreferencias.Dificultad nuevaDif = GestorPreferencias.Dificultad.values()[ord];
+                prefs.setDificultadActual(nuevaDif);
+                botonDificultad.setText("Dificultad: " + nuevaDif.name());
+            }
+        });
+
+        botonMusica.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.setMusicaActivada(!prefs.isMusicaActivada());
+                botonMusica.setText("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
+            }
+        });
+
+        botonSfx.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.setSfxActivado(!prefs.isSfxActivado());
+                botonSfx.setText("Efectos SFX: " + (prefs.isSfxActivado() ? "ON" : "OFF"));
+            }
+        });
+
+        botonPantalla.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.setPantallaCompleta(!prefs.isPantallaCompleta());
+                botonPantalla.setText("Pantalla: " + (prefs.isPantallaCompleta() ? "COMPLETA" : "VENTANA"));
+            }
+        });
+
+        botonVolver.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.guardarPreferencias();
                 escenario.addAction(Actions.sequence(
                     Actions.delay(0.1f),
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            Controlador.getInstancia().reiniciar();
-                            juego.setScreen(new PantallaJuego(juego));
+                            juego.setScreen(new PantallaMenuPrincipal(juego));
                         }
                     })
                 ));
             }
         });
 
-        botonSalir.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.fadeOut(0.3f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            Gdx.app.exit();
-                        }
-                    })
-                ));
-            }
-        });
+        tabla.add(etiquetaTitulo).padBottom(40).row();
 
-        tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(50).row();
-
-        botonOpciones.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            juego.setScreen(new PantallaOpciones(juego));
-                        }
-                    })
-                ));
-            }
-        });
-
-        botonInfo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            juego.setScreen(new PantallaInformacion(juego));
-                        }
-                    })
-                ));
-            }
-        });
-
-        float anchoBoton = 300f;
+        float anchoBoton = 350f;
         float altoBoton = 60f;
         float rellenoBoton = 10f;
 
-        tabla.add(botonIniciar).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonOpciones).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonInfo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonSalir).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonDificultad).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonMusica).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonSfx).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonPantalla).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(30).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
