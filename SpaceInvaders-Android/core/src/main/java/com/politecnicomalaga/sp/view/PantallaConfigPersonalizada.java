@@ -212,11 +212,15 @@ public class PantallaConfigPersonalizada implements Screen {
     }
 
     private float cycleMultiplier(float current) {
+        if (current < 0.3f) return 0.5f;
         if (current < 0.6f) return 0.75f;
         if (current < 0.8f) return 1.0f;
         if (current < 1.1f) return 1.25f;
         if (current < 1.3f) return 1.5f;
         if (current < 1.6f) return 2.0f;
-        return 0.5f;
+        if (current < 2.1f) return 2.5f;
+        if (current < 2.6f) return 3.0f;
+        if (current < 3.1f) return 4.0f;
+        return 0.25f;
     }
 }
