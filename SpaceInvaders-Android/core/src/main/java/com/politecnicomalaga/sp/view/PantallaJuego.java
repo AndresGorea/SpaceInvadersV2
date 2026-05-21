@@ -4,9 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Ovni;
 
 /**
@@ -23,10 +25,17 @@ public class PantallaJuego implements Screen {
     // Gestor de efectos visuales de fondo (reutilizable)
     private FondoEfectos fondoEfectos;
 
+    private OrthographicCamera camara;
+    private OrthographicCamera camaraHUD;
+
     public PantallaJuego(Main juego) {
         this.juego = juego;
         anchoPantalla = Gdx.graphics.getWidth();
         altoPantalla = Gdx.graphics.getHeight();
+        camara    = new OrthographicCamera();
+        camara.setToOrtho(false, anchoPantalla, altoPantalla);
+        camaraHUD = new OrthographicCamera();
+        camaraHUD.setToOrtho(false, anchoPantalla, altoPantalla);
         // Desactivamos los ovnis flotantes en el fondo durante el juego
         fondoEfectos = new FondoEfectos(false);
     }
@@ -99,6 +108,18 @@ public class PantallaJuego implements Screen {
         // 2. Lógica física
         Controlador.getInstancia().simulaMundo(anchoPantalla, altoPantalla, delta);
 
+        // Actualizar efectos de cámara
+        EfectosCamara.getInstancia().actualizar(delta);
+
+        // Aplicar shake si está activo
+        camara.position.set(
+            anchoPantalla / 2f + EfectosCamara.getInstancia().getOffsetX(),
+            altoPantalla  / 2f + EfectosCamara.getInstancia().getOffsetY(),
+            0
+        );
+        camara.update();
+        juego.getLote().setProjectionMatrix(camara.combined);
+
         // 3. Renderizado
         juego.getLote().begin();
 
@@ -106,6 +127,9 @@ public class PantallaJuego implements Screen {
         fondoEfectos.renderizar(juego.getLote(), delta);
 
         Controlador.getInstancia().pintar(juego.getLote());
+
+        // El HUD no tiembla
+        juego.getLote().setProjectionMatrix(camaraHUD.combined);
         Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
 
         // Mostrar texto de pausa si está activada
@@ -136,6 +160,8 @@ public class PantallaJuego implements Screen {
     public void resize(int width, int height) {
         anchoPantalla = width;
         altoPantalla = height;
+        camara.setToOrtho(false, width, height);
+        camaraHUD.setToOrtho(false, width, height);
     }
 
     @Override
