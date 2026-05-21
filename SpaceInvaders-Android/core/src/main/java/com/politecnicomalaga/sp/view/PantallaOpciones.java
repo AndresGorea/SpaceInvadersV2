@@ -49,6 +49,8 @@ public class PantallaOpciones implements Screen {
 
         // --- BOTONES ---
         final TextButton botonDificultad = crearBotonAnimado("Dificultad: " + prefs.getDificultadActual().name());
+        final TextButton botonConfigPers = crearBotonAnimado("Configurar Valores");
+        botonConfigPers.setVisible(prefs.getDificultadActual() == GestorPreferencias.Dificultad.PERSONALIZADO);
         final TextButton botonMusica = crearBotonAnimado("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
         final TextButton botonSfx = crearBotonAnimado("Efectos SFX: " + (prefs.isSfxActivado() ? "ON" : "OFF"));
         final TextButton botonPantalla = crearBotonAnimado("Pantalla: " + (prefs.isPantallaCompleta() ? "COMPLETA" : "VENTANA"));
@@ -62,6 +64,22 @@ public class PantallaOpciones implements Screen {
                 GestorPreferencias.Dificultad nuevaDif = GestorPreferencias.Dificultad.values()[ord];
                 prefs.setDificultadActual(nuevaDif);
                 botonDificultad.setText("Dificultad: " + nuevaDif.name());
+                botonConfigPers.setVisible(nuevaDif == GestorPreferencias.Dificultad.PERSONALIZADO);
+            }
+        });
+
+        botonConfigPers.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                escenario.addAction(Actions.sequence(
+                    Actions.delay(0.1f),
+                    Actions.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            juego.setScreen(new PantallaConfigPersonalizada(juego));
+                        }
+                    })
+                ));
             }
         });
 
@@ -112,6 +130,7 @@ public class PantallaOpciones implements Screen {
         float rellenoBoton = 10f;
 
         tabla.add(botonDificultad).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonConfigPers).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
         tabla.add(botonMusica).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
         tabla.add(botonSfx).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
         tabla.add(botonPantalla).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();

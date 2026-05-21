@@ -1,6 +1,7 @@
 package com.politecnicomalaga.sp.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -19,19 +19,21 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
-import com.politecnicomalaga.sp.util.Recursos;
+import com.politecnicomalaga.sp.control.GestorPreferencias;
 
-public class PantallaInformacion implements Screen {
+public class PantallaConfigPersonalizada implements Screen {
 
     private final Main juego;
     private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
+    private GestorPreferencias prefs;
 
-    public PantallaInformacion(final Main juego) {
+    public PantallaConfigPersonalizada(final Main juego) {
         this.juego = juego;
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
+        prefs = GestorPreferencias.getInstancia();
 
         crearAparienciaBasica();
         fondoEfectos = new FondoEfectos(true);
@@ -40,69 +42,71 @@ public class PantallaInformacion implements Screen {
         tabla.setFillParent(true);
         escenario.addActor(tabla);
 
-        // --- TÍTULOS ---
+        // --- TÍTULO ---
         Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
-        Label etiquetaTitulo = new Label("INFORMACIÓN Y GUÍA", estiloTitulo);
-        etiquetaTitulo.setFontScale(1.8f);
+        Label etiquetaTitulo = new Label("VALORES PERSONALIZADOS", estiloTitulo);
+        etiquetaTitulo.setFontScale(1.5f);
         etiquetaTitulo.setAlignment(Align.center);
-        tabla.add(etiquetaTitulo).colspan(2).padBottom(30).row();
 
-        Label.LabelStyle estiloTexto = new Label.LabelStyle(juego.getFuente(), Color.WHITE);
-
-        // --- ENEMIGOS ---
-        Label lblEnemigos = new Label("GUÍA DE NAVES:", estiloTitulo);
-        tabla.add(lblEnemigos).colspan(2).padBottom(10).row();
-
-        Image imgEne1 = new Image(Recursos.getInstancia().getTextura("enemigo1.png"));
-        Label lblEne1 = new Label("Nave Élite\n100 Puntos\n3 Vidas", estiloTexto);
-        lblEne1.setAlignment(Align.center);
-
-        Image imgEne2 = new Image(Recursos.getInstancia().getTextura("enemigo2.png"));
-        Label lblEne2 = new Label("Nave Básica\n20 Puntos\n1 Vida", estiloTexto);
-        lblEne2.setAlignment(Align.center);
-
-        Table tablaNaves = new Table();
-        tablaNaves.add(imgEne1).size(50, 40).pad(10);
-        tablaNaves.add(lblEne1).pad(10);
-        tablaNaves.add(imgEne2).size(50, 40).pad(10).padLeft(30);
-        tablaNaves.add(lblEne2).pad(10);
-
-        tabla.add(tablaNaves).colspan(2).padBottom(30).row();
-
-        // --- CONTROLES ---
-        Label lblControles = new Label("CONTROLES:", estiloTitulo);
-        tabla.add(lblControles).colspan(2).padBottom(10).row();
-
-        Label lblControlesMovil = new Label("[MÓVIL]\nTocar debajo de flechas izquierdas: Mover Izquierda\nTocar debajo de flechas derechas: Mover Derecha\nDisparo: Tocar Debajo de SHOT", estiloTexto);
-        lblControlesMovil.setAlignment(Align.center);
-
-        Label lblControlesPC = new Label("[PC]\nFlechas Izq/Der A/D o Click en pantalla: Moverse\nDisparo: Pulsar espacio", estiloTexto);
-        lblControlesPC.setAlignment(Align.center);
-
-        Table tablaControles = new Table();
-        tablaControles.add(lblControlesMovil).pad(10).padRight(40);
-        tablaControles.add(lblControlesPC).pad(10);
-
-        tabla.add(tablaControles).colspan(2).padBottom(40).row();
-
-        // --- BOTÓN VOLVER ---
+        // --- BOTONES ---
+        final TextButton botonProbDisparo = crearBotonAnimado("Prob. Disparo: x" + prefs.getMultProbDisparoPersonalizado());
+        final TextButton botonVelBatallon = crearBotonAnimado("Vel. Batallon: x" + prefs.getMultVelBatallonPersonalizado());
+        final TextButton botonVelBala = crearBotonAnimado("Vel. Bala Ene: x" + prefs.getMultVelBalaEnemigaPersonalizado());
         TextButton botonVolver = crearBotonAnimado("VOLVER");
+
+        botonProbDisparo.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float newVal = cycleMultiplier(prefs.getMultProbDisparoPersonalizado());
+                prefs.setMultProbDisparoPersonalizado(newVal);
+                botonProbDisparo.setText("Prob. Disparo: x" + newVal);
+            }
+        });
+
+        botonVelBatallon.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float newVal = cycleMultiplier(prefs.getMultVelBatallonPersonalizado());
+                prefs.setMultVelBatallonPersonalizado(newVal);
+                botonVelBatallon.setText("Vel. Batallon: x" + newVal);
+            }
+        });
+
+        botonVelBala.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float newVal = cycleMultiplier(prefs.getMultVelBalaEnemigaPersonalizado());
+                prefs.setMultVelBalaEnemigaPersonalizado(newVal);
+                botonVelBala.setText("Vel. Bala Ene: x" + newVal);
+            }
+        });
+
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                prefs.guardarPreferencias();
                 escenario.addAction(Actions.sequence(
                     Actions.delay(0.1f),
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            juego.setScreen(new PantallaMenuPrincipal(juego));
+                            juego.setScreen(new PantallaOpciones(juego));
                         }
                     })
                 ));
             }
         });
 
-        tabla.add(botonVolver).colspan(2).width(300).height(60).pad(10).row();
+        tabla.add(etiquetaTitulo).padBottom(40).row();
+
+        float anchoBoton = 350f;
+        float altoBoton = 60f;
+        float rellenoBoton = 10f;
+
+        tabla.add(botonProbDisparo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVelBatallon).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVelBala).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(30).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -205,5 +209,14 @@ public class PantallaInformacion implements Screen {
         escenario.dispose();
         apariencia.dispose();
         fondoEfectos.dispose();
+    }
+
+    private float cycleMultiplier(float current) {
+        if (current < 0.6f) return 0.75f;
+        if (current < 0.8f) return 1.0f;
+        if (current < 1.1f) return 1.25f;
+        if (current < 1.3f) return 1.5f;
+        if (current < 1.6f) return 2.0f;
+        return 0.5f;
     }
 }

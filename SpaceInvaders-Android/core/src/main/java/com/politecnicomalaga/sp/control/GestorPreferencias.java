@@ -16,10 +16,10 @@ public class GestorPreferencias {
     private boolean sfxActivado;
     private boolean pantallaCompleta;
 
-    // Valores personalizados
-    private int probDisparoPersonalizado;
-    private float velBatallonPersonalizado;
-    private float velBalaEnemigaPersonalizado;
+    // Valores personalizados (multiplicadores)
+    private float multProbDisparoPersonalizado;
+    private float multVelBatallonPersonalizado;
+    private float multVelBalaEnemigaPersonalizado;
 
     private GestorPreferencias() {
         prefs = Gdx.app.getPreferences("SpaceInvadersV2Prefs");
@@ -45,9 +45,9 @@ public class GestorPreferencias {
         sfxActivado = prefs.getBoolean("sfx", true);
         pantallaCompleta = prefs.getBoolean("pantallaCompleta", false);
 
-        probDisparoPersonalizado = prefs.getInteger("custProbDisp", 7);
-        velBatallonPersonalizado = prefs.getFloat("custVelBat", 80f);
-        velBalaEnemigaPersonalizado = prefs.getFloat("custVelBalaEne", 400f);
+        multProbDisparoPersonalizado = prefs.getFloat("custMultProbDisp", 1.0f);
+        multVelBatallonPersonalizado = prefs.getFloat("custMultVelBat", 1.0f);
+        multVelBalaEnemigaPersonalizado = prefs.getFloat("custMultVelBalaEne", 1.0f);
     }
 
     public void guardarPreferencias() {
@@ -56,9 +56,9 @@ public class GestorPreferencias {
         prefs.putBoolean("sfx", sfxActivado);
         prefs.putBoolean("pantallaCompleta", pantallaCompleta);
 
-        prefs.putInteger("custProbDisp", probDisparoPersonalizado);
-        prefs.putFloat("custVelBat", velBatallonPersonalizado);
-        prefs.putFloat("custVelBalaEne", velBalaEnemigaPersonalizado);
+        prefs.putFloat("custMultProbDisp", multProbDisparoPersonalizado);
+        prefs.putFloat("custMultVelBat", multVelBatallonPersonalizado);
+        prefs.putFloat("custMultVelBalaEne", multVelBalaEnemigaPersonalizado);
         
         prefs.flush();
         aplicarAjustesPantalla();
@@ -80,7 +80,7 @@ public class GestorPreferencias {
             case FACIL: return (int)(ConfiguracionJuego.ENE_PROB_DISPARO * 0.5f);
             case NORMAL: return ConfiguracionJuego.ENE_PROB_DISPARO;
             case DIFICIL: return (int)(ConfiguracionJuego.ENE_PROB_DISPARO * 1.5f);
-            case PERSONALIZADO: return probDisparoPersonalizado;
+            case PERSONALIZADO: return (int)(ConfiguracionJuego.ENE_PROB_DISPARO * multProbDisparoPersonalizado);
             default: return ConfiguracionJuego.ENE_PROB_DISPARO;
         }
     }
@@ -90,7 +90,7 @@ public class GestorPreferencias {
             case FACIL: return ConfiguracionJuego.BAT_VELOCIDAD * 0.7f;
             case NORMAL: return ConfiguracionJuego.BAT_VELOCIDAD;
             case DIFICIL: return ConfiguracionJuego.BAT_VELOCIDAD * 1.3f;
-            case PERSONALIZADO: return velBatallonPersonalizado;
+            case PERSONALIZADO: return ConfiguracionJuego.BAT_VELOCIDAD * multVelBatallonPersonalizado;
             default: return ConfiguracionJuego.BAT_VELOCIDAD;
         }
     }
@@ -100,7 +100,7 @@ public class GestorPreferencias {
             case FACIL: return ConfiguracionJuego.BALA_ENE_VELOCIDAD * 0.8f;
             case NORMAL: return ConfiguracionJuego.BALA_ENE_VELOCIDAD;
             case DIFICIL: return ConfiguracionJuego.BALA_ENE_VELOCIDAD * 1.2f;
-            case PERSONALIZADO: return velBalaEnemigaPersonalizado;
+            case PERSONALIZADO: return ConfiguracionJuego.BALA_ENE_VELOCIDAD * multVelBalaEnemigaPersonalizado;
             default: return ConfiguracionJuego.BALA_ENE_VELOCIDAD;
         }
     }
@@ -119,12 +119,12 @@ public class GestorPreferencias {
     public boolean isPantallaCompleta() { return pantallaCompleta; }
     public void setPantallaCompleta(boolean pantallaCompleta) { this.pantallaCompleta = pantallaCompleta; }
 
-    public int getProbDisparoPersonalizado() { return probDisparoPersonalizado; }
-    public void setProbDisparoPersonalizado(int prob) { this.probDisparoPersonalizado = prob; }
+    public float getMultProbDisparoPersonalizado() { return multProbDisparoPersonalizado; }
+    public void setMultProbDisparoPersonalizado(float mult) { this.multProbDisparoPersonalizado = mult; }
 
-    public float getVelBatallonPersonalizado() { return velBatallonPersonalizado; }
-    public void setVelBatallonPersonalizado(float vel) { this.velBatallonPersonalizado = vel; }
+    public float getMultVelBatallonPersonalizado() { return multVelBatallonPersonalizado; }
+    public void setMultVelBatallonPersonalizado(float mult) { this.multVelBatallonPersonalizado = mult; }
 
-    public float getVelBalaEnemigaPersonalizado() { return velBalaEnemigaPersonalizado; }
-    public void setVelBalaEnemigaPersonalizado(float vel) { this.velBalaEnemigaPersonalizado = vel; }
+    public float getMultVelBalaEnemigaPersonalizado() { return multVelBalaEnemigaPersonalizado; }
+    public void setMultVelBalaEnemigaPersonalizado(float mult) { this.multVelBalaEnemigaPersonalizado = mult; }
 }
