@@ -1,4 +1,7 @@
 package com.politecnicomalaga.sp.model;
+
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
+
 public class Batallon {
     //Atributos
     //Composición de 4 escuadrones
@@ -28,7 +31,14 @@ public class Batallon {
 
         for (int i = 0; i < this.escuadrones.length; i++) {
             float yEscuadron = y - (i * (height + espacioVertical));
-            this.escuadrones[i] = new Escuadron(x, yEscuadron, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves);
+            this.escuadrones[i] = new Escuadron(
+                x, yEscuadron, width, height, estado, dir,
+                ConfiguracionJuego.ENE_TEXTURA_FILA[i],
+                ConfiguracionJuego.ENE_VIDAS_FILA[i],
+                cadencia, anchoBala, altoBala, velocidadBala,
+                probabilidadDisparo, espacioEntreNaves,
+                ConfiguracionJuego.ENE_PUNTOS_FILA[i]
+            );
         }
     }
 
