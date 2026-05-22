@@ -1,0 +1,85 @@
+package com.politecnicomalaga.sp.model;
+
+import java.lang.reflect.Array;
+
+public class Escuadron {
+    NaveEne [] navesEnemigas;
+    float  espacioEntreNaves;
+    public Escuadron(float x, float y, float width, float height, Ovni.Estado estado,
+                     Ovni.Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala,
+                     float velocidadBala, int probabilidadDisparo, float espacioEntreNaves){
+
+        navesEnemigas = new NaveEne[8];
+        navesEnemigas = loadNaves(navesEnemigas, x, y, width, height, estado, dir, textura, vidas, cadencia,
+            anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves);
+    }
+
+    public NaveEne [] getNavesEnemigas() {
+        return navesEnemigas;
+    }
+
+    public NaveEne[] loadNaves
+        (NaveEne [] navesEnemigas, float x, float y, float width, float height, Ovni.Estado estado,
+         Ovni.Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala,
+         float velocidadBala, int probabilidadDisparo, float espacioEntreNaves) {
+
+        for (int i = 0; i < navesEnemigas.length; i++) {
+            //Hacemos una X diferente para cada nave para que no se solapen
+            float xNave = x + (i * (width + espacioEntreNaves));
+            navesEnemigas[i] = new NaveEne(xNave, y, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo);
+        }
+
+            return navesEnemigas;
+    }
+    public boolean haTocadoBorde(float anchoPantalla, Ovni.Direccion dirActual){
+        for (NaveEne naveEne : navesEnemigas) {
+            if (!naveEne.estaVivo()){
+                continue;
+            }
+            if (naveEne.getX() + naveEne.getWidth() >= anchoPantalla && dirActual == Ovni.Direccion.DERECHA ) {
+                return true;
+            }
+            if (naveEne.getX() <= 0 && dirActual == Ovni.Direccion.IZQUIERDA) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public void moverLateralmente(Ovni.Direccion direccionActual, float velocidad, float delta) {
+        for (NaveEne naveEne : navesEnemigas) {
+            if (naveEne.estaVivo()) {
+                naveEne.mover(direccionActual, velocidad, delta);
+            }
+        }
+    }
+    public void bajar(float cuantoBaja) {
+        for (NaveEne naveEne :navesEnemigas) {
+            //Aqui solo bajan las naves que estén vivas por eso la comprobación
+            if (naveEne.estaVivo()) {
+                naveEne.mover(Ovni.Direccion.ABAJO, cuantoBaja, 1f);
+            }
+        }
+    }
+    public void gestionarDisparosEnemigos(float limiteInferior, float delta) {
+        for (NaveEne naveEne : navesEnemigas) {
+            naveEne.gestionarMisDisparos(limiteInferior, delta);
+        }
+    }
+    public boolean tieneNavesVivas(){
+        //Si alguna esta viva devuelve true
+        for (NaveEne naveEne :navesEnemigas) {
+            if (naveEne.estaVivo()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public void disparar(){
+        //Cada nave dispara segun la probabilidad de disparo
+        for (NaveEne naveEne :navesEnemigas){
+            if (naveEne.estaVivo()) {
+                naveEne.disparar();
+            }
+        }
+    }
+}
