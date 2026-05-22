@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.Controlador;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
  * Representa la pantalla principal donde ocurre la acción del juego.
@@ -48,33 +49,47 @@ public class PantallaJuego implements Screen {
         }
 
         // 1. Entrada
-        // Dimensiones de botones
-        btnAncho = anchoPantalla * 0.2f;
-        btnAlto = altoPantalla * 0.15f;
-
-        // Zonas de botones Android (izquierda, derecha, disparo)
-        boolean tocandoIzq   = Gdx.input.isTouched() &&
-                               Gdx.input.getX() < btnAncho &&
-                               Gdx.input.getY() > altoPantalla - btnAlto;
-        boolean tocandoDer   = Gdx.input.isTouched() &&
-                               Gdx.input.getX() > btnAncho && Gdx.input.getX() < btnAncho * 2.5f &&
-                               Gdx.input.getY() > altoPantalla - btnAlto;
-        boolean tocandoFire  = Gdx.input.justTouched() &&
-                               Gdx.input.getX() > anchoPantalla - btnAncho &&
-                               Gdx.input.getY() > altoPantalla - btnAlto;
+        SettingsManager settings = SettingsManager.getInstancia();
+        int tipoControl = settings.getTipoControl();
 
         if (Controlador.getInstancia().esAndroid()) {
-            if (tocandoIzq) {
-                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
-            } else if (tocandoDer) {
-                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
-            } else if (!Gdx.input.isTouched()) {
-                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
-            }
-            if (tocandoFire) {
-                Controlador.getInstancia().dispararNaveAmiga();
+            if (tipoControl == 1) { // MODERNO: Botones dedicados
+                btnAncho = anchoPantalla * 0.2f;
+                btnAlto = altoPantalla * 0.15f;
+
+                boolean tocandoIzq = Gdx.input.isTouched() &&
+                        Gdx.input.getX() < btnAncho &&
+                        Gdx.input.getY() > altoPantalla - btnAlto;
+                boolean tocandoDer = Gdx.input.isTouched() &&
+                        Gdx.input.getX() > btnAncho && Gdx.input.getX() < btnAncho * 2.5f &&
+                        Gdx.input.getY() > altoPantalla - btnAlto;
+                boolean tocandoFire = Gdx.input.justTouched() &&
+                        Gdx.input.getX() > anchoPantalla - btnAncho &&
+                        Gdx.input.getY() > altoPantalla - btnAlto;
+
+                if (tocandoIzq) {
+                    Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
+                } else if (tocandoDer) {
+                    Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
+                } else if (!Gdx.input.isTouched()) {
+                    Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
+                }
+                if (tocandoFire) {
+                    Controlador.getInstancia().dispararNaveAmiga();
+                }
+            } else { // CLÁSICO: Toque en pantalla para girar y disparo automático o toque arriba
+                if (Gdx.input.justTouched()) {
+                    x = Gdx.input.getX();
+                    y = Gdx.input.getY();
+                    if (y < altoPantalla * 0.2f) { // Toque en la parte superior para disparar
+                        Controlador.getInstancia().dispararNaveAmiga();
+                    } else {
+                        Controlador.getInstancia().click(x, y);
+                    }
+                }
             }
         } else {
+            // PC: Toque para cambiar de sentido (opcional) o teclado
             if (Gdx.input.justTouched()) {
                 x = Gdx.input.getX();
                 y = Gdx.input.getY();
@@ -82,7 +97,7 @@ public class PantallaJuego implements Screen {
             }
         }
 
-        // Controles de teclado (solo PC)
+        // Controles de teclado (siempre activos en PC)
         if (!Controlador.getInstancia().esAndroid()) {
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
                 Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
@@ -115,8 +130,8 @@ public class PantallaJuego implements Screen {
         }
 
 
-        // Dibujar botones táctiles en Android
-        if (Controlador.getInstancia().esAndroid()) {
+        // Dibujar botones táctiles en Android (solo si el control es Moderno)
+        if (Controlador.getInstancia().esAndroid() && tipoControl == 1) {
             Controlador.getInstancia().pintarBotonesAndroid(
                 juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
         }

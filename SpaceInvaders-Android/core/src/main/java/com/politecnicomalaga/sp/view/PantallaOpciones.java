@@ -18,27 +18,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
-import com.politecnicomalaga.sp.control.Controlador;
 import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
- * Pantalla de inicio del juego que presenta el menú principal.
- * Utiliza FondoEfectos para el fondo animado y Scene2D para la interfaz.
+ * Pantalla de configuración del juego.
+ * Permite ajustar el volumen y el tipo de controles.
  */
-public class PantallaMenuPrincipal implements Screen {
+public class PantallaOpciones implements Screen {
 
     private final Main juego;
-    private final Stage  escenario;
+    private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
 
-    public PantallaMenuPrincipal(final Main juego) {
+    public PantallaOpciones(final Main juego) {
         this.juego = juego;
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
 
         crearAparienciaBasica();
-        // El menú principal sí muestra los ovnis flotantes
         fondoEfectos = new FondoEfectos(true);
 
         Table tabla = new Table();
@@ -47,80 +45,47 @@ public class PantallaMenuPrincipal implements Screen {
 
         // --- TÍTULO ---
         Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
-        Label etiquetaTitulo = new Label("SPACE INVADERS", estiloTitulo);
-        etiquetaTitulo.setFontScale(3.0f);
+        Label etiquetaTitulo = new Label("CONFIGURACIÓN", estiloTitulo);
+        etiquetaTitulo.setFontScale(2.5f);
         etiquetaTitulo.setAlignment(Align.center);
-        etiquetaTitulo.setOrigin(Align.center);
 
-        etiquetaTitulo.addAction(Actions.forever(
-            Actions.sequence(
-                Actions.scaleTo(3.2f, 3.2f, 1.5f),
-                Actions.scaleTo(2.8f, 2.8f, 1.5f)
-            )
-        ));
+        // --- OPCIONES ---
+        final SettingsManager settings = SettingsManager.getInstancia();
 
-        // --- HIGH SCORE ---
-        int highScore = SettingsManager.getInstancia().getHighScore();
-        Label etiquetaHighScore = new Label("RECORD: " + highScore, new Label.LabelStyle(juego.getFuente(), Color.YELLOW));
-        etiquetaHighScore.setFontScale(1.2f);
-        etiquetaHighScore.setAlignment(Align.center);
+        final TextButton botonVolumen = crearBotonAnimado("VOLUMEN: " + (int)(settings.getVolumen() * 100) + "%");
+        final TextButton botonControles = crearBotonAnimado("CONTROLES: " + (settings.getTipoControl() == 0 ? "CLÁSICO" : "MODERNO"));
+        TextButton botonVolver = crearBotonAnimado("VOLVER");
 
-        // --- BOTONES ---
-        TextButton botonIniciar = crearBotonAnimado("INICIAR");
-        TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
-        TextButton botonInfo = crearBotonAnimado("INFORMACIÓN");
-        TextButton botonSalir = crearBotonAnimado("SALIR");
-
-        botonIniciar.addListener(new ClickListener() {
+        botonVolumen.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            Controlador.getInstancia().reiniciar();
-                            juego.setScreen(new PantallaJuego(juego));
-                        }
-                    })
-                ));
+                float nuevoVolumen = settings.getVolumen() + 0.1f;
+                if (nuevoVolumen > 1.05f) nuevoVolumen = 0f;
+                settings.setVolumen(nuevoVolumen);
+                botonVolumen.setText("VOLUMEN: " + (int)(nuevoVolumen * 100) + "%");
             }
         });
 
-        botonOpciones.addListener(new ClickListener() {
+        botonControles.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new PantallaOpciones(juego));
+                int nuevoControl = settings.getTipoControl() == 0 ? 1 : 0;
+                settings.setTipoControl(nuevoControl);
+                botonControles.setText("CONTROLES: " + (nuevoControl == 0 ? "CLÁSICO" : "MODERNO"));
             }
         });
 
-        botonSalir.addListener(new ClickListener() {
+        botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.fadeOut(0.3f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            Gdx.app.exit();
-                        }
-                    })
-                ));
+                juego.setScreen(new PantallaMenuPrincipal(juego));
             }
         });
 
-        tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(10).row();
-        tabla.add(etiquetaHighScore).padBottom(30).row();
-
-        float anchoBoton = 300f;
-        float altoBoton = 60f;
-        float rellenoBoton = 10f;
-
-        tabla.add(botonIniciar).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonOpciones).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonInfo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonSalir).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(etiquetaTitulo).padBottom(50).row();
+        tabla.add(botonVolumen).width(400).height(60).padBottom(20).row();
+        tabla.add(botonControles).width(400).height(60).padBottom(40).row();
+        tabla.add(botonVolver).width(300).height(60).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -134,7 +99,7 @@ public class PantallaMenuPrincipal implements Screen {
                 super.enter(event, x, y, pointer, fromActor);
                 if (pointer == -1) {
                     boton.clearActions();
-                    boton.addAction(Actions.scaleTo(1.1f, 1.1f, 0.1f));
+                    boton.addAction(Actions.scaleTo(1.05f, 1.05f, 0.1f));
                 }
             }
 
@@ -170,7 +135,7 @@ public class PantallaMenuPrincipal implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
+        int ancho = 400;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
@@ -185,11 +150,7 @@ public class PantallaMenuPrincipal implements Screen {
     }
 
     @Override
-    public void show() {
-        Gdx.input.setInputProcessor(escenario);
-        escenario.getRoot().getColor().a = 0;
-        escenario.addAction(Actions.fadeIn(0.5f));
-    }
+    public void show() {}
 
     @Override
     public void render(float delta) {
@@ -200,7 +161,7 @@ public class PantallaMenuPrincipal implements Screen {
         fondoEfectos.renderizar(juego.getLote(), delta);
         juego.getLote().end();
 
-        escenario.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+        escenario.act(delta);
         escenario.draw();
     }
 
