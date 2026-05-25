@@ -33,6 +33,10 @@ public class ConfiguracionJuego {
     public static final float BALA_ENE_ALTO = 30f;
     public static final float BALA_ENE_VELOCIDAD = 400f;
 
+    // --- Configuración: Resolución Virtual ---
+    public static final float VIRTUAL_WIDTH = 800f;
+    public static final float VIRTUAL_HEIGHT = 600f;
+
     // --- Configuración: Power-Ups ---
     public static final float PU_PROB_DROP = 0.15f;
     public static final float PU_VELOCIDAD = 150f;

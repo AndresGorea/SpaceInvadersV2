@@ -26,19 +26,18 @@ public class Batallon {
 
     // Método load, en filas
     private void loadEscuadrones(float x, float y, float espacioVertical, float width, float height,
-                                 Ovni.Estado estado, Ovni.Direccion dir, String textura, int vidas, float cadencia,
+                                 Ovni.Estado estado, Ovni.Direccion dir, String texturaBase, int vidasBase, float cadencia,
                                  float anchoBala, float altoBala, float velocidadBala, int probabilidadDisparo, float espacioEntreNaves) {
 
         for (int i = 0; i < this.escuadrones.length; i++) {
             float yEscuadron = y - (i * (height + espacioVertical));
-            this.escuadrones[i] = new Escuadron(
-                x, yEscuadron, width, height, estado, dir,
-                ConfiguracionJuego.ENE_TEXTURA_FILA[i],
-                ConfiguracionJuego.ENE_VIDAS_FILA[i],
-                cadencia, anchoBala, altoBala, velocidadBala,
-                probabilidadDisparo, espacioEntreNaves,
-                ConfiguracionJuego.ENE_PUNTOS_FILA[i]
-            );
+            
+            // Fila superior (i == 0) -> Élite
+            String texturaEscuadron = (i == 0) ? "enemigo1.png" : "enemigo2.png";
+            int vidasEscuadron = (i == 0) ? 3 : 1;
+            int puntosEscuadron = (i == 0) ? 100 : 20;
+
+            this.escuadrones[i] = new Escuadron(x, yEscuadron, width, height, estado, dir, texturaEscuadron, vidasEscuadron, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves, puntosEscuadron);
         }
     }
 
