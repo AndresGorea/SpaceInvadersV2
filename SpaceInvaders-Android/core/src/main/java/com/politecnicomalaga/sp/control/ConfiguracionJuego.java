@@ -33,6 +33,10 @@ public class ConfiguracionJuego {
     public static final float BALA_ENE_ALTO = 30f;
     public static final float BALA_ENE_VELOCIDAD = 400f;
 
+    // --- Configuración: Resolución Virtual ---
+    public static final float VIRTUAL_WIDTH = 800f;
+    public static final float VIRTUAL_HEIGHT = 600f;
+
     // --- Configuración: Power-Ups ---
     public static final float PU_PROB_DROP = 0.15f;
     public static final float PU_VELOCIDAD = 150f;
@@ -40,4 +44,9 @@ public class ConfiguracionJuego {
     public static final float PU_ALTO = 30f;
     public static final float DURACION_POWERUP = 10f;
     public static final float VELOCIDAD_BONUS = 200f;
+
+    // Puntuación, vidas y textura por fila (índice 0 = fila superior)
+    public static final int[]    ENE_PUNTOS_FILA  = {30, 20, 15, 10};
+    public static final int[]    ENE_VIDAS_FILA   = {2,  2,  1,  1};
+    public static final String[] ENE_TEXTURA_FILA = {"enemigo2.png", "enemigo2.png", "enemigo1.png", "enemigo1.png"};
 }

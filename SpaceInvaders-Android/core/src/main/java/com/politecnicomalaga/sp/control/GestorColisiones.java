@@ -69,12 +69,10 @@ public class GestorColisiones {
                     if (n.estaVivo() && disparoAmi.colision(n)) {
                         n.recibirDisparo();
                         disparoAmi.setEstado(Ovni.Estado.MUERTO);
-                        estado.addPuntuacion(10);
 
-                        // Si la nave muere, soltamos Power-up
+                        // Si la nave muere, soltamos Power-up y damos los puntos
                         if (!n.estaVivo()) {
-                            EfectosCamara.getInstancia().shake(4f, 0.15f);
-                            EfectosCamara.getInstancia().hitStop(0.05f);
+                            estado.addPuntuacion(n.getPuntos());
                             mundo.soltarPowerUp(n.getX(), n.getY());
                         }
                         break;

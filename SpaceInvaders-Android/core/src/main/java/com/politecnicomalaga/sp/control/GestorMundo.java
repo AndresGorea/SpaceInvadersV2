@@ -35,7 +35,7 @@ public class GestorMundo {
      */
     private void inicializarMundo() {
         // Posicionamiento de la nave del jugador (centrada horizontalmente)
-        float naveInicioX = (Gdx.graphics.getWidth() / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
+        float naveInicioX = (ConfiguracionJuego.VIRTUAL_WIDTH / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
         float naveInicioY = 10f;
 
         this.naveAmiga = new NaveAmi(
@@ -50,7 +50,9 @@ public class GestorMundo {
 
         // Posicionamiento inicial del batallón enemigo
         float batInicioX = 20f;
-        float batInicioY = Gdx.graphics.getHeight() - 40f;
+        float batInicioY = ConfiguracionJuego.VIRTUAL_HEIGHT - 40f;
+
+        GestorPreferencias prefs = GestorPreferencias.getInstancia();
 
         this.batallon = new Batallon(
             batInicioX, batInicioY, ConfiguracionJuego.BAT_ESPACIO_VERT,
@@ -60,9 +62,9 @@ public class GestorMundo {
             "enemigo1.png",
             ConfiguracionJuego.ENE_VIDAS,
             ConfiguracionJuego.ENE_CADENCIA,
-            ConfiguracionJuego.BALA_ENE_ANCHO, ConfiguracionJuego.BALA_ENE_ALTO, ConfiguracionJuego.BALA_ENE_VELOCIDAD,
-            ConfiguracionJuego.ENE_PROB_DISPARO,
-            ConfiguracionJuego.BAT_ESPACIO_HORIZ, ConfiguracionJuego.BAT_VELOCIDAD
+            ConfiguracionJuego.BALA_ENE_ANCHO, ConfiguracionJuego.BALA_ENE_ALTO, prefs.getVelocidadBalaEnemiga(),
+            prefs.getProbabilidadDisparo(),
+            ConfiguracionJuego.BAT_ESPACIO_HORIZ, prefs.getVelocidadBatallon()
         );
     }
 
