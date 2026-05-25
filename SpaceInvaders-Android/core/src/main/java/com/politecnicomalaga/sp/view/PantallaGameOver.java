@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
  * Pantalla que se muestra al finalizar el juego (Victoria o Derrota).
@@ -37,6 +38,11 @@ public class PantallaGameOver implements Screen {
     public PantallaGameOver(final Main juego, boolean victoria, int puntuacion) {
         this.juego = juego;
         this.victoria = victoria;
+
+        // Actualizar la puntuación máxima si es necesario
+        SettingsManager settings = SettingsManager.getInstancia();
+        settings.setHighScore(puntuacion);
+        int highScore = settings.getHighScore();
 
         escenario = new Stage(new ExtendViewport(ConfiguracionJuego.VIRTUAL_WIDTH, ConfiguracionJuego.VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(escenario);
@@ -70,6 +76,11 @@ public class PantallaGameOver implements Screen {
         Label etiquetaPuntos = new Label("PUNTUACIÓN FINAL: " + puntuacion, estiloPuntos);
         etiquetaPuntos.setFontScale(1.5f);
         etiquetaPuntos.setAlignment(Align.center);
+
+        Label etiquetaHighScore = new Label("MEJOR PUNTUACIÓN: " + highScore, estiloPuntos);
+        etiquetaHighScore.setFontScale(1.2f);
+        etiquetaHighScore.setColor(Color.YELLOW);
+        etiquetaHighScore.setAlignment(Align.center);
 
         // --- BOTONES ---
         TextButton botonReintentar = crearBotonAnimado("REINTENTAR");
@@ -108,7 +119,8 @@ public class PantallaGameOver implements Screen {
 
         // Configuración de la tabla
         tabla.add(etiquetaTitulo).padBottom(30).row();
-        tabla.add(etiquetaPuntos).padBottom(40).row();
+        tabla.add(etiquetaPuntos).padBottom(10).row();
+        tabla.add(etiquetaHighScore).padBottom(40).row();
         tabla.add(botonReintentar).width(350).height(70).padBottom(15).row();
         tabla.add(botonMenu).width(350).height(70).row();
     }

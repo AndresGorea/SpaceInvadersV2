@@ -19,7 +19,12 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.GestorPreferencias;
+import com.politecnicomalaga.sp.util.SettingsManager;
 
+/**
+ * Pantalla de configuración del juego.
+ * Permite ajustar opciones de juego, volumen y controles.
+ */
 public class PantallaOpciones implements Screen {
 
     private final Main juego;
@@ -27,12 +32,14 @@ public class PantallaOpciones implements Screen {
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
     private GestorPreferencias prefs;
+    private SettingsManager settings;
 
     public PantallaOpciones(final Main juego) {
         this.juego = juego;
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
         prefs = GestorPreferencias.getInstancia();
+        settings = SettingsManager.getInstancia();
 
         crearAparienciaBasica();
         fondoEfectos = new FondoEfectos(true);
@@ -54,6 +61,10 @@ public class PantallaOpciones implements Screen {
         final TextButton botonMusica = crearBotonAnimado("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
         final TextButton botonSfx = crearBotonAnimado("Efectos SFX: " + (prefs.isSfxActivado() ? "ON" : "OFF"));
         final TextButton botonPantalla = crearBotonAnimado("Pantalla: " + (prefs.isPantallaCompleta() ? "COMPLETA" : "VENTANA"));
+        
+        final TextButton botonVolumen = crearBotonAnimado("Volumen: " + (int)(settings.getVolumen() * 100) + "%");
+        final TextButton botonControles = crearBotonAnimado("Controles: " + (settings.getTipoControl() == 0 ? "CLASICO" : "MODERNO"));
+        
         TextButton botonVolver = crearBotonAnimado("VOLVER");
 
         botonDificultad.addListener(new ClickListener() {
@@ -107,6 +118,25 @@ public class PantallaOpciones implements Screen {
             }
         });
 
+        botonVolumen.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                float nuevoVolumen = settings.getVolumen() + 0.1f;
+                if (nuevoVolumen > 1.05f) nuevoVolumen = 0f;
+                settings.setVolumen(nuevoVolumen);
+                botonVolumen.setText("Volumen: " + (int)(nuevoVolumen * 100) + "%");
+            }
+        });
+
+        botonControles.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                int nuevoControl = settings.getTipoControl() == 0 ? 1 : 0;
+                settings.setTipoControl(nuevoControl);
+                botonControles.setText("Controles: " + (nuevoControl == 0 ? "CLASICO" : "MODERNO"));
+            }
+        });
+
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -123,18 +153,25 @@ public class PantallaOpciones implements Screen {
             }
         });
 
-        tabla.add(etiquetaTitulo).padBottom(40).row();
+        tabla.add(etiquetaTitulo).padBottom(20).colspan(2).row();
 
         float anchoBoton = 350f;
         float altoBoton = 60f;
         float rellenoBoton = 10f;
 
-        tabla.add(botonDificultad).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        // Two columns to fit all buttons on screen
+        tabla.add(botonDificultad).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
         tabla.add(botonConfigPers).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonMusica).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        
+        tabla.add(botonMusica).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
         tabla.add(botonSfx).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonPantalla).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(30).row();
+        
+        tabla.add(botonPantalla).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
+        tabla.add(botonVolumen).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        
+        tabla.add(botonControles).width(anchoBoton).height(altoBoton).pad(rellenoBoton).colspan(2).row();
+        
+        tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(20).colspan(2).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -184,7 +221,7 @@ public class PantallaOpciones implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
+        int ancho = 350;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);

@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
  * Pantalla de inicio del juego que presenta el menú principal.
@@ -59,6 +60,12 @@ public class PantallaMenuPrincipal implements Screen {
             )
         ));
 
+        // --- HIGH SCORE ---
+        int highScore = SettingsManager.getInstancia().getHighScore();
+        Label etiquetaHighScore = new Label("RECORD: " + highScore, new Label.LabelStyle(juego.getFuente(), Color.YELLOW));
+        etiquetaHighScore.setFontScale(1.2f);
+        etiquetaHighScore.setAlignment(Align.center);
+
         // --- BOTONES ---
         TextButton botonIniciar = crearBotonAnimado("INICIAR");
         TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
@@ -81,6 +88,13 @@ public class PantallaMenuPrincipal implements Screen {
             }
         });
 
+        botonOpciones.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                juego.setScreen(new PantallaOpciones(juego));
+            }
+        });
+
         botonSalir.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -97,7 +111,8 @@ public class PantallaMenuPrincipal implements Screen {
         });
 
         tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(50).row();
+        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(10).row();
+        tabla.add(etiquetaHighScore).padBottom(30).row();
 
         botonOpciones.addListener(new ClickListener() {
             @Override
