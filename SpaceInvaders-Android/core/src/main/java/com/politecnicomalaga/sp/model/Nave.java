@@ -8,6 +8,7 @@ public abstract class Nave extends Ovni{
     private float anchoBala;
     private float altoBala;
     private float velocidadBala;
+    private int puntos;
     //Constructor
     public Nave(float x, float y, float width, float height, Estado estado, Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala, float velocidadBala) {
         super(x, y, width, height, estado, dir, textura);
@@ -47,6 +48,12 @@ public abstract class Nave extends Ovni{
     }
     public void setVelocidadBala(float velocidadBala) {
         this.velocidadBala = velocidadBala;
+    }
+    public int getPuntos() {
+        return puntos;
+    }
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
     }
 
     //Métodos

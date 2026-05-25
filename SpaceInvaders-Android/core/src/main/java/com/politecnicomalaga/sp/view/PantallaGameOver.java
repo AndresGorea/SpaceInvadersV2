@@ -16,8 +16,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.politecnicomalaga.sp.Main;
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
 import com.politecnicomalaga.sp.util.SettingsManager;
 
@@ -43,7 +44,7 @@ public class PantallaGameOver implements Screen {
         settings.setHighScore(puntuacion);
         int highScore = settings.getHighScore();
 
-        escenario = new Stage(new ScreenViewport());
+        escenario = new Stage(new ExtendViewport(ConfiguracionJuego.VIRTUAL_WIDTH, ConfiguracionJuego.VIRTUAL_HEIGHT));
         Gdx.input.setInputProcessor(escenario);
 
         crearAparienciaBasica();

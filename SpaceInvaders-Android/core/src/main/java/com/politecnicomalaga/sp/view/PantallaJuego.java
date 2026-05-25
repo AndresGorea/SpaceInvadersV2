@@ -4,9 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.politecnicomalaga.sp.Main;
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.util.SettingsManager;
 
@@ -17,17 +23,19 @@ import com.politecnicomalaga.sp.util.SettingsManager;
 public class PantallaJuego implements Screen {
 
     private final Main juego;
-    private float anchoPantalla, altoPantalla;
-    private float x, y;
-    private float btnAncho, btnAlto;
+    private final Viewport viewport;
+    private final OrthographicCamera camara;
 
     // Gestor de efectos visuales de fondo (reutilizable)
     private FondoEfectos fondoEfectos;
 
+
+
+
     public PantallaJuego(Main juego) {
         this.juego = juego;
-        anchoPantalla = Gdx.graphics.getWidth();
-        altoPantalla = Gdx.graphics.getHeight();
+        camara = new OrthographicCamera();
+        viewport = new ExtendViewport(ConfiguracionJuego.VIRTUAL_WIDTH, ConfiguracionJuego.VIRTUAL_HEIGHT, camara);
         // Desactivamos los ovnis flotantes en el fondo durante el juego
         fondoEfectos = new FondoEfectos(false);
     }
@@ -42,6 +50,9 @@ public class PantallaJuego implements Screen {
         // Fondo negro profundo para el espacio
         ScreenUtils.clear(0.01f, 0.01f, 0.05f, 1f);
 
+        float mundoAncho = viewport.getWorldWidth();
+        float mundoAlto = viewport.getWorldHeight();
+
         // 0. Gestión de Pausa (Tecla P)
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             boolean pausadoActual = Controlador.getInstancia().getEstadoJuego().isPausado();
@@ -53,19 +64,22 @@ public class PantallaJuego implements Screen {
         int tipoControl = settings.getTipoControl();
 
         if (Controlador.getInstancia().esAndroid()) {
+            float gWidth = Gdx.graphics.getWidth();
+            float gHeight = Gdx.graphics.getHeight();
+
             if (tipoControl == 1) { // MODERNO: Botones dedicados
-                btnAncho = anchoPantalla * 0.2f;
-                btnAlto = altoPantalla * 0.15f;
+                float btnAncho = gWidth * 0.2f;
+                float btnAlto = gHeight * 0.15f;
 
                 boolean tocandoIzq = Gdx.input.isTouched() &&
                         Gdx.input.getX() < btnAncho &&
-                        Gdx.input.getY() > altoPantalla - btnAlto;
+                        Gdx.input.getY() > gHeight - btnAlto;
                 boolean tocandoDer = Gdx.input.isTouched() &&
                         Gdx.input.getX() > btnAncho && Gdx.input.getX() < btnAncho * 2.5f &&
-                        Gdx.input.getY() > altoPantalla - btnAlto;
+                        Gdx.input.getY() > gHeight - btnAlto;
                 boolean tocandoFire = Gdx.input.justTouched() &&
-                        Gdx.input.getX() > anchoPantalla - btnAncho &&
-                        Gdx.input.getY() > altoPantalla - btnAlto;
+                        Gdx.input.getX() > gWidth - btnAncho &&
+                        Gdx.input.getY() > gHeight - btnAlto;
 
                 if (tocandoIzq) {
                     Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
@@ -79,21 +93,23 @@ public class PantallaJuego implements Screen {
                 }
             } else { // CLÁSICO: Toque en pantalla para girar y disparo automático o toque arriba
                 if (Gdx.input.justTouched()) {
-                    x = Gdx.input.getX();
-                    y = Gdx.input.getY();
-                    if (y < altoPantalla * 0.2f) { // Toque en la parte superior para disparar
+                    int x = Gdx.input.getX();
+                    int y = Gdx.input.getY();
+                    if (y < gHeight * 0.2f) { // Toque en la parte superior para disparar
                         Controlador.getInstancia().dispararNaveAmiga();
                     } else {
-                        Controlador.getInstancia().click(x, y);
+                        Vector3 touchPos = new Vector3(x, y, 0);
+                        viewport.unproject(touchPos);
+                        Controlador.getInstancia().click(touchPos.x, touchPos.y);
                     }
                 }
             }
         } else {
-            // PC: Toque para cambiar de sentido (opcional) o teclado
+            // Click en PC
             if (Gdx.input.justTouched()) {
-                x = Gdx.input.getX();
-                y = Gdx.input.getY();
-                Controlador.getInstancia().click(x, y);
+                Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                viewport.unproject(touchPos);
+                Controlador.getInstancia().click(touchPos.x, touchPos.y);
             }
         }
 
@@ -112,28 +128,42 @@ public class PantallaJuego implements Screen {
         }
 
         // 2. Lógica física
-        Controlador.getInstancia().simulaMundo(anchoPantalla, altoPantalla, delta);
+        Controlador.getInstancia().simulaMundo(mundoAncho, mundoAlto, delta);
+
+        // Actualizar efectos de cámara
+        EfectosCamara.getInstancia().actualizar(delta);
+
+        // Aplicar shake si está activo
+        camara.position.set(
+            mundoAncho / 2f + EfectosCamara.getInstancia().getOffsetX(),
+            mundoAlto  / 2f + EfectosCamara.getInstancia().getOffsetY(),
+            0
+        );
+        camara.update();
+        juego.getLote().setProjectionMatrix(camara.combined);
 
         // 3. Renderizado
+        camara.update();
+        juego.getLote().setProjectionMatrix(camara.combined);
         juego.getLote().begin();
 
         // El fondo se dibuja primero para que quede detrás de las naves
         fondoEfectos.renderizar(juego.getLote(), delta);
 
         Controlador.getInstancia().pintar(juego.getLote());
-        Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
+        Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), mundoAncho, mundoAlto);
 
         // Mostrar texto de pausa si está activada
         if (Controlador.getInstancia().getEstadoJuego().isPausado()) {
             juego.getFuente().setColor(Color.YELLOW);
-            juego.getFuente().draw(juego.getLote(), "PAUSA", anchoPantalla / 2f - 50, altoPantalla / 2f);
+            juego.getFuente().draw(juego.getLote(), "PAUSA", mundoAncho / 2f - 50, mundoAlto / 2f);
         }
 
 
         // Dibujar botones táctiles en Android (solo si el control es Moderno)
         if (Controlador.getInstancia().esAndroid() && tipoControl == 1) {
             Controlador.getInstancia().pintarBotonesAndroid(
-                juego.getLote(), juego.getFuente(), anchoPantalla, altoPantalla);
+                juego.getLote(), juego.getFuente(), mundoAncho, mundoAlto);
         }
 
         juego.getLote().end();
@@ -149,8 +179,7 @@ public class PantallaJuego implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        anchoPantalla = width;
-        altoPantalla = height;
+        viewport.update(width, height, true);
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.politecnicomalaga.sp.util.Recursos;
+import com.politecnicomalaga.sp.util.Assets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class FondoEfectos {
     private List<Estrella> estrellas;
     private List<EntidadFlotante> entidadesFlotantes;
     private boolean mostrarEntidadesFlotantes;
-    
+
     // Texturas generadas procedimentalmente para las estrellas
     private Texture texturaEstrella1, texturaEstrella2, texturaEstrella3;
 
@@ -81,8 +81,8 @@ public class FondoEfectos {
         // Creamos unas pocas entidades que se moverán de forma sinusoidal
         for (int i = 0; i < 4; i++) {
             String nombreTex = texturas[MathUtils.random(0, texturas.length - 1)];
-            Texture tex = Recursos.getInstancia().getTextura(nombreTex);
-            entidadesFlotantes.add(new EntidadFlotante(new TextureRegion(tex)));
+            Texture tex = Assets.getInstance().getTexture(nombreTex);
+            entidadesFlotantes.add(new EntidadFlotante(new com.badlogic.gdx.graphics.g2d.TextureRegion(tex)));
         }
     }
 
@@ -95,7 +95,7 @@ public class FondoEfectos {
         // 1. Dibujar estrellas con movimiento descendente (parallax)
         for (Estrella estrella : estrellas) {
             estrella.y -= estrella.velocidad * delta;
-            
+
             // Si la estrella sale por abajo, reaparece arriba en una X aleatoria
             if (estrella.y < 0) {
                 estrella.y = Gdx.graphics.getHeight();
@@ -176,11 +176,11 @@ public class FondoEfectos {
         public void actualizar(float delta) {
             // Movimiento horizontal lineal
             x += velocidadX * delta;
-            
+
             // Movimiento vertical suave usando la función seno
             tiempoSeno += delta;
             y = baseY + MathUtils.sin(tiempoSeno * frecuenciaSeno) * amplitudSeno;
-            
+
             // Rotación constante sobre sí misma
             rotacion += velocidadRotacion * delta;
 
@@ -202,13 +202,13 @@ public class FondoEfectos {
                 x = Gdx.graphics.getWidth();
                 velocidadX = MathUtils.random(-120, -40);
             }
-            
+
             // Parámetros de la onda sinusoidal
             baseY = MathUtils.random(50, Gdx.graphics.getHeight() - 50);
             tiempoSeno = MathUtils.random(0, 10);
             amplitudSeno = MathUtils.random(20, 80);
             frecuenciaSeno = MathUtils.random(1f, 3f);
-            
+
             // Parámetros de rotación
             rotacion = MathUtils.random(0, 360);
             velocidadRotacion = MathUtils.random(-50, 50);

@@ -1,6 +1,7 @@
 package com.politecnicomalaga.sp.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -16,30 +17,25 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
-import com.politecnicomalaga.sp.control.ConfiguracionJuego;
-import com.politecnicomalaga.sp.control.Controlador;
-import com.politecnicomalaga.sp.util.SettingsManager;
+import com.politecnicomalaga.sp.control.GestorPreferencias;
 
-/**
- * Pantalla de inicio del juego que presenta el menú principal.
- * Utiliza FondoEfectos para el fondo animado y Scene2D para la interfaz.
- */
-public class PantallaMenuPrincipal implements Screen {
+public class PantallaConfigPersonalizada implements Screen {
 
     private final Main juego;
-    private final Stage  escenario;
+    private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
+    private GestorPreferencias prefs;
 
-    public PantallaMenuPrincipal(final Main juego) {
+    public PantallaConfigPersonalizada(final Main juego) {
         this.juego = juego;
-        escenario = new Stage(new ExtendViewport(ConfiguracionJuego.VIRTUAL_WIDTH, ConfiguracionJuego.VIRTUAL_HEIGHT));
+        escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
+        prefs = GestorPreferencias.getInstancia();
 
         crearAparienciaBasica();
-        // El menú principal sí muestra los ovnis flotantes
         fondoEfectos = new FondoEfectos(true);
 
         Table tabla = new Table();
@@ -48,75 +44,47 @@ public class PantallaMenuPrincipal implements Screen {
 
         // --- TÍTULO ---
         Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
-        Label etiquetaTitulo = new Label("SPACE INVADERS", estiloTitulo);
-        etiquetaTitulo.setFontScale(3.0f);
+        Label etiquetaTitulo = new Label("VALORES PERSONALIZADOS", estiloTitulo);
+        etiquetaTitulo.setFontScale(1.5f);
         etiquetaTitulo.setAlignment(Align.center);
-        etiquetaTitulo.setOrigin(Align.center);
-
-        etiquetaTitulo.addAction(Actions.forever(
-            Actions.sequence(
-                Actions.scaleTo(3.2f, 3.2f, 1.5f),
-                Actions.scaleTo(2.8f, 2.8f, 1.5f)
-            )
-        ));
-
-        // --- HIGH SCORE ---
-        int highScore = SettingsManager.getInstancia().getHighScore();
-        Label etiquetaHighScore = new Label("RECORD: " + highScore, new Label.LabelStyle(juego.getFuente(), Color.YELLOW));
-        etiquetaHighScore.setFontScale(1.2f);
-        etiquetaHighScore.setAlignment(Align.center);
 
         // --- BOTONES ---
-        TextButton botonIniciar = crearBotonAnimado("INICIAR");
-        TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
-        TextButton botonInfo = crearBotonAnimado("INFORMACIÓN");
-        TextButton botonSalir = crearBotonAnimado("SALIR");
+        final TextButton botonProbDisparo = crearBotonAnimado("Prob. Disparo: x" + prefs.getMultProbDisparoPersonalizado());
+        final TextButton botonVelBatallon = crearBotonAnimado("Vel. Batallon: x" + prefs.getMultVelBatallonPersonalizado());
+        final TextButton botonVelBala = crearBotonAnimado("Vel. Bala Ene: x" + prefs.getMultVelBalaEnemigaPersonalizado());
+        TextButton botonVolver = crearBotonAnimado("VOLVER");
 
-        botonIniciar.addListener(new ClickListener() {
+        botonProbDisparo.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            Controlador.getInstancia().reiniciar();
-                            juego.setScreen(new PantallaJuego(juego));
-                        }
-                    })
-                ));
+                float newVal = cycleMultiplier(prefs.getMultProbDisparoPersonalizado());
+                prefs.setMultProbDisparoPersonalizado(newVal);
+                botonProbDisparo.setText("Prob. Disparo: x" + newVal);
             }
         });
 
-        botonOpciones.addListener(new ClickListener() {
+        botonVelBatallon.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new PantallaOpciones(juego));
+                float newVal = cycleMultiplier(prefs.getMultVelBatallonPersonalizado());
+                prefs.setMultVelBatallonPersonalizado(newVal);
+                botonVelBatallon.setText("Vel. Batallon: x" + newVal);
             }
         });
 
-        botonSalir.addListener(new ClickListener() {
+        botonVelBala.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.fadeOut(0.3f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            Gdx.app.exit();
-                        }
-                    })
-                ));
+                float newVal = cycleMultiplier(prefs.getMultVelBalaEnemigaPersonalizado());
+                prefs.setMultVelBalaEnemigaPersonalizado(newVal);
+                botonVelBala.setText("Vel. Bala Ene: x" + newVal);
             }
         });
 
-        tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(10).row();
-        tabla.add(etiquetaHighScore).padBottom(30).row();
-
-        botonOpciones.addListener(new ClickListener() {
+        botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                prefs.guardarPreferencias();
                 escenario.addAction(Actions.sequence(
                     Actions.delay(0.1f),
                     Actions.run(new Runnable() {
@@ -129,29 +97,16 @@ public class PantallaMenuPrincipal implements Screen {
             }
         });
 
-        botonInfo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            juego.setScreen(new PantallaInformacion(juego));
-                        }
-                    })
-                ));
-            }
-        });
+        tabla.add(etiquetaTitulo).padBottom(40).row();
 
-        float anchoBoton = 300f;
+        float anchoBoton = 350f;
         float altoBoton = 60f;
         float rellenoBoton = 10f;
 
-        tabla.add(botonIniciar).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonOpciones).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonInfo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonSalir).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonProbDisparo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVelBatallon).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVelBala).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(30).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -254,5 +209,18 @@ public class PantallaMenuPrincipal implements Screen {
         escenario.dispose();
         apariencia.dispose();
         fondoEfectos.dispose();
+    }
+
+    private float cycleMultiplier(float current) {
+        if (current < 0.3f) return 0.5f;
+        if (current < 0.6f) return 0.75f;
+        if (current < 0.8f) return 1.0f;
+        if (current < 1.1f) return 1.25f;
+        if (current < 1.3f) return 1.5f;
+        if (current < 1.6f) return 2.0f;
+        if (current < 2.1f) return 2.5f;
+        if (current < 2.6f) return 3.0f;
+        if (current < 3.1f) return 4.0f;
+        return 0.25f;
     }
 }

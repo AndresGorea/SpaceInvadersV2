@@ -76,6 +76,18 @@ public class NaveAmi extends Nave {
         return tiempoVelocidad > 0 ? ConfiguracionJuego.VELOCIDAD_BONUS : 0f;
     }
 
+    public float getTiempoTripleDisparo() {
+        return tiempoTripleDisparo;
+    }
+
+    public float getTiempoEscudo() {
+        return tiempoEscudo;
+    }
+
+    public float getTiempoVelocidad() {
+        return tiempoVelocidad;
+    }
+
     @Override
     public void recibirDisparo() {
         if (tieneEscudo()) {

@@ -8,21 +8,21 @@ import java.util.Map;
  * Clase Singleton que centraliza la carga y gestión de recursos (texturas).
  * Evita la carga duplicada de archivos desde el almacenamiento.
  */
-public class Recursos {
-    private static Recursos instancia;
-    private final Map<String, Texture> texturas;
+public class Assets {
+    private static Assets instancia;
+    private Map<String, Texture> texturas;
 
-    private Recursos() {
+    private Assets() {
         texturas = new HashMap<>();
     }
 
     /**
      * Obtiene la instancia única del gestor de recursos.
-     * @return La instancia de Recursos.
+     * @return La instancia de Assets.
      */
-    public static Recursos getInstancia() {
+    public static Assets getInstance() {
         if (instancia == null) {
-            instancia = new Recursos();
+            instancia = new Assets();
         }
         return instancia;
     }
@@ -42,7 +42,7 @@ public class Recursos {
      * @param ruta Nombre o ruta de la textura.
      * @return El objeto {@link com.badlogic.gdx.graphics.Texture}.
      */
-    public Texture getTextura(String ruta) {
+    public Texture getTexture(String ruta) {
         return texturas.get(ruta);
     }
 

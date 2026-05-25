@@ -7,11 +7,11 @@ public class Escuadron {
     float  espacioEntreNaves;
     public Escuadron(float x, float y, float width, float height, Ovni.Estado estado,
                      Ovni.Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala,
-                     float velocidadBala, int probabilidadDisparo, float espacioEntreNaves){
+                     float velocidadBala, int probabilidadDisparo, float espacioEntreNaves, int puntos){
 
         navesEnemigas = new NaveEne[8];
         navesEnemigas = loadNaves(navesEnemigas, x, y, width, height, estado, dir, textura, vidas, cadencia,
-            anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves);
+            anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves, puntos);
     }
 
     public NaveEne [] getNavesEnemigas() {
@@ -21,12 +21,12 @@ public class Escuadron {
     public NaveEne[] loadNaves
         (NaveEne [] navesEnemigas, float x, float y, float width, float height, Ovni.Estado estado,
          Ovni.Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala,
-         float velocidadBala, int probabilidadDisparo, float espacioEntreNaves) {
+         float velocidadBala, int probabilidadDisparo, float espacioEntreNaves, int puntos) {
 
         for (int i = 0; i < navesEnemigas.length; i++) {
             //Hacemos una X diferente para cada nave para que no se solapen
             float xNave = x + (i * (width + espacioEntreNaves));
-            navesEnemigas[i] = new NaveEne(xNave, y, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo);
+            navesEnemigas[i] = new NaveEne(xNave, y, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo, puntos);
         }
 
             return navesEnemigas;

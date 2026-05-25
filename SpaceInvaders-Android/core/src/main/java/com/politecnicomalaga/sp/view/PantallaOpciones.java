@@ -18,11 +18,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
+import com.politecnicomalaga.sp.control.GestorPreferencias;
 import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
  * Pantalla de configuración del juego.
- * Permite ajustar el volumen y el tipo de controles.
+ * Permite ajustar opciones de juego, volumen y controles.
  */
 public class PantallaOpciones implements Screen {
 
@@ -30,11 +31,15 @@ public class PantallaOpciones implements Screen {
     private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
+    private GestorPreferencias prefs;
+    private SettingsManager settings;
 
     public PantallaOpciones(final Main juego) {
         this.juego = juego;
         escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
+        prefs = GestorPreferencias.getInstancia();
+        settings = SettingsManager.getInstancia();
 
         crearAparienciaBasica();
         fondoEfectos = new FondoEfectos(true);
@@ -46,15 +51,72 @@ public class PantallaOpciones implements Screen {
         // --- TÍTULO ---
         Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
         Label etiquetaTitulo = new Label("CONFIGURACIÓN", estiloTitulo);
-        etiquetaTitulo.setFontScale(2.5f);
+        etiquetaTitulo.setFontScale(2.0f);
         etiquetaTitulo.setAlignment(Align.center);
 
-        // --- OPCIONES ---
-        final SettingsManager settings = SettingsManager.getInstancia();
-
-        final TextButton botonVolumen = crearBotonAnimado("VOLUMEN: " + (int)(settings.getVolumen() * 100) + "%");
-        final TextButton botonControles = crearBotonAnimado("CONTROLES: " + (settings.getTipoControl() == 0 ? "CLÁSICO" : "MODERNO"));
+        // --- BOTONES ---
+        final TextButton botonDificultad = crearBotonAnimado("Dificultad: " + prefs.getDificultadActual().name());
+        final TextButton botonConfigPers = crearBotonAnimado("Configurar Valores");
+        botonConfigPers.setVisible(prefs.getDificultadActual() == GestorPreferencias.Dificultad.PERSONALIZADO);
+        final TextButton botonMusica = crearBotonAnimado("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
+        final TextButton botonSfx = crearBotonAnimado("Efectos SFX: " + (prefs.isSfxActivado() ? "ON" : "OFF"));
+        final TextButton botonPantalla = crearBotonAnimado("Pantalla: " + (prefs.isPantallaCompleta() ? "COMPLETA" : "VENTANA"));
+        
+        final TextButton botonVolumen = crearBotonAnimado("Volumen: " + (int)(settings.getVolumen() * 100) + "%");
+        final TextButton botonControles = crearBotonAnimado("Controles: " + (settings.getTipoControl() == 0 ? "CLASICO" : "MODERNO"));
+        
         TextButton botonVolver = crearBotonAnimado("VOLVER");
+
+        botonDificultad.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                int ord = prefs.getDificultadActual().ordinal();
+                ord = (ord + 1) % GestorPreferencias.Dificultad.values().length;
+                GestorPreferencias.Dificultad nuevaDif = GestorPreferencias.Dificultad.values()[ord];
+                prefs.setDificultadActual(nuevaDif);
+                botonDificultad.setText("Dificultad: " + nuevaDif.name());
+                botonConfigPers.setVisible(nuevaDif == GestorPreferencias.Dificultad.PERSONALIZADO);
+            }
+        });
+
+        botonConfigPers.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                escenario.addAction(Actions.sequence(
+                    Actions.delay(0.1f),
+                    Actions.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            juego.setScreen(new PantallaConfigPersonalizada(juego));
+                        }
+                    })
+                ));
+            }
+        });
+
+        botonMusica.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.setMusicaActivada(!prefs.isMusicaActivada());
+                botonMusica.setText("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
+            }
+        });
+
+        botonSfx.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.setSfxActivado(!prefs.isSfxActivado());
+                botonSfx.setText("Efectos SFX: " + (prefs.isSfxActivado() ? "ON" : "OFF"));
+            }
+        });
+
+        botonPantalla.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                prefs.setPantallaCompleta(!prefs.isPantallaCompleta());
+                botonPantalla.setText("Pantalla: " + (prefs.isPantallaCompleta() ? "COMPLETA" : "VENTANA"));
+            }
+        });
 
         botonVolumen.addListener(new ClickListener() {
             @Override
@@ -62,7 +124,7 @@ public class PantallaOpciones implements Screen {
                 float nuevoVolumen = settings.getVolumen() + 0.1f;
                 if (nuevoVolumen > 1.05f) nuevoVolumen = 0f;
                 settings.setVolumen(nuevoVolumen);
-                botonVolumen.setText("VOLUMEN: " + (int)(nuevoVolumen * 100) + "%");
+                botonVolumen.setText("Volumen: " + (int)(nuevoVolumen * 100) + "%");
             }
         });
 
@@ -71,21 +133,45 @@ public class PantallaOpciones implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 int nuevoControl = settings.getTipoControl() == 0 ? 1 : 0;
                 settings.setTipoControl(nuevoControl);
-                botonControles.setText("CONTROLES: " + (nuevoControl == 0 ? "CLÁSICO" : "MODERNO"));
+                botonControles.setText("Controles: " + (nuevoControl == 0 ? "CLASICO" : "MODERNO"));
             }
         });
 
         botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                juego.setScreen(new PantallaMenuPrincipal(juego));
+                prefs.guardarPreferencias();
+                escenario.addAction(Actions.sequence(
+                    Actions.delay(0.1f),
+                    Actions.run(new Runnable() {
+                        @Override
+                        public void run() {
+                            juego.setScreen(new PantallaMenuPrincipal(juego));
+                        }
+                    })
+                ));
             }
         });
 
-        tabla.add(etiquetaTitulo).padBottom(50).row();
-        tabla.add(botonVolumen).width(400).height(60).padBottom(20).row();
-        tabla.add(botonControles).width(400).height(60).padBottom(40).row();
-        tabla.add(botonVolver).width(300).height(60).row();
+        tabla.add(etiquetaTitulo).padBottom(20).colspan(2).row();
+
+        float anchoBoton = 350f;
+        float altoBoton = 60f;
+        float rellenoBoton = 10f;
+
+        // Two columns to fit all buttons on screen
+        tabla.add(botonDificultad).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
+        tabla.add(botonConfigPers).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        
+        tabla.add(botonMusica).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
+        tabla.add(botonSfx).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        
+        tabla.add(botonPantalla).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
+        tabla.add(botonVolumen).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        
+        tabla.add(botonControles).width(anchoBoton).height(altoBoton).pad(rellenoBoton).colspan(2).row();
+        
+        tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(20).colspan(2).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -99,7 +185,7 @@ public class PantallaOpciones implements Screen {
                 super.enter(event, x, y, pointer, fromActor);
                 if (pointer == -1) {
                     boton.clearActions();
-                    boton.addAction(Actions.scaleTo(1.05f, 1.05f, 0.1f));
+                    boton.addAction(Actions.scaleTo(1.1f, 1.1f, 0.1f));
                 }
             }
 
@@ -135,7 +221,7 @@ public class PantallaOpciones implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 400;
+        int ancho = 350;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
@@ -150,7 +236,11 @@ public class PantallaOpciones implements Screen {
     }
 
     @Override
-    public void show() {}
+    public void show() {
+        Gdx.input.setInputProcessor(escenario);
+        escenario.getRoot().getColor().a = 0;
+        escenario.addAction(Actions.fadeIn(0.5f));
+    }
 
     @Override
     public void render(float delta) {
@@ -161,7 +251,7 @@ public class PantallaOpciones implements Screen {
         fondoEfectos.renderizar(juego.getLote(), delta);
         juego.getLote().end();
 
-        escenario.act(delta);
+        escenario.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         escenario.draw();
     }
 
