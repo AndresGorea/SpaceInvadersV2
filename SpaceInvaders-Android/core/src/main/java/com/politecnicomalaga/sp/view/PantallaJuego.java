@@ -26,10 +26,7 @@ public class PantallaJuego implements Screen {
     private final OrthographicCamera camara;
 
     // Gestor de efectos visuales de fondo (reutilizable)
-    private FondoEfectos fondoEfectos;
-
-    private OrthographicCamera camara;
-    private OrthographicCamera camaraHUD;
+    private final FondoEfectos fondoEfectos;
 
     public PantallaJuego(Main juego) {
         this.juego = juego;
@@ -115,8 +112,8 @@ public class PantallaJuego implements Screen {
 
         // Aplicar shake si está activo
         camara.position.set(
-            anchoPantalla / 2f + EfectosCamara.getInstancia().getOffsetX(),
-            altoPantalla  / 2f + EfectosCamara.getInstancia().getOffsetY(),
+            mundoAncho    / 2f + EfectosCamara.getInstancia().getOffsetX(),
+            mundoAlto     / 2f + EfectosCamara.getInstancia().getOffsetY(),
             0
         );
         camara.update();
