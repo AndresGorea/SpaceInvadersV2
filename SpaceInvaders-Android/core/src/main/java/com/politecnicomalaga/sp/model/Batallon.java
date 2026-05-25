@@ -1,4 +1,7 @@
 package com.politecnicomalaga.sp.model;
+
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
+
 public class Batallon {
     //Atributos
     //Composición de 4 escuadrones
