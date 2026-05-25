@@ -1,4 +1,7 @@
 package com.politecnicomalaga.sp.model;
+
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
+
 public class Batallon {
     //Atributos
     //Composición de 4 escuadrones
@@ -23,12 +26,18 @@ public class Batallon {
 
     // Método load, en filas
     private void loadEscuadrones(float x, float y, float espacioVertical, float width, float height,
-                                 Ovni.Estado estado, Ovni.Direccion dir, String textura, int vidas, float cadencia,
+                                 Ovni.Estado estado, Ovni.Direccion dir, String texturaBase, int vidasBase, float cadencia,
                                  float anchoBala, float altoBala, float velocidadBala, int probabilidadDisparo, float espacioEntreNaves) {
 
         for (int i = 0; i < this.escuadrones.length; i++) {
             float yEscuadron = y - (i * (height + espacioVertical));
-            this.escuadrones[i] = new Escuadron(x, yEscuadron, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves);
+            
+            // Fila superior (i == 0) -> Élite
+            String texturaEscuadron = (i == 0) ? "enemigo1.png" : "enemigo2.png";
+            int vidasEscuadron = (i == 0) ? 3 : 1;
+            int puntosEscuadron = (i == 0) ? 100 : 20;
+
+            this.escuadrones[i] = new Escuadron(x, yEscuadron, width, height, estado, dir, texturaEscuadron, vidasEscuadron, cadencia, anchoBala, altoBala, velocidadBala, probabilidadDisparo, espacioEntreNaves, puntosEscuadron);
         }
     }
 
@@ -53,7 +62,7 @@ public class Batallon {
     }
     //Métodos
     //Mover los escuadrones
-    public void mover(float anchoPantalla, float altoPantalla, float cuantoBaja){ //Nos deberán pasar el ancho de la pantalla el alto de la pantalla y cuanto queremos que baje cada vez que llega al borde
+    public void mover(float anchoPantalla, float altoPantalla, float cuantoBaja, float delta){ //Nos deberán pasar el ancho de la pantalla el alto de la pantalla y cuanto queremos que baje cada vez que llega al borde
         if (escuadrones == null || escuadrones.length == 0) return; //Si por lo que sea no se ha inicializado todavía no hacemos nada
 
         boolean tocarBorde = false;
@@ -65,16 +74,16 @@ public class Batallon {
             }
         }
         if (tocarBorde){ //En ese caso cambiamos la dirección y bajamos el batallón, utilizando el método cambiarDireccionYBajarse
-            cambiarDireccionYBajarse(cuantoBaja);
+            cambiarDireccionYBajarse(cuantoBaja, delta);
         }
         else {
             for (Escuadron esc : escuadrones) { //Caso contrario, movemos los escuadrones lateralmente usando el método implementado en escuadron
-                esc.moverLateralmente(direccionActual, velocidad);
+                esc.moverLateralmente(direccionActual, velocidad, delta);
             }
         }
     }
     //Invertir la dirección y bajar el batallón
-    private void cambiarDireccionYBajarse(float cuantoBaja) {
+    private void cambiarDireccionYBajarse(float cuantoBaja, float delta) {
         //Invertimos la dirección
         direccionActual = (direccionActual == Ovni.Direccion.DERECHA) ? Ovni.Direccion.IZQUIERDA : Ovni.Direccion.DERECHA;
         //Bajar el batallón completo usando el método de la clase escuadron
@@ -83,7 +92,7 @@ public class Batallon {
         }
         //Los movemos un pixel para que no este a true tocar borde por si acaso
         for (Escuadron esc : escuadrones) {
-            esc.moverLateralmente(direccionActual, velocidad);
+            esc.moverLateralmente(direccionActual, velocidad, delta);
         }
     }
 
@@ -95,9 +104,9 @@ public class Batallon {
     }
 
     //Gestionamos los disparos de los enemigos, batallón se lo pasa a escuadron y escuadron a nave Enemiga que se encarga del CRUD
-    public void gestionarDisparos(float limiteMuerte) {
+    public void gestionarDisparos(float limiteMuerte, float delta) {
         for (Escuadron esc : escuadrones) {
-            esc.gestionarDisparosEnemigos(limiteMuerte);
+            esc.gestionarDisparosEnemigos(limiteMuerte, delta);
         }
     }
 

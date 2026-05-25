@@ -8,6 +8,7 @@ public abstract class Nave extends Ovni{
     private float anchoBala;
     private float altoBala;
     private float velocidadBala;
+    private int puntos;
     //Constructor
     public Nave(float x, float y, float width, float height, Estado estado, Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala, float velocidadBala) {
         super(x, y, width, height, estado, dir, textura);
@@ -48,6 +49,12 @@ public abstract class Nave extends Ovni{
     public void setVelocidadBala(float velocidadBala) {
         this.velocidadBala = velocidadBala;
     }
+    public int getPuntos() {
+        return puntos;
+    }
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
+    }
 
     //Métodos
     //Si recibimos un disparo perdemos una vida, si llega a 0 morimos seteamos a muerto.
@@ -63,5 +70,5 @@ public abstract class Nave extends Ovni{
 
     //Ambas naves disparan y gestionan sus disparos pero lo hacen de manera diferente, metodos abstracto
     public abstract void disparar();
-    public abstract void gestionarMisDisparos(float limiteMuerte);
+    public abstract void gestionarMisDisparos(float limiteMuerte, float delta);
 }

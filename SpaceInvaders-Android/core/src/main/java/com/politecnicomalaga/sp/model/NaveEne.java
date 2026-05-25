@@ -7,11 +7,14 @@ public class NaveEne extends Nave{
     //Atributos
     private int probabilidadDisparo; //Entre 0 y 100 la seteamos en el controlador
     private ArrayList<DisparoEne> misDisparos; //Lista de disparos
+    private int puntos;
+
     //Constructor
-    public NaveEne(float x, float y, float width, float height, Estado estado, Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala, float velocidadBala, int probabilidadDisparo) {
+    public NaveEne(float x, float y, float width, float height, Estado estado, Direccion dir, String textura, int vidas, float cadencia, float anchoBala, float altoBala, float velocidadBala, int probabilidadDisparo, int puntos) {
         super(x, y, width, height, estado, dir, textura, vidas, cadencia, anchoBala, altoBala, velocidadBala);
         this.probabilidadDisparo = probabilidadDisparo;
         this.misDisparos = new ArrayList<>();
+        this.puntos = puntos;
     }
     //Getters y Setters
     public int getProbabilidadDisparo() {
@@ -25,6 +28,12 @@ public class NaveEne extends Nave{
     }
     public void setMisDisparos(ArrayList<DisparoEne> misDisparos) {
         this.misDisparos = misDisparos;
+    }
+    public int getPuntos() {
+        return puntos;
+    }
+    public void setPuntos(int puntos) {
+        this.puntos = puntos;
     }
 
     //Métodos
@@ -45,16 +54,18 @@ public class NaveEne extends Nave{
     }
     //Gestionar la salida de la pantalla de los disparos (Delete)
     @Override
-    public void gestionarMisDisparos(float limiteInferior) {
+    public void gestionarMisDisparos(float limiteInferior, float delta) {
         for (int i = misDisparos.size() - 1 ; i >= 0; i--){//Recorremos el array al reves para no liarla con los indices
             DisparoEne d = misDisparos.get(i);
 
             //Si el disparo esta vivo es decir no ha colisionado lo movemos
             if (d.getEstado() == Estado.VIVO){
-                d.mover(Direccion.ABAJO, getVelocidadBala());
+                d.mover(Direccion.ABAJO, getVelocidadBala(), delta);
                 d.desaparecer(limiteInferior); //Preguntamos si se ha salido de la pantalla y este setea el estado a muerto
             }
             if (d.getEstado() == Estado.MUERTO) misDisparos.remove(i); //Lo eliminamos si la comprobación de desaparecer de la pantalla ya nos da que esta Muerto
         }
     }
+
+
 }

@@ -1,216 +1,140 @@
 package com.politecnicomalaga.sp.control;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.politecnicomalaga.sp.model.Batallon;
-import com.politecnicomalaga.sp.model.DisparoAmi;
-import com.politecnicomalaga.sp.model.DisparoEne;
-import com.politecnicomalaga.sp.model.Escuadron;
-import com.politecnicomalaga.sp.model.NaveAmi;
-import com.politecnicomalaga.sp.model.NaveEne;
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.view.RenderizadorMundo;
 
-import java.util.List;
-import java.util.Map;
-
+/**
+ * Clase controladora principal que sigue el patrón Singleton.
+ * Orquestra la comunicación entre el modelo, la vista y la lógica de colisiones.
+ */
 public class Controlador {
     private static Controlador miSingle;
-    private NaveAmi naveAmiga;
-    private final float velocidadNave;
-    private final int cadenciaAmiga,cadenciaEnemiga;
-    private int contadorTiempoAmigo, getContadorTiempoEnemigo;
-    private Batallon batallon;
-    private boolean jugando;
 
-    //CONSTRUCTOR
+    // Atributos que representan los diferentes gestores y el estado
+    private GestorMundo gestorMundo;
+    private GestorColisiones gestorColisiones;
+    private EstadoJuego estadoJuego;
+    private RenderizadorMundo renderizadorMundo;
+    private boolean esAndroid;
+
+    /**
+     * Constructor privado para garantizar el patrón Singleton.
+     * Inicializa los componentes básicos del juego.
+     */
     private Controlador() {
-        naveAmiga = new NaveAmi(300,0,60,60, Ovni.Estado.VIVO, Ovni.Direccion.NOMOVER,"naveJugador.png",1,120,15,30,8);
-        velocidadNave = 1f;
-        contadorTiempoAmigo=0;
-        getContadorTiempoEnemigo=0;
-        cadenciaAmiga= 180;
-        cadenciaEnemiga=180;
-        batallon=new Batallon(Gdx.graphics.getWidth()%2,Gdx.graphics.getHeight()-40,10, 50,40, Ovni.Estado.VIVO, Ovni.Direccion.DERECHA, "enemigo1.png",1,180,5,30,1,7,10,0.3f);
-        jugando=true;
+        esAndroid = com.badlogic.gdx.Gdx.app.getType() == Application.ApplicationType.Android;
+        this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
+        this.gestorMundo = new GestorMundo();
+        this.gestorColisiones = new GestorColisiones();
+        this.renderizadorMundo = new RenderizadorMundo();
     }
 
-    //Otros métodos
-    public static Controlador getInstance(){
-        if (miSingle == null){
-            miSingle= new Controlador();
+    /**
+     * Obtiene la instancia única del controlador.
+     * @return La instancia de Controlador.
+     */
+    public static Controlador getInstancia() {
+        if (miSingle == null) {
+            miSingle = new Controlador();
         }
         return miSingle;
     }
-    public void click (float x, float y){
-        cambiarSentidoNaveAmiga(x);
-    }
-    public void simulaMundo(float anchoPantalla, float altoPantalla){
-        //Comprobar si he muerto
-        if (!naveAmiga.estaVivo()){
-            jugando=false;
-        }
 
-        if (jugando){
-            //Comprobar si he ganado
-            jugando=comprobarSiGano(batallon);
-
-            //disparo yo?
-            contadorTiempoAmigo++;
-            if (contadorTiempoAmigo==cadenciaAmiga){
-                naveAmiga.disparar();
-                contadorTiempoAmigo=0;
-            }
-
-            //disparan los enemigos?
-            getContadorTiempoEnemigo++;
-            if (getContadorTiempoEnemigo==cadenciaEnemiga){
-                dispararTodosLosEnemigos(batallon);
-                getContadorTiempoEnemigo=0;
-            }
-
-            //me han dado
-            hanDadoNaveAmiga(batallon, naveAmiga);
-
-            // he matado a alguien?
-            List<DisparoAmi> disparoAmis = naveAmiga.getMisDisparos();
-            hematado(batallon, disparoAmis);
-
-            //me han tocado los aliens?
-            meHanTocado(batallon, naveAmiga);
-
-            //me muevo?
-            if (naveAmiga.getX()>anchoPantalla-naveAmiga.getWidth()){
-                naveAmiga.setX(anchoPantalla-naveAmiga.getWidth());
-                naveAmiga.setDir(Ovni.Direccion.NOMOVER);
-            }
-            if (naveAmiga.getX()<0){
-                naveAmiga.setX(0);
-                naveAmiga.setDir(Ovni.Direccion.NOMOVER);
-            }
-            naveAmiga.mover(naveAmiga.getDir(),velocidadNave);
-
-            //SE MUEVE EL ESCUADRÓN
-            batallon.mover(anchoPantalla,altoPantalla,20);
-
-            //gestiono todos los disparos
-            //Los amigos
-            naveAmiga.gestionarMisDisparos(altoPantalla);
-
-            //Los enemigos
-            gestioanrDisparosBatallon( batallon, 0);
-        }
+    /**
+     * Gestiona la interacción del usuario (click/toque) para mover la nave.
+     * @param x Coordenada X del toque.
+     * @param y Coordenada Y del toque.
+     */
+    public void click(float x, float y) {
+        gestorMundo.cambiarSentidoNaveAmiga(x);
     }
 
-    public void pintar(SpriteBatch batch, Map<String, Texture> galeriaImagenes){
-        //pintar naveAmiga
-        batch.draw(galeriaImagenes.get(naveAmiga.getTextura()),naveAmiga.getX(),naveAmiga.getY(),naveAmiga.getWidth(),naveAmiga.getHeight());
-
-        //pintar navesEnemigas y sus disparos
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (Escuadron esc: escuadrones){
-            NaveEne[] naveEnes = esc.getNavesEnemigas();
-            for (NaveEne navE: naveEnes){
-                if (navE.estaVivo()) {
-                    batch.draw(galeriaImagenes.get(navE.getTextura()), navE.getX(), navE.getY(), navE.getWidth(), navE.getHeight());
-                }
-                List<DisparoEne> disparosEnemigos = navE.getMisDisparos();
-                for (DisparoEne disEne: disparosEnemigos){
-                    batch.draw(galeriaImagenes.get(disEne.getTextura()),disEne.getX(),disEne.getY(),disEne.getWidth(),disEne.getHeight());
-                }
-            }
-        }
-        //Pintar disparosAmigos
-        List<DisparoAmi> disparosAmigos = naveAmiga.getMisDisparos();
-        for (DisparoAmi dispAmi: disparosAmigos){
-            if (dispAmi.estaVivo()){
-                batch.draw(galeriaImagenes.get(dispAmi.getTextura()),dispAmi.getX(),dispAmi.getY(),dispAmi.getWidth(),dispAmi.getHeight());
-            }
-        }
-
+    public void moverNaveAmiga(Ovni.Direccion direccion) {
+        gestorMundo.moverNaveAmiga(direccion);
     }
 
-    public void cambiarSentidoNaveAmiga (float x){
-        if (x>naveAmiga.getX() && naveAmiga.getDir()!= Ovni.Direccion.DERECHA){
-            naveAmiga.setDir(Ovni.Direccion.DERECHA);
-        } else if (x>naveAmiga.getX() && naveAmiga.getDir()== Ovni.Direccion.DERECHA) {
-            naveAmiga.setDir(Ovni.Direccion.NOMOVER);
-        } else if (x<naveAmiga.getX() && naveAmiga.getDir()!= Ovni.Direccion.IZQUIERDA){
-            naveAmiga.setDir(Ovni.Direccion.IZQUIERDA);
-        } else if (x<naveAmiga.getX() && naveAmiga.getDir() == Ovni.Direccion.IZQUIERDA){
-            naveAmiga.setDir(Ovni.Direccion.NOMOVER);
-        }
+    public void dispararNaveAmiga() {
+        gestorMundo.dispararNaveAmiga();
     }
 
-    public void hanDadoNaveAmiga(Batallon batallon, NaveAmi naveAmiga){
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (Escuadron escuadron: escuadrones){
-            NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-            for (NaveEne naveEne: navesEnemigas){
-                List<DisparoEne> disparoEnes = naveEne.getMisDisparos();
-                for (DisparoEne disparoEne: disparoEnes){
-                    disparoEne.comprobarColision(naveAmiga);
-                }
+    /**
+     * Bucle principal de simulación del mundo.
+     * Actualiza posiciones, comprueba colisiones y valida condiciones de victoria.
+     * @param anchoPantalla Ancho actual de la pantalla.
+     * @param altoPantalla Alto actual de la pantalla.
+     * @param delta Tiempo transcurrido desde el último frame.
+     */
+    public void simulaMundo(float anchoPantalla, float altoPantalla, float delta) {
+        if (estadoJuego.isJugando() && !estadoJuego.isPausado() && !EfectosCamara.getInstancia().isHitStopActivo()) {
+            // 1. Actualizar posiciones y estados de todos los objetos
+            gestorMundo.actualizar(anchoPantalla, altoPantalla, delta);
+
+            // 2. Procesar interacciones físicas entre objetos
+            gestorColisiones.comprobarColisiones(gestorMundo, estadoJuego);
+
+            // 3. Verificar si el jugador ha eliminado a todos los enemigos
+            if (!gestorMundo.getBatallon().tieneTropas()) {
+                estadoJuego.setJugando(false);
             }
         }
     }
 
-    public  void hematado(Batallon batallon, List<DisparoAmi> disparoAmis){
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (DisparoAmi disparoAmi: disparoAmis){
-            for (Escuadron escuadron: escuadrones){
-                NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-                disparoAmi.comprobarColision(navesEnemigas);
-            }
-        }
-
+    /**
+     * Reinicia el estado del juego para una nueva partida.
+     */
+    public void reiniciar() {
+        this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
+        this.gestorMundo = new GestorMundo();
+        this.gestorColisiones = new GestorColisiones();
     }
 
-    public void meHanTocado(Batallon batallon, NaveAmi naveAmiga) {
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (Escuadron escuadron : escuadrones) {
-            NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-            for (NaveEne naveEne : navesEnemigas) {
-                if (naveEne.estaVivo() && naveEne.colision(naveAmiga)) {
-                    naveEne.setEstado(Ovni.Estado.MUERTO);
-                    naveAmiga.setVidas(naveAmiga.getVidas() - 1);
-                }
-            }
-        }
-
-
+    /**
+     * Renderiza los elementos del mundo de juego.
+     * @param lote El SpriteBatch utilizado para el dibujo.
+     */
+    public void pintar(SpriteBatch lote) {
+        renderizadorMundo.renderizar(lote, gestorMundo);
     }
 
-    public void dispararTodosLosEnemigos (Batallon batallon){
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (Escuadron escuadron : escuadrones) {
-            NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-            for (NaveEne naveEne : navesEnemigas) {
-                naveEne.disparar();
-            }
-        }
+    /**
+     * Renderiza la interfaz de usuario (puntuación, vidas).
+     * @param lote El SpriteBatch utilizado para el dibujo.
+     * @param fuente La fuente para los textos.
+     * @param anchoPantalla Ancho de pantalla para posicionamiento.
+     * @param altoPantalla Alto de pantalla para posicionamiento.
+     */
+    public void pintarHUD(SpriteBatch lote, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
+        renderizadorMundo.renderizarHUD(lote, estadoJuego, gestorMundo, fuente, anchoPantalla, altoPantalla);
     }
 
-    public void gestioanrDisparosBatallon(Batallon batallon, float limiteSuperior){
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (Escuadron escuadron : escuadrones) {
-            NaveEne[] navesEnemigas = escuadron.getNavesEnemigas();
-            for (NaveEne naveEne : navesEnemigas) {
-                naveEne.gestionarMisDisparos(limiteSuperior);
-            }
-        }
+    public void pintarBotonesAndroid(SpriteBatch lote, BitmapFont fuente,
+                                  float anchoPantalla, float altoPantalla) {
+        float btnAncho = anchoPantalla * 0.2f;
+        float btnAlto  = altoPantalla  * 0.15f;
+        // Etiquetas visuales de los botones
+        fuente.draw(lote, "<<", btnAncho * 0.35f,
+                altoPantalla - btnAlto * 0.3f);
+        fuente.draw(lote, ">>", btnAncho * 1.4f,
+                altoPantalla - btnAlto * 0.3f);
+        fuente.draw(lote, "[FIRE]", anchoPantalla - btnAncho * 0.9f,
+                altoPantalla - btnAlto * 0.3f);
     }
 
-    public boolean comprobarSiGano(Batallon batallon){
-        Escuadron[] escuadrones = batallon.getEscuadrones();
-        for (Escuadron escuadron: escuadrones){
-            NaveEne[] naveEnes = escuadron.getNavesEnemigas();
-            for (NaveEne naveEne: naveEnes){
-                if (naveEne.estaVivo()){
-                    return true;
-                }
-            }
-        }
-        return false;
+    //Obtener estados
+    public EstadoJuego getEstadoJuego() {
+        return estadoJuego;
+    }
+
+    public GestorMundo getGestorMundo() {
+        return gestorMundo;
+    }
+
+    public boolean esAndroid() {
+        return esAndroid;
     }
 }
