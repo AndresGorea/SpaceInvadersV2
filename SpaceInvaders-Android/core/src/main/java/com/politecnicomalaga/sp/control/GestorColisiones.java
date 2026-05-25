@@ -1,5 +1,6 @@
 package com.politecnicomalaga.sp.control;
 
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.DisparoAmi;
 import com.politecnicomalaga.sp.model.DisparoEne;
@@ -42,6 +43,8 @@ public class GestorColisiones {
                     // Solo comprobamos colisión si el disparo está activo ("vivo")
                     if (disparoEne.getEstado() == Ovni.Estado.VIVO && disparoEne.comprobarColision(naveAmiga)) {
                         estado.perderVida();
+                        EfectosCamara.getInstancia().shake(8f, 0.4f);
+                        EfectosCamara.getInstancia().hitStop(0.1f);
                         disparoEne.setEstado(Ovni.Estado.MUERTO);
                     }
                 }
@@ -103,6 +106,8 @@ public class GestorColisiones {
                     // Ambos reciben daño por el choque
                     naveEne.recibirDisparo();
                     estado.perderVida();
+                    EfectosCamara.getInstancia().shake(10f, 0.5f);
+                    EfectosCamara.getInstancia().hitStop(0.15f);
                 }
             }
         }

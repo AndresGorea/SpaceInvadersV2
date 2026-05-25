@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.view.RenderizadorMundo;
 
@@ -69,7 +70,7 @@ public class Controlador {
      * @param delta Tiempo transcurrido desde el último frame.
      */
     public void simulaMundo(float anchoPantalla, float altoPantalla, float delta) {
-        if (estadoJuego.isJugando() && !estadoJuego.isPausado()) {
+        if (estadoJuego.isJugando() && !estadoJuego.isPausado() && !EfectosCamara.getInstancia().isHitStopActivo()) {
             // 1. Actualizar posiciones y estados de todos los objetos
             gestorMundo.actualizar(anchoPantalla, altoPantalla, delta);
 

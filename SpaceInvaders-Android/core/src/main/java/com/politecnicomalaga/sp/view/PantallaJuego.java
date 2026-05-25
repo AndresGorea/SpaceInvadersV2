@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Ovni;
 
 /**
@@ -26,6 +27,9 @@ public class PantallaJuego implements Screen {
 
     // Gestor de efectos visuales de fondo (reutilizable)
     private FondoEfectos fondoEfectos;
+
+    private OrthographicCamera camara;
+    private OrthographicCamera camaraHUD;
 
     public PantallaJuego(Main juego) {
         this.juego = juego;
@@ -105,6 +109,18 @@ public class PantallaJuego implements Screen {
 
         // 2. Lógica física
         Controlador.getInstancia().simulaMundo(mundoAncho, mundoAlto, delta);
+
+        // Actualizar efectos de cámara
+        EfectosCamara.getInstancia().actualizar(delta);
+
+        // Aplicar shake si está activo
+        camara.position.set(
+            anchoPantalla / 2f + EfectosCamara.getInstancia().getOffsetX(),
+            altoPantalla  / 2f + EfectosCamara.getInstancia().getOffsetY(),
+            0
+        );
+        camara.update();
+        juego.getLote().setProjectionMatrix(camara.combined);
 
         // 3. Renderizado
         camara.update();
