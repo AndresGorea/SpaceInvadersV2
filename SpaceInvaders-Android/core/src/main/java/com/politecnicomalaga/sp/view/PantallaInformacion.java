@@ -10,62 +10,84 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
-import com.politecnicomalaga.sp.control.ConfiguracionJuego;
-import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.util.Recursos;
 
-/**
- * Pantalla de inicio del juego que presenta el menú principal.
- * Utiliza FondoEfectos para el fondo animado y Scene2D para la interfaz.
- */
-public class PantallaMenuPrincipal implements Screen {
+public class PantallaInformacion implements Screen {
 
     private final Main juego;
-    private final Stage  escenario;
+    private final Stage escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
 
-    public PantallaMenuPrincipal(final Main juego) {
+    public PantallaInformacion(final Main juego) {
         this.juego = juego;
-        escenario = new Stage(new ExtendViewport(ConfiguracionJuego.VIRTUAL_WIDTH, ConfiguracionJuego.VIRTUAL_HEIGHT));
+        escenario = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(escenario);
 
         crearAparienciaBasica();
-        // El menú principal sí muestra los ovnis flotantes
         fondoEfectos = new FondoEfectos(true);
 
         Table tabla = new Table();
         tabla.setFillParent(true);
         escenario.addActor(tabla);
 
-        // --- TÍTULO ---
+        // --- TÍTULOS ---
         Label.LabelStyle estiloTitulo = new Label.LabelStyle(juego.getFuente(), Color.valueOf("00ffcc"));
-        Label etiquetaTitulo = new Label("SPACE INVADERS", estiloTitulo);
-        etiquetaTitulo.setFontScale(3.0f);
+        Label etiquetaTitulo = new Label("INFORMACIÓN Y GUÍA", estiloTitulo);
+        etiquetaTitulo.setFontScale(1.8f);
         etiquetaTitulo.setAlignment(Align.center);
-        etiquetaTitulo.setOrigin(Align.center);
+        tabla.add(etiquetaTitulo).colspan(2).padBottom(30).row();
 
-        etiquetaTitulo.addAction(Actions.forever(
-            Actions.sequence(
-                Actions.scaleTo(3.2f, 3.2f, 1.5f),
-                Actions.scaleTo(2.8f, 2.8f, 1.5f)
-            )
-        ));
+        Label.LabelStyle estiloTexto = new Label.LabelStyle(juego.getFuente(), Color.WHITE);
 
-        // --- BOTONES ---
-        TextButton botonIniciar = crearBotonAnimado("INICIAR");
-        TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
-        TextButton botonInfo = crearBotonAnimado("INFORMACIÓN");
-        TextButton botonSalir = crearBotonAnimado("SALIR");
+        // --- ENEMIGOS ---
+        Label lblEnemigos = new Label("GUÍA DE NAVES:", estiloTitulo);
+        tabla.add(lblEnemigos).colspan(2).padBottom(10).row();
 
-        botonIniciar.addListener(new ClickListener() {
+        Image imgEne1 = new Image(Recursos.getInstancia().getTextura("enemigo1.png"));
+        Label lblEne1 = new Label("Nave Élite\n100 Puntos\n3 Vidas", estiloTexto);
+        lblEne1.setAlignment(Align.center);
+
+        Image imgEne2 = new Image(Recursos.getInstancia().getTextura("enemigo2.png"));
+        Label lblEne2 = new Label("Nave Básica\n20 Puntos\n1 Vida", estiloTexto);
+        lblEne2.setAlignment(Align.center);
+
+        Table tablaNaves = new Table();
+        tablaNaves.add(imgEne1).size(50, 40).pad(10);
+        tablaNaves.add(lblEne1).pad(10);
+        tablaNaves.add(imgEne2).size(50, 40).pad(10).padLeft(30);
+        tablaNaves.add(lblEne2).pad(10);
+
+        tabla.add(tablaNaves).colspan(2).padBottom(30).row();
+
+        // --- CONTROLES ---
+        Label lblControles = new Label("CONTROLES:", estiloTitulo);
+        tabla.add(lblControles).colspan(2).padBottom(10).row();
+
+        Label lblControlesMovil = new Label("[MÓVIL]\nTocar debajo de flechas izquierdas: Mover Izquierda\nTocar debajo de flechas derechas: Mover Derecha\nDisparo: Tocar Debajo de SHOT", estiloTexto);
+        lblControlesMovil.setAlignment(Align.center);
+
+        Label lblControlesPC = new Label("[PC]\nFlechas Izq/Der A/D o Click en pantalla: Moverse\nDisparo: Pulsar espacio", estiloTexto);
+        lblControlesPC.setAlignment(Align.center);
+
+        Table tablaControles = new Table();
+        tablaControles.add(lblControlesMovil).pad(10).padRight(40);
+        tablaControles.add(lblControlesPC).pad(10);
+
+        tabla.add(tablaControles).colspan(2).padBottom(40).row();
+
+        // --- BOTÓN VOLVER ---
+        TextButton botonVolver = crearBotonAnimado("VOLVER");
+        botonVolver.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 escenario.addAction(Actions.sequence(
@@ -73,70 +95,14 @@ public class PantallaMenuPrincipal implements Screen {
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            Controlador.getInstancia().reiniciar();
-                            juego.setScreen(new PantallaJuego(juego));
+                            juego.setScreen(new PantallaMenuPrincipal(juego));
                         }
                     })
                 ));
             }
         });
 
-        botonSalir.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.fadeOut(0.3f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            Gdx.app.exit();
-                        }
-                    })
-                ));
-            }
-        });
-
-        tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(50).row();
-
-        botonOpciones.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            juego.setScreen(new PantallaOpciones(juego));
-                        }
-                    })
-                ));
-            }
-        });
-
-        botonInfo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                escenario.addAction(Actions.sequence(
-                    Actions.delay(0.1f),
-                    Actions.run(new Runnable() {
-                        @Override
-                        public void run() {
-                            juego.setScreen(new PantallaInformacion(juego));
-                        }
-                    })
-                ));
-            }
-        });
-
-        float anchoBoton = 300f;
-        float altoBoton = 60f;
-        float rellenoBoton = 10f;
-
-        tabla.add(botonIniciar).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonOpciones).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonInfo).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
-        tabla.add(botonSalir).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
+        tabla.add(botonVolver).colspan(2).width(300).height(60).pad(10).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
