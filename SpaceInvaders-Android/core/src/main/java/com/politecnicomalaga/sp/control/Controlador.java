@@ -108,7 +108,7 @@ public class Controlador {
      * @param altoPantalla Alto de pantalla para posicionamiento.
      */
     public void pintarHUD(SpriteBatch lote, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
-        renderizadorMundo.renderizarHUD(lote, estadoJuego, fuente, anchoPantalla, altoPantalla);
+        renderizadorMundo.renderizarHUD(lote, estadoJuego, gestorMundo, fuente, anchoPantalla, altoPantalla);
     }
 
     public void pintarBotonesAndroid(SpriteBatch lote, BitmapFont fuente,

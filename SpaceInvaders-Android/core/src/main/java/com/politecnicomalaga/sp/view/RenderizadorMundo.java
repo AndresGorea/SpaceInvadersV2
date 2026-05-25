@@ -13,7 +13,7 @@ import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
 import com.politecnicomalaga.sp.model.PowerUp;
-import com.politecnicomalaga.sp.util.Recursos;
+import com.politecnicomalaga.sp.util.Assets;
 
 import java.util.List;
 
@@ -29,11 +29,11 @@ public class RenderizadorMundo {
      * @param mundo El gestor del mundo que contiene las entidades a dibujar.
      */
     public void renderizar(SpriteBatch lote, GestorMundo mundo) {
-        Recursos recursos = Recursos.getInstancia();
+        Assets assets = Assets.getInstance();
 
         // 1. Dibujar la nave del jugador
         NaveAmi naveAmiga = mundo.getNaveAmiga();
-        lote.draw(recursos.getTextura(naveAmiga.getTextura()), naveAmiga.getX(), naveAmiga.getY(), naveAmiga.getWidth(), naveAmiga.getHeight());
+        lote.draw(assets.getTexture(naveAmiga.getTextura()), naveAmiga.getX(), naveAmiga.getY(), naveAmiga.getWidth(), naveAmiga.getHeight());
 
         // 2. Dibujar el batallón de enemigos y sus proyectiles activos
         Batallon batallon = mundo.getBatallon();
@@ -42,11 +42,11 @@ public class RenderizadorMundo {
             NaveEne[] naveEnes = esc.getNavesEnemigas();
             for (NaveEne navE : naveEnes) {
                 if (navE.estaVivo()) {
-                    lote.draw(recursos.getTextura(navE.getTextura()), navE.getX(), navE.getY(), navE.getWidth(), navE.getHeight());
+                    lote.draw(assets.getTexture(navE.getTextura()), navE.getX(), navE.getY(), navE.getWidth(), navE.getHeight());
                 }
                 List<DisparoEne> disparosEnemigos = navE.getMisDisparos();
                 for (DisparoEne disEne : disparosEnemigos) {
-                    lote.draw(recursos.getTextura(disEne.getTextura()), disEne.getX(), disEne.getY(), disEne.getWidth(), disEne.getHeight());
+                    lote.draw(assets.getTexture(disEne.getTextura()), disEne.getX(), disEne.getY(), disEne.getWidth(), disEne.getHeight());
                 }
             }
         }
@@ -55,7 +55,7 @@ public class RenderizadorMundo {
         List<DisparoAmi> disparosAmigos = naveAmiga.getMisDisparos();
         for (DisparoAmi dispAmi : disparosAmigos) {
             if (dispAmi.estaVivo()) {
-                lote.draw(recursos.getTextura(dispAmi.getTextura()), dispAmi.getX(), dispAmi.getY(), dispAmi.getWidth(), dispAmi.getHeight());
+                lote.draw(assets.getTexture(dispAmi.getTextura()), dispAmi.getX(), dispAmi.getY(), dispAmi.getWidth(), dispAmi.getHeight());
             }
         }
 
@@ -63,7 +63,7 @@ public class RenderizadorMundo {
         List<PowerUp> powerUps = mundo.getPowerUps();
         for (PowerUp p : powerUps) {
             if (p.estaVivo()) {
-                lote.draw(recursos.getTextura(p.getTextura()), p.getX(), p.getY(), p.getWidth(), p.getHeight());
+                lote.draw(assets.getTexture(p.getTextura()), p.getX(), p.getY(), p.getWidth(), p.getHeight());
             }
         }
     }
@@ -72,22 +72,42 @@ public class RenderizadorMundo {
      * Dibuja la interfaz de usuario superpuesta al juego.
      * @param lote El SpriteBatch para el dibujo.
      * @param estado Estado actual del juego (puntos, vidas).
+     * @param mundo Gestor del mundo para acceder a la nave y sus power-ups.
      * @param fuente Fuente para el texto.
      * @param anchoPantalla Ancho para cálculos de posición.
      * @param altoPantalla Alto para cálculos de posición.
      */
-    public void renderizarHUD(SpriteBatch lote, EstadoJuego estado, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
-        Recursos recursos = Recursos.getInstancia();
+    public void renderizarHUD(SpriteBatch lote, EstadoJuego estado, GestorMundo mundo, BitmapFont fuente, float anchoPantalla, float altoPantalla) {
+        Assets assets = Assets.getInstance();
         fuente.setColor(Color.WHITE);
 
         // Dibujar texto de puntuación en la esquina superior izquierda
         fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 20);
 
+        // Dibujar Power-ups activos debajo de la puntuación
+        NaveAmi nave = mundo.getNaveAmiga();
+        float yActual = altoPantalla - 60;
+        float escalaOriginal = fuente.getScaleX();
+        fuente.getData().setScale(1.2f); // Fuente algo más pequeña para los timers
+
+        if (nave.getTiempoTripleDisparo() > 0) {
+            fuente.draw(lote, "Triple Disparo: " + (int)nave.getTiempoTripleDisparo() + "s", 20, yActual);
+            yActual -= 30;
+        }
+        if (nave.getTiempoEscudo() > 0) {
+            fuente.draw(lote, "Escudo: " + (int)nave.getTiempoEscudo() + "s", 20, yActual);
+            yActual -= 30;
+        }
+        if (nave.getTiempoVelocidad() > 0) {
+            fuente.draw(lote, "Velocidad: " + (int)nave.getTiempoVelocidad() + "s", 20, yActual);
+        }
+        fuente.getData().setScale(escalaOriginal); // Restaurar escala
+
         // Dibujar iconos de naves representando las vidas en la esquina superior derecha
         float tamanoIcono = 30f;
         float margen = 10f;
         for (int i = 0; i < estado.getVidas(); i++) {
-            lote.draw(recursos.getTextura("naveJugador.png"),
+            lote.draw(assets.getTexture("naveJugador.png"),
                 anchoPantalla - (i + 1) * (tamanoIcono + margen) - 10,
                 altoPantalla - tamanoIcono - 15,
                 tamanoIcono, tamanoIcono);
