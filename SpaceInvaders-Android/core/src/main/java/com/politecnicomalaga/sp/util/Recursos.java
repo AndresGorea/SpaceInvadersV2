@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class Recursos {
     private static Recursos instancia;
-    private Map<String, Texture> texturas;
+    private final Map<String, Texture> texturas;
 
     private Recursos() {
         texturas = new HashMap<>();
