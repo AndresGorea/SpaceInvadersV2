@@ -34,6 +34,9 @@ public class Main extends Game {
         assets.cargarTextura("Escudo.png");
         assets.cargarTextura("Velocidad.png");
 
+        // Carga de nave especial (Usamos enemigoMisterioso.png que es el archivo existente)
+        assets.cargarTextura("enemigoMisterioso.png");
+
         // Inicio del juego con la pantalla del menú principal
         this.setScreen(new PantallaMenuPrincipal(this));
     }
