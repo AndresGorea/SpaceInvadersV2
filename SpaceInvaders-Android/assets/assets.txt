@@ -1,7 +1,10 @@
+Disparo.mp3
 DisparoMultiple.png
 Escudo.png
 MúsicaFondo.mp3
 One_Last_Quarter.mp3
+OvniMisterioso.mp3
+PowerUp.mp3
 RecibirDaño.mp3
 Velocidad.png
 botonDisparo.png
