@@ -114,12 +114,11 @@ public class Controlador {
 
     public void pintarBotonesAndroid(SpriteBatch lote, BitmapFont fuente,
                                   float anchoPantalla, float altoPantalla) {
-        // Reducimos el tamaño a aproximadamente la mitad de lo anterior y añadimos margen
-        float btnMoverAncho = anchoPantalla * 0.14f; // 14% de la pantalla (más pequeño)
-        float btnFireAncho = anchoPantalla * 0.12f;   // 12% para disparar
-        float btnAlto  = altoPantalla  * 0.12f;      // 12% de altura
-        float btnFireAlto  = altoPantalla  * 0.17f;      // 17% de altura
-        float margen = 20f; // Margen respecto a los bordes
+        float btnMoverAncho = anchoPantalla * ConfiguracionJuego.BTN_MOVER_ANCHO_PORCENTAJE;
+        float btnFireAncho = anchoPantalla * ConfiguracionJuego.BTN_FIRE_ANCHO_PORCENTAJE;
+        float btnAlto  = altoPantalla  * ConfiguracionJuego.BTN_ALTO_PORCENTAJE;
+        float btnFireAlto  = altoPantalla  * ConfiguracionJuego.BTN_FIRE_ALTO_PORCENTAJE;
+        float margen = ConfiguracionJuego.BTN_MARGEN;
 
         com.politecnicomalaga.sp.util.Assets assets = com.politecnicomalaga.sp.util.Assets.getInstance();
 
@@ -127,13 +126,13 @@ public class Controlador {
         lote.setColor(1, 1, 1, 0.6f);
 
         // Botón Izquierda
-        lote.draw(assets.getTexture("row_left.png"), margen, margen, btnMoverAncho, btnAlto);
+        lote.draw(assets.getTexture("botonFlechaIzquierda.png"), margen, margen, btnMoverAncho, btnAlto);
 
         // Botón Derecha
-        lote.draw(assets.getTexture("row_right.png"), btnMoverAncho + margen + 10, margen, btnMoverAncho, btnAlto);
+        lote.draw(assets.getTexture("botonFlechaDerecha.png"), btnMoverAncho + margen + 10, margen, btnMoverAncho, btnAlto);
 
         // Botón Disparo (en la esquina derecha con margen)
-        lote.draw(assets.getTexture("shot_button.png"), anchoPantalla - btnFireAncho - margen, margen, btnFireAncho, btnFireAlto);
+        lote.draw(assets.getTexture("botonDisparo.png"), anchoPantalla - btnFireAncho - margen, margen, btnFireAncho, btnFireAlto);
 
         // Resetear color
         lote.setColor(1, 1, 1, 1f);

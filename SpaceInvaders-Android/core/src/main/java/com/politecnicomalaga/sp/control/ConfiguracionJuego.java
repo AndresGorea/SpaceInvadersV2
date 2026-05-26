@@ -49,4 +49,11 @@ public class ConfiguracionJuego {
     public static final int[]    ENE_PUNTOS_FILA  = {30, 20, 15, 10};
     public static final int[]    ENE_VIDAS_FILA   = {2,  2,  1,  1};
     public static final String[] ENE_TEXTURA_FILA = {"enemigo2.png", "enemigo2.png", "enemigo1.png", "enemigo1.png"};
+
+    // --- Configuración: Botones Android (Porcentajes y Margen) ---
+    public static final float BTN_MOVER_ANCHO_PORCENTAJE = 0.10f;
+    public static final float BTN_FIRE_ANCHO_PORCENTAJE = 0.10f;
+    public static final float BTN_ALTO_PORCENTAJE = 0.20f;
+    public static final float BTN_FIRE_ALTO_PORCENTAJE = 0.20f;
+    public static final float BTN_MARGEN = 20f;
 }

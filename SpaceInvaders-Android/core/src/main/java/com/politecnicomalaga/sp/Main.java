@@ -33,9 +33,11 @@ public class Main extends Game {
         assets.cargarTextura("DisparoMultiple.png");
         assets.cargarTextura("Escudo.png");
         assets.cargarTextura("Velocidad.png");
-        assets.cargarTextura("row_left.png");
-        assets.cargarTextura("row_right.png");
-        assets.cargarTextura("shot_button.png");
+
+        // 1Botones
+        assets.cargarTextura("botonFlechaIzquierda.png");
+        assets.cargarTextura("botonFlechaDerecha.png");
+        assets.cargarTextura("botonDisparo.png");
 
         // Inicio del juego con la pantalla del menú principal
         this.setScreen(new PantallaMenuPrincipal(this));
