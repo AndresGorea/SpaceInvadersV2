@@ -21,18 +21,21 @@ public class Main extends Game {
         fuente = new BitmapFont();
         fuente.getData().setScale(2f);
 
-        // Registro y carga de texturas base del juego
         Assets assets = Assets.getInstance();
+        // Registro y carga de texturas base del juego
         assets.cargarTextura("enemigo1.png");
         assets.cargarTextura("enemigo2.png");
         assets.cargarTextura("naveJugador.png");
         assets.cargarTextura("disparoAmi.png");
         assets.cargarTextura("disparoEne.png");
 
-        // Carga de texturas para Power-ups
+        // Carga de texturas para UI y Power-ups
         assets.cargarTextura("DisparoMultiple.png");
         assets.cargarTextura("Escudo.png");
         assets.cargarTextura("Velocidad.png");
+        assets.cargarTextura("row_left.png");
+        assets.cargarTextura("row_right.png");
+        assets.cargarTextura("shot_button.png");
 
         // Inicio del juego con la pantalla del menú principal
         this.setScreen(new PantallaMenuPrincipal(this));
