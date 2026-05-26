@@ -7,6 +7,7 @@ import com.politecnicomalaga.sp.model.DisparoEne;
 import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
+import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.model.PowerUp;
 
@@ -25,7 +26,9 @@ public class GestorColisiones {
      */
     public void comprobarColisiones(GestorMundo mundo, EstadoJuego estado) {
         comprobarImpactoJugador(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
+        comprobarImpactoJugadorEspecial(mundo.getNaveEspecial(), mundo.getNaveAmiga(), estado);
         comprobarImpactoEnemigos(mundo, estado);
+        comprobarImpactoNaveEspecial(mundo, estado);
         comprobarColisionJugadorEnemigos(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
         comprobarRecogidaPowerUps(mundo);
     }
@@ -48,6 +51,19 @@ public class GestorColisiones {
                         disparoEne.setEstado(Ovni.Estado.MUERTO);
                     }
                 }
+            }
+        }
+    }
+
+    private void comprobarImpactoJugadorEspecial(NaveEspecial esp, NaveAmi naveAmiga, EstadoJuego estado) {
+        if (esp == null) return;
+        List<DisparoEne> disparos = esp.getMisDisparos();
+        for (DisparoEne d : disparos) {
+            if (d.getEstado() == Ovni.Estado.VIVO && d.comprobarColision(naveAmiga)) {
+                estado.perderVida();
+                EfectosCamara.getInstancia().shake(8f, 0.4f);
+                EfectosCamara.getInstancia().hitStop(0.1f);
+                d.setEstado(Ovni.Estado.MUERTO);
             }
         }
     }
@@ -79,6 +95,26 @@ public class GestorColisiones {
                     }
                 }
                 if (disparoAmi.getEstado() == Ovni.Estado.MUERTO) break;
+            }
+        }
+    }
+
+    private void comprobarImpactoNaveEspecial(GestorMundo mundo, EstadoJuego estado) {
+        NaveEspecial esp = mundo.getNaveEspecial();
+        if (esp == null || !esp.estaVivo()) return;
+
+        List<DisparoAmi> disparosAmis = mundo.getNaveAmiga().getMisDisparos();
+        for (DisparoAmi d : disparosAmis) {
+            if (d.estaVivo() && d.colision(esp)) {
+                esp.setEstado(Ovni.Estado.MUERTO);
+                d.setEstado(Ovni.Estado.MUERTO);
+
+                // Puntuación aleatoria
+                int puntos = ConfiguracionJuego.ESP_PUNTOS_MIN + (int)(Math.random() * (ConfiguracionJuego.ESP_PUNTOS_MAX - ConfiguracionJuego.ESP_PUNTOS_MIN));
+                estado.addPuntuacion(puntos);
+
+                EfectosCamara.getInstancia().shake(15f, 0.6f);
+                break;
             }
         }
     }

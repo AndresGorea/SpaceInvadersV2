@@ -12,6 +12,7 @@ import com.politecnicomalaga.sp.model.DisparoEne;
 import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
+import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.PowerUp;
 import com.politecnicomalaga.sp.util.Assets;
 
@@ -64,6 +65,18 @@ public class RenderizadorMundo {
         for (PowerUp p : powerUps) {
             if (p.estaVivo()) {
                 lote.draw(assets.getTexture(p.getTextura()), p.getX(), p.getY(), p.getWidth(), p.getHeight());
+            }
+        }
+
+        // 5. Dibujar la nave especial
+        NaveEspecial esp = mundo.getNaveEspecial();
+        if (esp != null) {
+            if (esp.estaVivo()) {
+                lote.draw(assets.getTexture(esp.getTextura()), esp.getX(), esp.getY(), esp.getWidth(), esp.getHeight());
+            }
+            // Dibujar sus disparos incluso si la nave ha muerto
+            for (DisparoEne d : esp.getMisDisparos()) {
+                lote.draw(assets.getTexture(d.getTextura()), d.getX(), d.getY(), d.getWidth(), d.getHeight());
             }
         }
     }
