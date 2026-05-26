@@ -21,6 +21,7 @@ public class Main extends Game {
         fuente = new BitmapFont();
         fuente.getData().setScale(2f);
 
+        // Registro y carga de texturas base del juego
         Assets assets = Assets.getInstance();
         // Registro y carga de texturas base del juego
         assets.cargarTextura("enemigo1.png");
@@ -33,6 +34,9 @@ public class Main extends Game {
         assets.cargarTextura("DisparoMultiple.png");
         assets.cargarTextura("Escudo.png");
         assets.cargarTextura("Velocidad.png");
+
+        // Carga de nave especial (Usamos enemigoMisterioso.png que es el archivo existente)
+        assets.cargarTextura("enemigoMisterioso.png");
 
         // 1Botones
         assets.cargarTextura("botonFlechaIzquierda.png");

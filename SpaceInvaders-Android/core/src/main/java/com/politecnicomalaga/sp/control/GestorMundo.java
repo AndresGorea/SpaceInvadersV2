@@ -3,6 +3,7 @@ package com.politecnicomalaga.sp.control;
 import com.badlogic.gdx.Gdx;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.NaveAmi;
+import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.model.PowerUp;
 
@@ -17,6 +18,7 @@ import java.util.Random;
 public class GestorMundo {
     private NaveAmi naveAmiga;
     private Batallon batallon;
+    private NaveEspecial naveEspecial;
     private List<PowerUp> powerUps;
     private Random random;
     private float contadorTiempoAmigo;
@@ -97,6 +99,9 @@ public class GestorMundo {
         // Movimiento de la formación enemiga
         batallon.mover(anchoPantalla, altoPantalla, 20f, delta);
 
+        // Gestión de la nave especial
+        actualizarNaveEspecial(anchoPantalla, delta);
+
         // Actualización de la posición de los proyectiles en pantalla
         naveAmiga.gestionarMisDisparos(altoPantalla, delta);
         batallon.gestionarDisparos(0f, delta);
@@ -115,6 +120,42 @@ public class GestorMundo {
             }
             if (p.getEstado() == Ovni.Estado.MUERTO) {
                 powerUps.remove(i);
+            }
+        }
+    }
+
+    private void actualizarNaveEspecial(float anchoPantalla, float delta) {
+        if (naveEspecial == null) {
+            // Probabilidad de que aparezca
+            if (random.nextFloat() < ConfiguracionJuego.ESP_PROB_APARICION) {
+                float y = ConfiguracionJuego.VIRTUAL_HEIGHT - ConfiguracionJuego.ESP_ALTO - 20;
+                Ovni.Direccion dir = random.nextBoolean() ? Ovni.Direccion.DERECHA : Ovni.Direccion.IZQUIERDA;
+                float x = (dir == Ovni.Direccion.DERECHA) ? -ConfiguracionJuego.ESP_ANCHO : anchoPantalla;
+
+                naveEspecial = new NaveEspecial(x, y, ConfiguracionJuego.ESP_ANCHO, ConfiguracionJuego.ESP_ALTO, dir, ConfiguracionJuego.ESP_VELOCIDAD, "enemigoMisterioso.png");
+            }
+        } else {
+            if (naveEspecial.estaVivo()) {
+                naveEspecial.actualizar(delta);
+
+                // Lógica de ataque
+                if (random.nextFloat() < ConfiguracionJuego.ESP_PROB_DISPARO * delta) {
+                    naveEspecial.disparar();
+                }
+            }
+
+            naveEspecial.gestionarMisDisparos(0f, delta);
+
+            if (!naveEspecial.estaVivo() || naveEspecial.haSalido(anchoPantalla)) {
+                // Si sale de la pantalla, la matamos para que deje de moverse/disparar
+                if (naveEspecial.haSalido(anchoPantalla)) {
+                    naveEspecial.setEstado(Ovni.Estado.MUERTO);
+                }
+
+                // Solo la eliminamos si no quedan disparos activos
+                if (naveEspecial.getMisDisparos().isEmpty()) {
+                    naveEspecial = null;
+                }
             }
         }
     }
@@ -158,6 +199,10 @@ public class GestorMundo {
 
     public List<PowerUp> getPowerUps() {
         return powerUps;
+    }
+
+    public NaveEspecial getNaveEspecial() {
+        return naveEspecial;
     }
 
     public void moverNaveAmiga(Ovni.Direccion direccion) {
