@@ -27,7 +27,10 @@ public class PantallaJuego implements Screen {
     private final OrthographicCamera camara;
 
     // Gestor de efectos visuales de fondo (reutilizable)
-    private FondoEfectos fondoEfectos;
+    private final FondoEfectos fondoEfectos;
+
+    // Objeto temporal para cálculos táctiles (evita creación de objetos en el render)
+    private final Vector3 tempTouch = new Vector3();
 
 
 
@@ -64,30 +67,56 @@ public class PantallaJuego implements Screen {
         int tipoControl = settings.getTipoControl();
 
         if (Controlador.getInstancia().esAndroid()) {
-            float gWidth = Gdx.graphics.getWidth();
-            float gHeight = Gdx.graphics.getHeight();
-
             if (tipoControl == 1) { // MODERNO: Botones dedicados
-                float btnAncho = gWidth * 0.2f;
-                float btnAlto = gHeight * 0.15f;
+                float btnMoverAncho = mundoAncho * ConfiguracionJuego.BTN_MOVER_ANCHO_PORCENTAJE;
+                float btnFireAncho = mundoAncho * ConfiguracionJuego.BTN_FIRE_ANCHO_PORCENTAJE;
+                float btnAlto = mundoAlto * ConfiguracionJuego.BTN_ALTO_PORCENTAJE;
+                float btnFireAlto = mundoAlto * ConfiguracionJuego.BTN_FIRE_ALTO_PORCENTAJE;
+                float margen = ConfiguracionJuego.BTN_MARGEN;
 
-                boolean tocandoIzq = Gdx.input.isTouched() &&
-                        Gdx.input.getX() < btnAncho &&
-                        Gdx.input.getY() > gHeight - btnAlto;
-                boolean tocandoDer = Gdx.input.isTouched() &&
-                        Gdx.input.getX() > btnAncho && Gdx.input.getX() < btnAncho * 2.5f &&
-                        Gdx.input.getY() > gHeight - btnAlto;
-                boolean tocandoFire = Gdx.input.justTouched() &&
-                        Gdx.input.getX() > gWidth - btnAncho &&
-                        Gdx.input.getY() > gHeight - btnAlto;
+                boolean tocandoIzq = false;
+                boolean tocandoDer = false;
+                boolean tocandoFire = false;
+
+                // Comprobar múltiples toques para permitir mover y disparar simultáneamente
+                for (int i = 0; i < 5; i++) {
+                    if (Gdx.input.isTouched(i)) {
+                        tempTouch.set(Gdx.input.getX(i), Gdx.input.getY(i), 0);
+                        viewport.unproject(tempTouch);
+                        float touchX = tempTouch.x;
+                        float touchY = tempTouch.y;
+
+                        // Detección en coordenadas del mundo
+                        // Botones Izquierda y Derecha (comparten la misma altura btnAlto)
+                        if (touchY > margen && touchY < margen + btnAlto) {
+                            // Izquierda
+                            if (touchX > margen && touchX < btnMoverAncho + margen) {
+                                tocandoIzq = true;
+                            }
+                            // Derecha
+                            else if (touchX > btnMoverAncho + margen + 10 && touchX < (btnMoverAncho * 2) + margen + 10) {
+                                tocandoDer = true;
+                            }
+                        }
+
+                        // Botón de Fuego (usa btnFireAlto)
+                        if (touchY > margen && touchY < margen + btnFireAlto) {
+                            // Fuego (esquina derecha)
+                            if (touchX > mundoAncho - btnFireAncho - margen && touchX < mundoAncho - margen) {
+                                tocandoFire = true;
+                            }
+                        }
+                    }
+                }
 
                 if (tocandoIzq) {
                     Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
                 } else if (tocandoDer) {
                     Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
-                } else if (!Gdx.input.isTouched()) {
+                } else {
                     Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
                 }
+
                 if (tocandoFire) {
                     Controlador.getInstancia().dispararNaveAmiga();
                 }
@@ -95,21 +124,22 @@ public class PantallaJuego implements Screen {
                 if (Gdx.input.justTouched()) {
                     int x = Gdx.input.getX();
                     int y = Gdx.input.getY();
+                    float gHeight = Gdx.graphics.getHeight();
                     if (y < gHeight * 0.2f) { // Toque en la parte superior para disparar
                         Controlador.getInstancia().dispararNaveAmiga();
                     } else {
-                        Vector3 touchPos = new Vector3(x, y, 0);
-                        viewport.unproject(touchPos);
-                        Controlador.getInstancia().click(touchPos.x, touchPos.y);
+                        tempTouch.set(x, y, 0);
+                        viewport.unproject(tempTouch);
+                        Controlador.getInstancia().click(tempTouch.x, tempTouch.y);
                     }
                 }
             }
         } else {
             // Click en PC
             if (Gdx.input.justTouched()) {
-                Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-                viewport.unproject(touchPos);
-                Controlador.getInstancia().click(touchPos.x, touchPos.y);
+                tempTouch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                viewport.unproject(tempTouch);
+                Controlador.getInstancia().click(tempTouch.x, tempTouch.y);
             }
         }
 

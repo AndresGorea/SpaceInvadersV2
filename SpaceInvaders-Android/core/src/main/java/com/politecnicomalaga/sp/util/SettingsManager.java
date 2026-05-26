@@ -52,7 +52,8 @@ public class SettingsManager {
     // --- Controles ---
     // 0 para Clásico (Toque para girar), 1 para Moderno (Botones dedicados)
     public int getTipoControl() {
-        return prefs.getInteger(KEY_CONTROLS, 0);
+        int defecto = (Gdx.app.getType() == com.badlogic.gdx.Application.ApplicationType.Android) ? 1 : 0;
+        return prefs.getInteger(KEY_CONTROLS, defecto);
     }
 
     public void setTipoControl(int tipo) {

@@ -19,8 +19,8 @@ public class Controlador {
     private GestorMundo gestorMundo;
     private GestorColisiones gestorColisiones;
     private EstadoJuego estadoJuego;
-    private RenderizadorMundo renderizadorMundo;
-    private boolean esAndroid;
+    private final RenderizadorMundo renderizadorMundo;
+    private final boolean esAndroid;
 
     /**
      * Constructor privado para garantizar el patrón Singleton.
@@ -114,15 +114,28 @@ public class Controlador {
 
     public void pintarBotonesAndroid(SpriteBatch lote, BitmapFont fuente,
                                   float anchoPantalla, float altoPantalla) {
-        float btnAncho = anchoPantalla * 0.2f;
-        float btnAlto  = altoPantalla  * 0.15f;
-        // Etiquetas visuales de los botones
-        fuente.draw(lote, "<<", btnAncho * 0.35f,
-                altoPantalla - btnAlto * 0.3f);
-        fuente.draw(lote, ">>", btnAncho * 1.4f,
-                altoPantalla - btnAlto * 0.3f);
-        fuente.draw(lote, "[FIRE]", anchoPantalla - btnAncho * 0.9f,
-                altoPantalla - btnAlto * 0.3f);
+        float btnMoverAncho = anchoPantalla * ConfiguracionJuego.BTN_MOVER_ANCHO_PORCENTAJE;
+        float btnFireAncho = anchoPantalla * ConfiguracionJuego.BTN_FIRE_ANCHO_PORCENTAJE;
+        float btnAlto  = altoPantalla  * ConfiguracionJuego.BTN_ALTO_PORCENTAJE;
+        float btnFireAlto  = altoPantalla  * ConfiguracionJuego.BTN_FIRE_ALTO_PORCENTAJE;
+        float margen = ConfiguracionJuego.BTN_MARGEN;
+
+        com.politecnicomalaga.sp.util.Assets assets = com.politecnicomalaga.sp.util.Assets.getInstance();
+
+        // Configurar transparencia para que no tapen el juego (60% alpha)
+        lote.setColor(1, 1, 1, 0.6f);
+
+        // Botón Izquierda
+        lote.draw(assets.getTexture("botonFlechaIzquierda.png"), margen, margen, btnMoverAncho, btnAlto);
+
+        // Botón Derecha
+        lote.draw(assets.getTexture("botonFlechaDerecha.png"), btnMoverAncho + margen + 10, margen, btnMoverAncho, btnAlto);
+
+        // Botón Disparo (en la esquina derecha con margen)
+        lote.draw(assets.getTexture("botonDisparo.png"), anchoPantalla - btnFireAncho - margen, margen, btnFireAncho, btnFireAlto);
+
+        // Resetear color
+        lote.setColor(1, 1, 1, 1f);
     }
 
     //Obtener estados
