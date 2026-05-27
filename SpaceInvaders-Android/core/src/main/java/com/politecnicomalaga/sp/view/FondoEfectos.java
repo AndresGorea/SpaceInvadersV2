@@ -1,12 +1,12 @@
 package com.politecnicomalaga.sp.view;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.util.Assets;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class FondoEfectos {
     // Colecciones de elementos visuales
     private List<Estrella> estrellas;
     private List<EntidadFlotante> entidadesFlotantes;
-    private boolean mostrarEntidadesFlotantes;
+    private final boolean mostrarEntidadesFlotantes;
 
     // Texturas generadas procedimentalmente para las estrellas
     private Texture texturaEstrella1, texturaEstrella2, texturaEstrella3;
@@ -98,8 +98,8 @@ public class FondoEfectos {
 
             // Si la estrella sale por abajo, reaparece arriba en una X aleatoria
             if (estrella.y < 0) {
-                estrella.y = Gdx.graphics.getHeight();
-                estrella.x = MathUtils.random(0, Gdx.graphics.getWidth());
+                estrella.y = ConfiguracionJuego.VIRTUAL_HEIGHT;
+                estrella.x = MathUtils.random(0, ConfiguracionJuego.VIRTUAL_WIDTH);
             }
 
             // Seleccionar textura según la capa de profundidad
@@ -143,8 +143,8 @@ public class FondoEfectos {
 
         public Estrella(int capa) {
             this.capa = capa;
-            this.x = MathUtils.random(0, Gdx.graphics.getWidth());
-            this.y = MathUtils.random(0, Gdx.graphics.getHeight());
+            this.x = MathUtils.random(0, ConfiguracionJuego.VIRTUAL_WIDTH);
+            this.y = MathUtils.random(0, ConfiguracionJuego.VIRTUAL_HEIGHT);
 
             // A mayor capa (más cerca), mayor velocidad de movimiento
             if (capa == 1) velocidad = MathUtils.random(10, 30);
@@ -185,7 +185,7 @@ public class FondoEfectos {
             rotacion += velocidadRotacion * delta;
 
             // Reiniciar si sale de los límites laterales
-            if (x > Gdx.graphics.getWidth() + 100 || x < -100) {
+            if (x > ConfiguracionJuego.VIRTUAL_WIDTH + 100 || x < -100) {
                 reiniciarPosicion();
             }
         }
@@ -199,12 +199,12 @@ public class FondoEfectos {
                 x = -ancho;
                 velocidadX = MathUtils.random(40, 120);
             } else {
-                x = Gdx.graphics.getWidth();
+                x = ConfiguracionJuego.VIRTUAL_WIDTH;
                 velocidadX = MathUtils.random(-120, -40);
             }
 
             // Parámetros de la onda sinusoidal
-            baseY = MathUtils.random(50, Gdx.graphics.getHeight() - 50);
+            baseY = MathUtils.random(50, ConfiguracionJuego.VIRTUAL_HEIGHT - 50);
             tiempoSeno = MathUtils.random(0, 10);
             amplitudSeno = MathUtils.random(20, 80);
             frecuenciaSeno = MathUtils.random(1f, 3f);
