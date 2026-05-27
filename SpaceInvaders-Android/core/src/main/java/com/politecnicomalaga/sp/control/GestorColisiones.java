@@ -45,7 +45,9 @@ public class GestorColisiones {
                 for (DisparoEne disparoEne : disparosEnes) {
                     // Solo comprobamos colisión si el disparo está activo ("vivo")
                     if (disparoEne.getEstado() == Ovni.Estado.VIVO && disparoEne.comprobarColision(naveAmiga)) {
-                        estado.perderVida();
+                        if (!naveAmiga.tieneEscudo()) {
+                            estado.perderVida();
+                        }
                         EfectosCamara.getInstancia().shake(8f, 0.4f);
                         EfectosCamara.getInstancia().hitStop(0.1f);
                         disparoEne.setEstado(Ovni.Estado.MUERTO);
@@ -60,7 +62,9 @@ public class GestorColisiones {
         List<DisparoEne> disparos = esp.getMisDisparos();
         for (DisparoEne d : disparos) {
             if (d.getEstado() == Ovni.Estado.VIVO && d.comprobarColision(naveAmiga)) {
-                estado.perderVida();
+                if (!naveAmiga.tieneEscudo()) {
+                    estado.perderVida();
+                }
                 EfectosCamara.getInstancia().shake(8f, 0.4f);
                 EfectosCamara.getInstancia().hitStop(0.1f);
                 d.setEstado(Ovni.Estado.MUERTO);
@@ -141,7 +145,9 @@ public class GestorColisiones {
                 if (naveEne.estaVivo() && naveEne.colision(naveAmiga)) {
                     // Ambos reciben daño por el choque
                     naveEne.recibirDisparo();
-                    estado.perderVida();
+                    if (!naveAmiga.tieneEscudo()) {
+                        estado.perderVida();
+                    }
                     EfectosCamara.getInstancia().shake(10f, 0.5f);
                     EfectosCamara.getInstancia().hitStop(0.15f);
                 }
