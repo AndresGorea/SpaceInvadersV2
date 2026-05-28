@@ -14,6 +14,7 @@ import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
 import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.PowerUp;
+import com.politecnicomalaga.sp.model.Bunker;
 import com.politecnicomalaga.sp.util.Assets;
 
 import java.util.List;
@@ -35,6 +36,16 @@ public class RenderizadorMundo {
         // 1. Dibujar la nave del jugador
         NaveAmi naveAmiga = mundo.getNaveAmiga();
         lote.draw(assets.getTexture(naveAmiga.getTextura()), naveAmiga.getX(), naveAmiga.getY(), naveAmiga.getWidth(), naveAmiga.getHeight());
+
+        // 1.5 Dibujar los Búnkeres
+        List<Bunker> bunkeres = mundo.getBunkeres();
+        if (bunkeres != null) {
+            for (Bunker b : bunkeres) {
+                if (b.estaVivo()) {
+                    lote.draw(assets.getTexture(b.getTextura()), b.getX(), b.getY(), b.getWidth(), b.getHeight());
+                }
+            }
+        }
 
         // 2. Dibujar el batallón de enemigos y sus proyectiles activos
         Batallon batallon = mundo.getBatallon();
