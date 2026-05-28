@@ -6,6 +6,7 @@ import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.model.PowerUp;
+import com.politecnicomalaga.sp.model.Bunker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class GestorMundo {
     private Batallon batallon;
     private NaveEspecial naveEspecial;
     private List<PowerUp> powerUps;
+    private List<Bunker> bunkeres;
     private Random random;
     private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
@@ -28,6 +30,7 @@ public class GestorMundo {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
         this.powerUps = new ArrayList<>();
+        this.bunkeres = new ArrayList<>();
         this.random = new Random();
         inicializarMundo();
     }
@@ -68,6 +71,16 @@ public class GestorMundo {
             prefs.getProbabilidadDisparo(),
             ConfiguracionJuego.BAT_ESPACIO_HORIZ, prefs.getVelocidadBatallon()
         );
+
+        // Instanciar búnkeres
+        float bunkerY = 120f; // Por encima del jugador
+        float espacioRestante = ConfiguracionJuego.VIRTUAL_WIDTH - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
+        float margenEntreBunkeres = espacioRestante / (ConfiguracionJuego.BUNKER_CANTIDAD + 1);
+        
+        for (int i = 0; i < ConfiguracionJuego.BUNKER_CANTIDAD; i++) {
+            float bX = margenEntreBunkeres + i * (ConfiguracionJuego.BUNKER_ANCHO + margenEntreBunkeres);
+            bunkeres.add(new Bunker(bX, bunkerY, ConfiguracionJuego.BUNKER_ANCHO, ConfiguracionJuego.BUNKER_ALTO, ConfiguracionJuego.BUNKER_VIDAS));
+        }
     }
 
     /**
@@ -203,6 +216,10 @@ public class GestorMundo {
 
     public NaveEspecial getNaveEspecial() {
         return naveEspecial;
+    }
+
+    public List<Bunker> getBunkeres() {
+        return bunkeres;
     }
 
     public void moverNaveAmiga(Ovni.Direccion direccion) {

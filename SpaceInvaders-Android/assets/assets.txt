@@ -10,6 +10,9 @@ Velocidad.png
 botonDisparo.png
 botonFlechaDerecha.png
 botonFlechaIzquierda.png
+bunker_1.png
+bunker_2.png
+bunker_3.png
 disparoAmi.png
 disparoEne.png
 enemigo1.png

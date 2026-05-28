@@ -43,6 +43,11 @@ public class Main extends Game {
         assets.cargarTextura("botonFlechaDerecha.png");
         assets.cargarTextura("botonDisparo.png");
 
+        // Búnkeres
+        assets.cargarTextura("bunker_3.png");
+        assets.cargarTextura("bunker_2.png");
+        assets.cargarTextura("bunker_1.png");
+
         // Inicio del juego con la pantalla del menú principal
         this.setScreen(new PantallaMenuPrincipal(this));
     }

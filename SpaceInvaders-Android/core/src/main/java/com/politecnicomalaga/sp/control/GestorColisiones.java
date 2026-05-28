@@ -10,6 +10,7 @@ import com.politecnicomalaga.sp.model.NaveEne;
 import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.model.PowerUp;
+import com.politecnicomalaga.sp.model.Bunker;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ public class GestorColisiones {
         comprobarImpactoEnemigos(mundo, estado);
         comprobarImpactoNaveEspecial(mundo, estado);
         comprobarColisionJugadorEnemigos(mundo.getBatallon(), mundo.getNaveAmiga(), estado);
+        comprobarImpactoBunkeres(mundo);
         comprobarRecogidaPowerUps(mundo);
     }
 
@@ -150,6 +152,82 @@ public class GestorColisiones {
                     }
                     EfectosCamara.getInstancia().shake(10f, 0.5f);
                     EfectosCamara.getInstancia().hitStop(0.15f);
+                }
+            }
+        }
+    }
+
+    /**
+     * Verifica las colisiones contra los búnkeres (disparos aliados, disparos enemigos, e impactos físicos directos).
+     */
+    private void comprobarImpactoBunkeres(GestorMundo mundo) {
+        List<Bunker> bunkeres = mundo.getBunkeres();
+        if (bunkeres == null || bunkeres.isEmpty()) return;
+
+        // 1. Disparos aliados contra Búnkeres
+        List<DisparoAmi> disparosAmis = mundo.getNaveAmiga().getMisDisparos();
+        for (DisparoAmi d : disparosAmis) {
+            if (d.getEstado() == Ovni.Estado.VIVO) {
+                for (Bunker b : bunkeres) {
+                    if (b.estaVivo() && d.colision(b)) {
+                        b.recibirDano();
+                        d.setEstado(Ovni.Estado.MUERTO);
+                        EfectosCamara.getInstancia().hitStop(0.05f); // Pequeño hitstop
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 2. Disparos enemigos (Batallón) contra Búnkeres
+        Escuadron[] escuadrones = mundo.getBatallon().getEscuadrones();
+        for (Escuadron escuadron : escuadrones) {
+            for (NaveEne naveEne : escuadron.getNavesEnemigas()) {
+                for (DisparoEne d : naveEne.getMisDisparos()) {
+                    if (d.getEstado() == Ovni.Estado.VIVO) {
+                        for (Bunker b : bunkeres) {
+                            if (b.estaVivo() && d.colision(b)) {
+                                b.recibirDano();
+                                d.setEstado(Ovni.Estado.MUERTO);
+                                EfectosCamara.getInstancia().shake(3f, 0.2f);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Disparos de la nave especial contra Búnkeres
+        NaveEspecial esp = mundo.getNaveEspecial();
+        if (esp != null) {
+            for (DisparoEne d : esp.getMisDisparos()) {
+                if (d.getEstado() == Ovni.Estado.VIVO) {
+                    for (Bunker b : bunkeres) {
+                        if (b.estaVivo() && d.colision(b)) {
+                            b.recibirDano();
+                            d.setEstado(Ovni.Estado.MUERTO);
+                            EfectosCamara.getInstancia().shake(3f, 0.2f);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Kamikaze: Nave Enemiga choca físicamente con el Búnker
+        for (Escuadron escuadron : escuadrones) {
+            for (NaveEne naveEne : escuadron.getNavesEnemigas()) {
+                if (naveEne.estaVivo()) {
+                    for (Bunker b : bunkeres) {
+                        if (b.estaVivo() && naveEne.colision(b)) {
+                            b.destruir();
+                            naveEne.recibirDisparo(); // Destruye la nave enemiga
+                            EfectosCamara.getInstancia().shake(10f, 0.5f);
+                            EfectosCamara.getInstancia().hitStop(0.1f);
+                            break;
+                        }
+                    }
                 }
             }
         }
