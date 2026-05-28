@@ -19,7 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.politecnicomalaga.sp.Main;
-import com.politecnicomalaga.sp.util.Recursos;
+import com.politecnicomalaga.sp.util.Assets;
 
 public class PantallaInformacion implements Screen {
 
@@ -53,11 +53,11 @@ public class PantallaInformacion implements Screen {
         Label lblEnemigos = new Label("GUÍA DE NAVES:", estiloTitulo);
         tabla.add(lblEnemigos).colspan(2).padBottom(10).row();
 
-        Image imgEne1 = new Image(Recursos.getInstancia().getTextura("enemigo1.png"));
+        Image imgEne1 = new Image(Assets.getInstance().getTexture("enemigo1.png"));
         Label lblEne1 = new Label("Nave Élite\n100 Puntos\n3 Vidas", estiloTexto);
         lblEne1.setAlignment(Align.center);
 
-        Image imgEne2 = new Image(Recursos.getInstancia().getTextura("enemigo2.png"));
+        Image imgEne2 = new Image(Assets.getInstance().getTexture("enemigo2.png"));
         Label lblEne2 = new Label("Nave Básica\n20 Puntos\n1 Vida", estiloTexto);
         lblEne2.setAlignment(Align.center);
 
