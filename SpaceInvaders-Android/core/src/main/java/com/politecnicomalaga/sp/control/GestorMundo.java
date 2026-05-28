@@ -173,6 +173,11 @@ public class GestorMundo {
         }
     }
 
+    /**
+     * Intenta soltar un power-up en la posición dada según una probabilidad.
+     * @param x Coordenada X donde murió el enemigo.
+     * @param y Coordenada Y donde murió el enemigo.
+     */
     public void soltarPowerUp(float x, float y) {
         if (random.nextFloat() < ConfiguracionJuego.PU_PROB_DROP) {
             PowerUp.Tipo tipo = PowerUp.Tipo.values()[random.nextInt(PowerUp.Tipo.values().length)];
@@ -222,10 +227,16 @@ public class GestorMundo {
         return bunkeres;
     }
 
+    /**
+     * Modifica la dirección de la nave aliada.
+     */
     public void moverNaveAmiga(Ovni.Direccion direccion) {
         naveAmiga.setDir(direccion);
     }
 
+    /**
+     * Intenta realizar un disparo con la nave aliada respetando la cadencia de fuego.
+     */
     public void dispararNaveAmiga() {
         if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
             naveAmiga.disparar();

@@ -23,7 +23,6 @@ public class Main extends Game {
 
         // Registro y carga de texturas base del juego
         Assets assets = Assets.getInstance();
-        // Registro y carga de texturas base del juego
         assets.cargarTextura("enemigo1.png");
         assets.cargarTextura("enemigo2.png");
         assets.cargarTextura("naveJugador.png");
@@ -38,7 +37,7 @@ public class Main extends Game {
         // Carga de nave especial (Usamos enemigoMisterioso.png que es el archivo existente)
         assets.cargarTextura("enemigoMisterioso.png");
 
-        // 1Botones
+        // Botones de UI
         assets.cargarTextura("botonFlechaIzquierda.png");
         assets.cargarTextura("botonFlechaDerecha.png");
         assets.cargarTextura("botonDisparo.png");

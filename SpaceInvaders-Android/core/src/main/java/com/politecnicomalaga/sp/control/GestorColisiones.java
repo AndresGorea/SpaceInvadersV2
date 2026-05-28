@@ -1,6 +1,5 @@
 package com.politecnicomalaga.sp.control;
 
-import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.DisparoAmi;
 import com.politecnicomalaga.sp.model.DisparoEne;
@@ -59,6 +58,9 @@ public class GestorColisiones {
         }
     }
 
+    /**
+     * Verifica si la nave especial (platillo volante) ha disparado y alcanzado al jugador.
+     */
     private void comprobarImpactoJugadorEspecial(NaveEspecial esp, NaveAmi naveAmiga, EstadoJuego estado) {
         if (esp == null) return;
         List<DisparoEne> disparos = esp.getMisDisparos();
@@ -105,6 +107,10 @@ public class GestorColisiones {
         }
     }
 
+    /**
+     * Verifica si algún proyectil del jugador ha impactado en la nave especial.
+     * Si es así, otorga puntos extra aleatorios.
+     */
     private void comprobarImpactoNaveEspecial(GestorMundo mundo, EstadoJuego estado) {
         NaveEspecial esp = mundo.getNaveEspecial();
         if (esp == null || !esp.estaVivo()) return;
@@ -125,6 +131,9 @@ public class GestorColisiones {
         }
     }
 
+    /**
+     * Comprueba si la nave del jugador ha recogido algún power-up activo que esté cayendo.
+     */
     private void comprobarRecogidaPowerUps(GestorMundo mundo) {
         NaveAmi nave = mundo.getNaveAmiga();
         List<PowerUp> powerUps = mundo.getPowerUps();
