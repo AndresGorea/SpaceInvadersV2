@@ -9,6 +9,7 @@ public class EstadoJuego {
     private boolean pausado;
     private int puntuacion;
     private int vidas;
+    private int nivel;
 
     /**
      * Constructor de EstadoJuego.
@@ -19,6 +20,7 @@ public class EstadoJuego {
         this.pausado = false;
         this.puntuacion = 0;
         this.vidas = vidasIniciales;
+        this.nivel = 1;
     }
 
     public boolean isJugando() {
@@ -66,5 +68,17 @@ public class EstadoJuego {
             this.vidas = 0;
             this.jugando = false;
         }
+    }
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
+    }
+
+    public void siguienteNivel() {
+        this.nivel++;
     }
 }

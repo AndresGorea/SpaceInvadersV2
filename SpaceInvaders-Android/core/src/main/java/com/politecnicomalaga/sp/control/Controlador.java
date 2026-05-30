@@ -77,9 +77,14 @@ public class Controlador {
             // 2. Procesar interacciones físicas entre objetos
             gestorColisiones.comprobarColisiones(gestorMundo, estadoJuego);
 
-            // 3. Verificar si el jugador ha eliminado a todos los enemigos
+            // 3. Verificar progresión de nivel
             if (!gestorMundo.getBatallon().tieneTropas()) {
-                estadoJuego.setJugando(false);
+                if (estadoJuego.getNivel() < 5) {
+                    estadoJuego.siguienteNivel();
+                    gestorMundo.avanzarNivel(estadoJuego.getNivel());
+                } else {
+                    estadoJuego.setJugando(false);
+                }
             }
         }
     }

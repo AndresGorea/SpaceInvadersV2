@@ -2,6 +2,7 @@ package com.politecnicomalaga.sp.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.util.Assets;
 import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
@@ -32,6 +34,7 @@ public class PantallaMenuPrincipal implements Screen {
     private final Stage  escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
+    private Music musicaFondo;
 
     public PantallaMenuPrincipal(final Main juego) {
         this.juego = juego;
@@ -220,6 +223,13 @@ public class PantallaMenuPrincipal implements Screen {
         Gdx.input.setInputProcessor(escenario);
         escenario.getRoot().getColor().a = 0;
         escenario.addAction(Actions.fadeIn(0.5f));
+
+        musicaFondo = Assets.getInstance().getMusic("One_Last_Quarter.mp3");
+        if (musicaFondo != null) {
+            musicaFondo.setVolume(0.15f);
+            musicaFondo.setLooping(true);
+            musicaFondo.play();
+        }
     }
 
     @Override
@@ -247,7 +257,11 @@ public class PantallaMenuPrincipal implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {}
+    public void hide() {
+        if (musicaFondo != null) {
+            musicaFondo.stop();
+        }
+    }
 
     @Override
     public void dispose() {

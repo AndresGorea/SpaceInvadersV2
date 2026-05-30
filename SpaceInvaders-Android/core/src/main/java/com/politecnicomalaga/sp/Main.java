@@ -47,6 +47,15 @@ public class Main extends Game {
         assets.cargarTextura("bunker_2.png");
         assets.cargarTextura("bunker_1.png");
 
+        // Carga de música (como Music para que se reproduzca entera)
+        assets.cargarMusica("One_Last_Quarter.mp3");
+
+        // Carga de sonidos
+        assets.cargarSonido("RecibirDaño.mp3");
+        assets.cargarSonido("Disparo.mp3");
+        assets.cargarSonido("PowerUp.mp3");
+        assets.cargarSonido("OvniMisterioso.mp3");
+
         // Inicio del juego con la pantalla del menú principal
         this.setScreen(new PantallaMenuPrincipal(this));
     }

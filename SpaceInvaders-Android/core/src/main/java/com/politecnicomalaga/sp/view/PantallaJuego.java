@@ -3,6 +3,7 @@ package com.politecnicomalaga.sp.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -13,7 +14,10 @@ import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
 import com.politecnicomalaga.sp.control.EfectosCamara;
+import com.politecnicomalaga.sp.control.EstadoJuego;
+import com.politecnicomalaga.sp.control.GestorMundo;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.util.Assets;
 import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
@@ -28,6 +32,8 @@ public class PantallaJuego implements Screen {
 
     // Gestor de efectos visuales de fondo (reutilizable)
     private final FondoEfectos fondoEfectos;
+
+    private Music musicaFondo;
 
     // Objeto temporal para cálculos táctiles (evita creación de objetos en el render)
     private final Vector3 tempTouch = new Vector3();
@@ -46,6 +52,12 @@ public class PantallaJuego implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(null);
+        musicaFondo = Assets.getInstance().getMusic("One_Last_Quarter.mp3");
+        if (musicaFondo != null) {
+            musicaFondo.setVolume(0.15f);
+            musicaFondo.setLooping(true);
+            musicaFondo.play();
+        }
     }
 
     @Override
@@ -59,7 +71,16 @@ public class PantallaJuego implements Screen {
         // 0. Gestión de Pausa (Tecla P)
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             boolean pausadoActual = Controlador.getInstancia().getEstadoJuego().isPausado();
-            Controlador.getInstancia().getEstadoJuego().setPausado(!pausadoActual);
+            boolean nuevoEstadoPausa = !pausadoActual;
+            Controlador.getInstancia().getEstadoJuego().setPausado(nuevoEstadoPausa);
+
+            if (musicaFondo != null) {
+                if (nuevoEstadoPausa) {
+                    musicaFondo.pause();
+                } else {
+                    musicaFondo.play();
+                }
+            }
         }
 
         // 1. Entrada
@@ -219,7 +240,11 @@ public class PantallaJuego implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {}
+    public void hide() {
+        if (musicaFondo != null) {
+            musicaFondo.stop();
+        }
+    }
 
     @Override
     public void dispose() {
