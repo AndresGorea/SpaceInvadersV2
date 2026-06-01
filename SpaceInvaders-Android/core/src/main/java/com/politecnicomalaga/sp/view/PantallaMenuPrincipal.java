@@ -83,7 +83,7 @@ public class PantallaMenuPrincipal implements Screen {
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            Controlador.getInstancia().reiniciar();
+                            Controlador.getInstancia().reiniciar(escenario.getViewport().getWorldWidth());
                             juego.setScreen(new PantallaJuego(juego));
                         }
                     })
