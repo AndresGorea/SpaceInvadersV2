@@ -29,9 +29,10 @@ public class Controlador {
     private Controlador() {
         esAndroid = com.badlogic.gdx.Gdx.app.getType() == Application.ApplicationType.Android;
         this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
-        this.gestorMundo = new GestorMundo();
-        this.gestorColisiones = new GestorColisiones();
         this.renderizadorMundo = new RenderizadorMundo();
+        // Inicializamos temporalmente con VIRTUAL_WIDTH, pero se reiniciará al empezar la pantalla
+        this.gestorMundo = new GestorMundo(ConfiguracionJuego.VIRTUAL_WIDTH);
+        this.gestorColisiones = new GestorColisiones();
     }
 
     /**
@@ -81,7 +82,7 @@ public class Controlador {
             if (!gestorMundo.getBatallon().tieneTropas()) {
                 if (estadoJuego.getNivel() < 5) {
                     estadoJuego.siguienteNivel();
-                    gestorMundo.avanzarNivel(estadoJuego.getNivel());
+                    gestorMundo.avanzarNivel(estadoJuego.getNivel(), anchoPantalla);
                 } else {
                     estadoJuego.setJugando(false);
                 }
@@ -92,9 +93,9 @@ public class Controlador {
     /**
      * Reinicia el estado del juego para una nueva partida.
      */
-    public void reiniciar() {
+    public void reiniciar(float mundoAncho) {
         this.estadoJuego = new EstadoJuego(ConfiguracionJuego.NAVE_VIDAS);
-        this.gestorMundo = new GestorMundo();
+        this.gestorMundo = new GestorMundo(mundoAncho);
         this.gestorColisiones = new GestorColisiones();
     }
 

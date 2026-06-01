@@ -28,21 +28,21 @@ public class GestorMundo {
     private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
 
-    public GestorMundo() {
+    public GestorMundo(float mundoAncho) {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
         this.powerUps = new ArrayList<>();
         this.bunkeres = new ArrayList<>();
         this.random = new Random();
-        inicializarMundo();
+        inicializarMundo(mundoAncho);
     }
 
     /**
      * Configura la posición inicial y parámetros de las entidades al comenzar el juego.
      */
-    private void inicializarMundo() {
+    private void inicializarMundo(float mundoAncho) {
         // Posicionamiento de la nave del jugador (centrada horizontalmente)
-        float naveInicioX = (ConfiguracionJuego.VIRTUAL_WIDTH / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
+        float naveInicioX = (mundoAncho / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
         float naveInicioY = 10f;
 
         this.naveAmiga = new NaveAmi(
@@ -76,7 +76,7 @@ public class GestorMundo {
 
         // Instanciar búnkeres
         float bunkerY = 120f; // Por encima del jugador
-        float espacioRestante = ConfiguracionJuego.VIRTUAL_WIDTH - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
+        float espacioRestante = mundoAncho - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
         float margenEntreBunkeres = espacioRestante / (ConfiguracionJuego.BUNKER_CANTIDAD + 1);
 
         for (int i = 0; i < ConfiguracionJuego.BUNKER_CANTIDAD; i++) {
@@ -252,13 +252,13 @@ public class GestorMundo {
         }
     }
 
-    public void avanzarNivel(int nivel) {
+    public void avanzarNivel(int nivel, float mundoAncho) {
         // Limpiar powerups y búnkeres antiguos
         powerUps.clear();
         bunkeres.clear();
 
         // Reposicionar nave amiga
-        float naveInicioX = (ConfiguracionJuego.VIRTUAL_WIDTH / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
+        float naveInicioX = (mundoAncho / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
         naveAmiga.setX(naveInicioX);
         naveAmiga.setDir(Ovni.Direccion.NOMOVER);
 
@@ -289,7 +289,7 @@ public class GestorMundo {
 
         // Re-instanciar búnkeres
         float bunkerY = 120f;
-        float espacioRestante = ConfiguracionJuego.VIRTUAL_WIDTH - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
+        float espacioRestante = mundoAncho - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
         float margenEntreBunkeres = espacioRestante / (ConfiguracionJuego.BUNKER_CANTIDAD + 1);
 
         for (int i = 0; i < ConfiguracionJuego.BUNKER_CANTIDAD; i++) {
