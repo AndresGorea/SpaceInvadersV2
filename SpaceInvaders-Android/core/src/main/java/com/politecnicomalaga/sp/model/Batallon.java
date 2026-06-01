@@ -31,7 +31,7 @@ public class Batallon {
 
         for (int i = 0; i < this.escuadrones.length; i++) {
             float yEscuadron = y - (i * (height + espacioVertical));
-            
+
             // Fila superior (i == 0) -> Élite
             String texturaEscuadron = (i == 0) ? "enemigo1.png" : "enemigo2.png";
             int vidasEscuadron = (i == 0) ? 3 : 1;
@@ -122,5 +122,25 @@ public class Batallon {
             }
         }
         return false; // Si revisa todos y nadie tiene naves vivas, se acabó el juego, hemos ganado
+    }
+
+    public int getCantidadNavesVivas() {
+        int total = 0;
+        if (escuadrones != null) {
+            for (Escuadron esc : escuadrones) {
+                total += esc.getCantidadNavesVivas();
+            }
+        }
+        return total;
+    }
+
+    public int getMaxNaves() {
+        int total = 0;
+        if (escuadrones != null) {
+            for (Escuadron esc : escuadrones) {
+                total += esc.getNavesEnemigas().length;
+            }
+        }
+        return total;
     }
 }

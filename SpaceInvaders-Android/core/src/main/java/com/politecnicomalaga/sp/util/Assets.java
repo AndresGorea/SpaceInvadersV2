@@ -2,6 +2,7 @@ package com.politecnicomalaga.sp.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +15,12 @@ public class Assets {
     private static Assets instancia;
     private final Map<String, Texture> texturas;
     private final Map<String, Music> musicas;
+    private final Map<String, Sound> sonidos;
 
     private Assets() {
         texturas = new HashMap<>();
         musicas = new HashMap<>();
+        sonidos = new HashMap<>();
     }
 
     /**
@@ -69,6 +72,16 @@ public class Assets {
         return musicas.get(ruta);
     }
 
+    public void cargarSonido(String ruta) {
+        if (!sonidos.containsKey(ruta)) {
+            sonidos.put(ruta, Gdx.audio.newSound(Gdx.files.internal(ruta)));
+        }
+    }
+
+    public Sound getSound(String ruta) {
+        return sonidos.get(ruta);
+    }
+
     /**
      * Libera de la memoria todos los recursos cargados.
      */
@@ -79,7 +92,11 @@ public class Assets {
         for (Music musica : musicas.values()) {
             musica.dispose();
         }
+        for (Sound sonido : sonidos.values()) {
+            sonido.dispose();
+        }
         texturas.clear();
         musicas.clear();
+        sonidos.clear();
     }
 }

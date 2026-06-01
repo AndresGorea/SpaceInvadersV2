@@ -106,11 +106,12 @@ public class RenderizadorMundo {
         fuente.setColor(Color.WHITE);
 
         // Dibujar texto de puntuación en la esquina superior izquierda
-        fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 20);
+        fuente.draw(lote, "Nivel: " + estado.getNivel(), 20, altoPantalla - 20);
+        fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 50);
 
         // Dibujar Power-ups activos debajo de la puntuación
         NaveAmi nave = mundo.getNaveAmiga();
-        float yActual = altoPantalla - 60;
+        float yActual = altoPantalla - 90;
         float escalaOriginal = fuente.getScaleX();
         fuente.getData().setScale(1.2f); // Fuente algo más pequeña para los timers
 

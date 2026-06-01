@@ -1,5 +1,7 @@
 package com.politecnicomalaga.sp.control;
 
+import com.badlogic.gdx.audio.Sound;
+import com.politecnicomalaga.sp.control.EfectosCamara;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.DisparoAmi;
 import com.politecnicomalaga.sp.model.DisparoEne;
@@ -9,6 +11,7 @@ import com.politecnicomalaga.sp.model.NaveEne;
 import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.model.PowerUp;
+import com.politecnicomalaga.sp.util.Assets;
 import com.politecnicomalaga.sp.model.Bunker;
 
 import java.util.List;
@@ -141,6 +144,12 @@ public class GestorColisiones {
             if (p.estaVivo() && p.colision(nave)) {
                 nave.activarPowerUp(p.getTipo());
                 p.setEstado(Ovni.Estado.MUERTO);
+
+                // Sonido de PowerUp
+                Sound s = Assets.getInstance().getSound("PowerUp.mp3");
+                if (s != null) {
+                    s.play(0.8f);
+                }
             }
         }
     }

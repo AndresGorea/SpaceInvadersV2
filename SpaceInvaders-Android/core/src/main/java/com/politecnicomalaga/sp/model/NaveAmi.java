@@ -1,7 +1,9 @@
 package com.politecnicomalaga.sp.model;
 
+import com.badlogic.gdx.audio.Sound;
 import java.util.ArrayList;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
+import com.politecnicomalaga.sp.util.Assets;
 
 public class NaveAmi extends Nave {
     //Atributos
@@ -31,6 +33,12 @@ public class NaveAmi extends Nave {
     @Override
     public void disparar() { //Aquí no tenemos random no tiene sentido usarlo, Definimos la cadencia que tendra nuestra nave en el controlador
         if (estaVivo()) {
+            // Sonido de disparo
+            Sound s = Assets.getInstance().getSound("Disparo.mp3");
+            if (s != null) {
+                s.play(0.4f);
+            }
+
             // Cálculo de posición centrada (Igual que en NaveEne pero hacia ARRIBA)
             float posX = getX() + getMitadWidth() - (getAnchoBala() / 2f);
             float posY = getY() + getMitadHeight();
@@ -94,6 +102,13 @@ public class NaveAmi extends Nave {
             // No recibe daño si tiene escudo
             return;
         }
+
+        // Sonido de recibir daño
+        Sound s = Assets.getInstance().getSound("RecibirDaño.mp3");
+        if (s != null) {
+            s.play(0.7f);
+        }
+
         super.recibirDisparo();
     }
 
