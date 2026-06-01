@@ -205,8 +205,12 @@ public class PantallaGameOver implements Screen {
             ScreenUtils.clear(0.1f, 0.0f, 0.0f, 1f);
         }
 
+        float mundoAncho = escenario.getViewport().getWorldWidth();
+        float mundoAlto = escenario.getViewport().getWorldHeight();
+
+        juego.getLote().setProjectionMatrix(escenario.getCamera().combined);
         juego.getLote().begin();
-        fondoEfectos.renderizar(juego.getLote(), delta);
+        fondoEfectos.renderizar(juego.getLote(), delta, mundoAncho, mundoAlto);
         juego.getLote().end();
 
         escenario.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));

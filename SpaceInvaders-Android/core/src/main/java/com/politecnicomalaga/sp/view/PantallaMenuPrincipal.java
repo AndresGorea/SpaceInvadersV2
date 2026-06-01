@@ -227,8 +227,12 @@ public class PantallaMenuPrincipal implements Screen {
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.05f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        float mundoAncho = escenario.getViewport().getWorldWidth();
+        float mundoAlto = escenario.getViewport().getWorldHeight();
+
+        juego.getLote().setProjectionMatrix(escenario.getCamera().combined);
         juego.getLote().begin();
-        fondoEfectos.renderizar(juego.getLote(), delta);
+        fondoEfectos.renderizar(juego.getLote(), delta, mundoAncho, mundoAlto);
         juego.getLote().end();
 
         escenario.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));

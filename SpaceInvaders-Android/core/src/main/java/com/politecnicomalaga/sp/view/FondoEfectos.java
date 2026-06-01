@@ -90,16 +90,18 @@ public class FondoEfectos {
      * Actualiza y dibuja todos los elementos del fondo.
      * @param lote El SpriteBatch donde se realiza el dibujo.
      * @param delta Tiempo transcurrido entre frames.
+     * @param mundoAncho Ancho actual del mundo/viewport.
+     * @param mundoAlto Alto actual del mundo/viewport.
      */
-    public void renderizar(SpriteBatch lote, float delta) {
+    public void renderizar(SpriteBatch lote, float delta, float mundoAncho, float mundoAlto) {
         // 1. Dibujar estrellas con movimiento descendente (parallax)
         for (Estrella estrella : estrellas) {
             estrella.y -= estrella.velocidad * delta;
 
             // Si la estrella sale por abajo, reaparece arriba en una X aleatoria
             if (estrella.y < 0) {
-                estrella.y = ConfiguracionJuego.VIRTUAL_HEIGHT;
-                estrella.x = MathUtils.random(0, ConfiguracionJuego.VIRTUAL_WIDTH);
+                estrella.y = mundoAlto;
+                estrella.x = MathUtils.random(0, mundoAncho);
             }
 
             // Seleccionar textura según la capa de profundidad
@@ -110,7 +112,7 @@ public class FondoEfectos {
         // 2. Dibujar entidades flotantes con sus transformaciones
         if (mostrarEntidadesFlotantes) {
             for (EntidadFlotante entidad : entidadesFlotantes) {
-                entidad.actualizar(delta);
+                entidad.actualizar(delta, mundoAncho, mundoAlto);
                 lote.draw(
                     entidad.regionTextura,
                     entidad.x, entidad.y,
@@ -167,13 +169,13 @@ public class FondoEfectos {
             this.regionTextura = regionTextura;
             this.ancho = 60f;
             this.alto = 60f;
-            reiniciarPosicion();
+            reiniciarPosicion(ConfiguracionJuego.VIRTUAL_WIDTH, ConfiguracionJuego.VIRTUAL_HEIGHT);
         }
 
         /**
          * Calcula la nueva posición usando movimiento sinusoidal para el eje Y.
          */
-        public void actualizar(float delta) {
+        public void actualizar(float delta, float mundoAncho, float mundoAlto) {
             // Movimiento horizontal lineal
             x += velocidadX * delta;
 
@@ -185,26 +187,26 @@ public class FondoEfectos {
             rotacion += velocidadRotacion * delta;
 
             // Reiniciar si sale de los límites laterales
-            if (x > ConfiguracionJuego.VIRTUAL_WIDTH + 100 || x < -100) {
-                reiniciarPosicion();
+            if (x > mundoAncho + 100 || x < -100) {
+                reiniciarPosicion(mundoAncho, mundoAlto);
             }
         }
 
         /**
          * Asigna valores aleatorios a la entidad para que su comportamiento sea impredecible.
          */
-        private void reiniciarPosicion() {
+        private void reiniciarPosicion(float mundoAncho, float mundoAlto) {
             // Dirección aleatoria (izquierda -> derecha o viceversa)
             if (MathUtils.randomBoolean()) {
                 x = -ancho;
                 velocidadX = MathUtils.random(40, 120);
             } else {
-                x = ConfiguracionJuego.VIRTUAL_WIDTH;
+                x = mundoAncho;
                 velocidadX = MathUtils.random(-120, -40);
             }
 
             // Parámetros de la onda sinusoidal
-            baseY = MathUtils.random(50, ConfiguracionJuego.VIRTUAL_HEIGHT - 50);
+            baseY = MathUtils.random(50, mundoAlto - 50);
             tiempoSeno = MathUtils.random(0, 10);
             amplitudSeno = MathUtils.random(20, 80);
             frecuenciaSeno = MathUtils.random(1f, 3f);

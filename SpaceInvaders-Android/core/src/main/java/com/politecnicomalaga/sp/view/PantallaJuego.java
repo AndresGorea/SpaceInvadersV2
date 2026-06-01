@@ -178,7 +178,7 @@ public class PantallaJuego implements Screen {
         juego.getLote().begin();
 
         // El fondo se dibuja primero para que quede detrás de las naves
-        fondoEfectos.renderizar(juego.getLote(), delta);
+        fondoEfectos.renderizar(juego.getLote(), delta, mundoAncho, mundoAlto);
 
         Controlador.getInstancia().pintar(juego.getLote());
         Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), mundoAncho, mundoAlto);
