@@ -121,8 +121,8 @@ public class PantallaGameOver implements Screen {
         tabla.add(etiquetaTitulo).padBottom(30).row();
         tabla.add(etiquetaPuntos).padBottom(10).row();
         tabla.add(etiquetaHighScore).padBottom(40).row();
-        tabla.add(botonReintentar).width(350).height(70).padBottom(15).row();
-        tabla.add(botonMenu).width(350).height(70).row();
+        tabla.add(botonReintentar).width(350).height(60).padBottom(15).row();
+        tabla.add(botonMenu).width(350).height(60).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -177,7 +177,7 @@ public class PantallaGameOver implements Screen {
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
         int ancho = 350;
-        int alto = 70;
+        int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
         pixmap.fill();

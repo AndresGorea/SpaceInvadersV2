@@ -102,7 +102,7 @@ public class PantallaInformacion implements Screen {
             }
         });
 
-        tabla.add(botonVolver).colspan(2).width(300).height(60).pad(10).row();
+        tabla.add(botonVolver).colspan(2).width(350).height(60).pad(10).row();
     }
 
     private TextButton crearBotonAnimado(String texto) {
@@ -152,7 +152,7 @@ public class PantallaInformacion implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
+        int ancho = 350;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
