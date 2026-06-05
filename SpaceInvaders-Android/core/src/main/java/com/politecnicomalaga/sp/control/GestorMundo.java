@@ -1,10 +1,14 @@
 package com.politecnicomalaga.sp.control;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.politecnicomalaga.sp.model.Batallon;
 import com.politecnicomalaga.sp.model.NaveAmi;
+import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.Ovni;
 import com.politecnicomalaga.sp.model.PowerUp;
+import com.politecnicomalaga.sp.util.Assets;
+import com.politecnicomalaga.sp.model.Bunker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,25 +21,28 @@ import java.util.Random;
 public class GestorMundo {
     private NaveAmi naveAmiga;
     private Batallon batallon;
+    private NaveEspecial naveEspecial;
     private List<PowerUp> powerUps;
+    private List<Bunker> bunkeres;
     private Random random;
     private float contadorTiempoAmigo;
     private float contadorTiempoEnemigo;
 
-    public GestorMundo() {
+    public GestorMundo(float mundoAncho) {
         this.contadorTiempoAmigo = 0f;
         this.contadorTiempoEnemigo = 0f;
         this.powerUps = new ArrayList<>();
+        this.bunkeres = new ArrayList<>();
         this.random = new Random();
-        inicializarMundo();
+        inicializarMundo(mundoAncho);
     }
 
     /**
      * Configura la posición inicial y parámetros de las entidades al comenzar el juego.
      */
-    private void inicializarMundo() {
+    private void inicializarMundo(float mundoAncho) {
         // Posicionamiento de la nave del jugador (centrada horizontalmente)
-        float naveInicioX = (ConfiguracionJuego.VIRTUAL_WIDTH / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
+        float naveInicioX = (mundoAncho / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
         float naveInicioY = 10f;
 
         this.naveAmiga = new NaveAmi(
@@ -66,6 +73,16 @@ public class GestorMundo {
             prefs.getProbabilidadDisparo(),
             ConfiguracionJuego.BAT_ESPACIO_HORIZ, prefs.getVelocidadBatallon()
         );
+
+        // Instanciar búnkeres
+        float bunkerY = 120f; // Por encima del jugador
+        float espacioRestante = mundoAncho - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
+        float margenEntreBunkeres = espacioRestante / (ConfiguracionJuego.BUNKER_CANTIDAD + 1);
+
+        for (int i = 0; i < ConfiguracionJuego.BUNKER_CANTIDAD; i++) {
+            float bX = margenEntreBunkeres + i * (ConfiguracionJuego.BUNKER_ANCHO + margenEntreBunkeres);
+            bunkeres.add(new Bunker(bX, bunkerY, ConfiguracionJuego.BUNKER_ANCHO, ConfiguracionJuego.BUNKER_ALTO, ConfiguracionJuego.BUNKER_VIDAS));
+        }
     }
 
     /**
@@ -97,6 +114,9 @@ public class GestorMundo {
         // Movimiento de la formación enemiga
         batallon.mover(anchoPantalla, altoPantalla, 20f, delta);
 
+        // Gestión de la nave especial
+        actualizarNaveEspecial(anchoPantalla, delta);
+
         // Actualización de la posición de los proyectiles en pantalla
         naveAmiga.gestionarMisDisparos(altoPantalla, delta);
         batallon.gestionarDisparos(0f, delta);
@@ -119,6 +139,53 @@ public class GestorMundo {
         }
     }
 
+    private void actualizarNaveEspecial(float anchoPantalla, float delta) {
+        if (naveEspecial == null) {
+            // Probabilidad de que aparezca
+            if (random.nextFloat() < ConfiguracionJuego.ESP_PROB_APARICION) {
+                float y = ConfiguracionJuego.VIRTUAL_HEIGHT - ConfiguracionJuego.ESP_ALTO - 20;
+                Ovni.Direccion dir = random.nextBoolean() ? Ovni.Direccion.DERECHA : Ovni.Direccion.IZQUIERDA;
+                float x = (dir == Ovni.Direccion.DERECHA) ? -ConfiguracionJuego.ESP_ANCHO : anchoPantalla;
+
+                naveEspecial = new NaveEspecial(x, y, ConfiguracionJuego.ESP_ANCHO, ConfiguracionJuego.ESP_ALTO, dir, ConfiguracionJuego.ESP_VELOCIDAD, "enemigoMisterioso.png");
+
+                // Sonido de aparición del Ovni Misterioso
+                Sound s = Assets.getInstance().getSound("OvniMisterioso.mp3");
+                if (s != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isSfxActivado()) {
+                    s.play(0.7f);
+                }
+            }
+        } else {
+            if (naveEspecial.estaVivo()) {
+                naveEspecial.actualizar(delta);
+
+                // Lógica de ataque
+                if (random.nextFloat() < ConfiguracionJuego.ESP_PROB_DISPARO * delta) {
+                    naveEspecial.disparar();
+                }
+            }
+
+            naveEspecial.gestionarMisDisparos(0f, delta);
+
+            if (!naveEspecial.estaVivo() || naveEspecial.haSalido(anchoPantalla)) {
+                // Si sale de la pantalla, la matamos para que deje de moverse/disparar
+                if (naveEspecial.haSalido(anchoPantalla)) {
+                    naveEspecial.setEstado(Ovni.Estado.MUERTO);
+                }
+
+                // Solo la eliminamos si no quedan disparos activos
+                if (naveEspecial.getMisDisparos().isEmpty()) {
+                    naveEspecial = null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Intenta soltar un power-up en la posición dada según una probabilidad.
+     * @param x Coordenada X donde murió el enemigo.
+     * @param y Coordenada Y donde murió el enemigo.
+     */
     public void soltarPowerUp(float x, float y) {
         if (random.nextFloat() < ConfiguracionJuego.PU_PROB_DROP) {
             PowerUp.Tipo tipo = PowerUp.Tipo.values()[random.nextInt(PowerUp.Tipo.values().length)];
@@ -160,14 +227,74 @@ public class GestorMundo {
         return powerUps;
     }
 
+    public NaveEspecial getNaveEspecial() {
+        return naveEspecial;
+    }
+
+    public List<Bunker> getBunkeres() {
+        return bunkeres;
+    }
+
+    /**
+     * Modifica la dirección de la nave aliada.
+     */
     public void moverNaveAmiga(Ovni.Direccion direccion) {
         naveAmiga.setDir(direccion);
     }
 
+    /**
+     * Intenta realizar un disparo con la nave aliada respetando la cadencia de fuego.
+     */
     public void dispararNaveAmiga() {
         if (contadorTiempoAmigo >= ConfiguracionJuego.NAVE_CADENCIA) {
             naveAmiga.disparar();
             contadorTiempoAmigo = 0f;
+        }
+    }
+
+    public void avanzarNivel(int nivel, float mundoAncho) {
+        // Limpiar powerups y búnkeres antiguos
+        powerUps.clear();
+        bunkeres.clear();
+
+        // Reposicionar nave amiga
+        float naveInicioX = (mundoAncho / 2f) - (ConfiguracionJuego.NAVE_ANCHO / 2f);
+        naveAmiga.setX(naveInicioX);
+        naveAmiga.setDir(Ovni.Direccion.NOMOVER);
+
+        // Crear batallón más difícil
+        float batInicioX = 20f;
+        float batInicioY = ConfiguracionJuego.VIRTUAL_HEIGHT - 40f;
+
+        GestorPreferencias prefs = GestorPreferencias.getInstancia();
+
+        // Escalado de dificultad (basado en el nivel)
+        float multiplicadorVelocidad = 1.0f + (nivel - 1) * 0.20f; // +20% velocidad por nivel
+        int probExtra = (nivel - 1) * 3; // +3% probabilidad de disparo por nivel
+
+        this.batallon = new Batallon(
+            batInicioX, batInicioY, ConfiguracionJuego.BAT_ESPACIO_VERT,
+            ConfiguracionJuego.ENE_ANCHO, ConfiguracionJuego.ENE_ALTO,
+            Ovni.Estado.VIVO,
+            Ovni.Direccion.DERECHA,
+            "enemigo1.png",
+            ConfiguracionJuego.ENE_VIDAS,
+            ConfiguracionJuego.ENE_CADENCIA,
+            ConfiguracionJuego.BALA_ENE_ANCHO, ConfiguracionJuego.BALA_ENE_ALTO,
+            prefs.getVelocidadBalaEnemiga() * multiplicadorVelocidad,
+            prefs.getProbabilidadDisparo() + probExtra,
+            ConfiguracionJuego.BAT_ESPACIO_HORIZ,
+            prefs.getVelocidadBatallon() * multiplicadorVelocidad
+        );
+
+        // Re-instanciar búnkeres
+        float bunkerY = 120f;
+        float espacioRestante = mundoAncho - (ConfiguracionJuego.BUNKER_CANTIDAD * ConfiguracionJuego.BUNKER_ANCHO);
+        float margenEntreBunkeres = espacioRestante / (ConfiguracionJuego.BUNKER_CANTIDAD + 1);
+
+        for (int i = 0; i < ConfiguracionJuego.BUNKER_CANTIDAD; i++) {
+            float bX = margenEntreBunkeres + i * (ConfiguracionJuego.BUNKER_ANCHO + margenEntreBunkeres);
+            bunkeres.add(new Bunker(bX, bunkerY, ConfiguracionJuego.BUNKER_ANCHO, ConfiguracionJuego.BUNKER_ALTO, ConfiguracionJuego.BUNKER_VIDAS));
         }
     }
 }

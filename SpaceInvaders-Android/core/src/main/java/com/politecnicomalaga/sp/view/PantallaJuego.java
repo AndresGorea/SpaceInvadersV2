@@ -3,6 +3,7 @@ package com.politecnicomalaga.sp.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector3;
@@ -13,7 +14,11 @@ import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
 import com.politecnicomalaga.sp.control.EfectosCamara;
+import com.politecnicomalaga.sp.control.EstadoJuego;
+import com.politecnicomalaga.sp.control.GestorMundo;
 import com.politecnicomalaga.sp.model.Ovni;
+import com.politecnicomalaga.sp.util.Assets;
+import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
  * Representa la pantalla principal donde ocurre la acción del juego.
@@ -28,6 +33,14 @@ public class PantallaJuego implements Screen {
     // Gestor de efectos visuales de fondo (reutilizable)
     private final FondoEfectos fondoEfectos;
 
+    private Music musicaFondo;
+
+    // Objeto temporal para cálculos táctiles (evita creación de objetos en el render)
+    private final Vector3 tempTouch = new Vector3();
+
+
+
+
     public PantallaJuego(Main juego) {
         this.juego = juego;
         camara = new OrthographicCamera();
@@ -39,6 +52,14 @@ public class PantallaJuego implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(null);
+        musicaFondo = Assets.getInstance().getMusic("One_Last_Quarter.mp3");
+        if (musicaFondo != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isMusicaActivada()) {
+            if (!musicaFondo.isPlaying()) {
+                musicaFondo.setVolume(0.15f);
+                musicaFondo.setLooping(true);
+                musicaFondo.play();
+            }
+        }
     }
 
     @Override
@@ -52,45 +73,100 @@ public class PantallaJuego implements Screen {
         // 0. Gestión de Pausa (Tecla P)
         if (Gdx.input.isKeyJustPressed(Input.Keys.P)) {
             boolean pausadoActual = Controlador.getInstancia().getEstadoJuego().isPausado();
-            Controlador.getInstancia().getEstadoJuego().setPausado(!pausadoActual);
+            boolean nuevoEstadoPausa = !pausadoActual;
+            Controlador.getInstancia().getEstadoJuego().setPausado(nuevoEstadoPausa);
+
+            if (musicaFondo != null) {
+                if (nuevoEstadoPausa) {
+                    musicaFondo.pause();
+                } else {
+                    musicaFondo.play();
+                }
+            }
         }
 
         // 1. Entrada
+        SettingsManager settings = SettingsManager.getInstancia();
+        int tipoControl = settings.getTipoControl();
+
         if (Controlador.getInstancia().esAndroid()) {
-            float gWidth = Gdx.graphics.getWidth();
-            float gHeight = Gdx.graphics.getHeight();
+            if (tipoControl == 1) { // MODERNO: Botones dedicados
+                float btnMoverAncho = mundoAncho * ConfiguracionJuego.BTN_MOVER_ANCHO_PORCENTAJE;
+                float btnFireAncho = mundoAncho * ConfiguracionJuego.BTN_FIRE_ANCHO_PORCENTAJE;
+                float btnAlto = mundoAlto * ConfiguracionJuego.BTN_ALTO_PORCENTAJE;
+                float btnFireAlto = mundoAlto * ConfiguracionJuego.BTN_FIRE_ALTO_PORCENTAJE;
+                float margen = ConfiguracionJuego.BTN_MARGEN;
 
-            // Zonas de botones Android (usando coordenadas físicas de pantalla para consistencia de botones táctiles)
-            boolean tocandoIzq   = Gdx.input.isTouched() &&
-                                   Gdx.input.getX() < gWidth * 0.2f &&
-                                   Gdx.input.getY() > gHeight * 0.85f;
-            boolean tocandoDer   = Gdx.input.isTouched() &&
-                                   Gdx.input.getX() > gWidth * 0.2f && Gdx.input.getX() < gWidth * 0.5f &&
-                                   Gdx.input.getY() > gHeight * 0.85f;
-            boolean tocandoFire  = Gdx.input.justTouched() &&
-                                   Gdx.input.getX() > gWidth * 0.8f &&
-                                   Gdx.input.getY() > gHeight * 0.85f;
+                boolean tocandoIzq = false;
+                boolean tocandoDer = false;
+                boolean tocandoFire = false;
 
-            if (tocandoIzq) {
-                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
-            } else if (tocandoDer) {
-                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
-            } else if (!Gdx.input.isTouched()) {
-                Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
-            }
-            if (tocandoFire) {
-                Controlador.getInstancia().dispararNaveAmiga();
+                // Comprobar múltiples toques para permitir mover y disparar simultáneamente
+                for (int i = 0; i < 5; i++) {
+                    if (Gdx.input.isTouched(i)) {
+                        tempTouch.set(Gdx.input.getX(i), Gdx.input.getY(i), 0);
+                        viewport.unproject(tempTouch);
+                        float touchX = tempTouch.x;
+                        float touchY = tempTouch.y;
+
+                        // Detección en coordenadas del mundo
+                        // Botones Izquierda y Derecha (comparten la misma altura btnAlto)
+                        if (touchY > margen && touchY < margen + btnAlto) {
+                            // Izquierda
+                            if (touchX > margen && touchX < btnMoverAncho + margen) {
+                                tocandoIzq = true;
+                            }
+                            // Derecha
+                            else if (touchX > btnMoverAncho + margen + 10 && touchX < (btnMoverAncho * 2) + margen + 10) {
+                                tocandoDer = true;
+                            }
+                        }
+
+                        // Botón de Fuego (usa btnFireAlto)
+                        if (touchY > margen && touchY < margen + btnFireAlto) {
+                            // Fuego (esquina derecha)
+                            if (touchX > mundoAncho - btnFireAncho - margen && touchX < mundoAncho - margen) {
+                                tocandoFire = true;
+                            }
+                        }
+                    }
+                }
+
+                if (tocandoIzq) {
+                    Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
+                } else if (tocandoDer) {
+                    Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.DERECHA);
+                } else {
+                    Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.NOMOVER);
+                }
+
+                if (tocandoFire) {
+                    Controlador.getInstancia().dispararNaveAmiga();
+                }
+            } else { // CLÁSICO: Toque en pantalla para girar y disparo automático o toque arriba
+                if (Gdx.input.justTouched()) {
+                    int x = Gdx.input.getX();
+                    int y = Gdx.input.getY();
+                    float gHeight = Gdx.graphics.getHeight();
+                    if (y < gHeight * 0.2f) { // Toque en la parte superior para disparar
+                        Controlador.getInstancia().dispararNaveAmiga();
+                    } else {
+                        tempTouch.set(x, y, 0);
+                        viewport.unproject(tempTouch);
+                        Controlador.getInstancia().click(tempTouch.x, tempTouch.y);
+                    }
+                }
             }
         } else {
             // Click en PC
             if (Gdx.input.justTouched()) {
-                Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-                viewport.unproject(touchPos);
-                Controlador.getInstancia().click(touchPos.x, touchPos.y);
+                tempTouch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+                viewport.unproject(tempTouch);
+                Controlador.getInstancia().click(tempTouch.x, tempTouch.y);
             }
         }
 
-        // Controles de teclado (solo PC)
+        // Controles de teclado (siempre activos en PC)
         if (!Controlador.getInstancia().esAndroid()) {
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
                 Controlador.getInstancia().moverNaveAmiga(Ovni.Direccion.IZQUIERDA);
@@ -112,8 +188,8 @@ public class PantallaJuego implements Screen {
 
         // Aplicar shake si está activo
         camara.position.set(
-            mundoAncho    / 2f + EfectosCamara.getInstancia().getOffsetX(),
-            mundoAlto     / 2f + EfectosCamara.getInstancia().getOffsetY(),
+            mundoAncho / 2f + EfectosCamara.getInstancia().getOffsetX(),
+            mundoAlto  / 2f + EfectosCamara.getInstancia().getOffsetY(),
             0
         );
         camara.update();
@@ -125,7 +201,7 @@ public class PantallaJuego implements Screen {
         juego.getLote().begin();
 
         // El fondo se dibuja primero para que quede detrás de las naves
-        fondoEfectos.renderizar(juego.getLote(), delta);
+        fondoEfectos.renderizar(juego.getLote(), delta, mundoAncho, mundoAlto);
 
         Controlador.getInstancia().pintar(juego.getLote());
         Controlador.getInstancia().pintarHUD(juego.getLote(), juego.getFuente(), mundoAncho, mundoAlto);
@@ -137,8 +213,8 @@ public class PantallaJuego implements Screen {
         }
 
 
-        // Dibujar botones táctiles en Android
-        if (Controlador.getInstancia().esAndroid()) {
+        // Dibujar botones táctiles en Android (solo si el control es Moderno)
+        if (Controlador.getInstancia().esAndroid() && tipoControl == 1) {
             Controlador.getInstancia().pintarBotonesAndroid(
                 juego.getLote(), juego.getFuente(), mundoAncho, mundoAlto);
         }
@@ -166,7 +242,9 @@ public class PantallaJuego implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {}
+    public void hide() {
+        // No detener la música aquí para que siga sonando entre pantallas sin interrupción.
+    }
 
     @Override
     public void dispose() {

@@ -156,7 +156,7 @@ public class PantallaConfigPersonalizada implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
+        int ancho = 350;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
@@ -182,8 +182,12 @@ public class PantallaConfigPersonalizada implements Screen {
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.05f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        float mundoAncho = escenario.getViewport().getWorldWidth();
+        float mundoAlto = escenario.getViewport().getWorldHeight();
+
+        juego.getLote().setProjectionMatrix(escenario.getCamera().combined);
         juego.getLote().begin();
-        fondoEfectos.renderizar(juego.getLote(), delta);
+        fondoEfectos.renderizar(juego.getLote(), delta, mundoAncho, mundoAlto);
         juego.getLote().end();
 
         escenario.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));

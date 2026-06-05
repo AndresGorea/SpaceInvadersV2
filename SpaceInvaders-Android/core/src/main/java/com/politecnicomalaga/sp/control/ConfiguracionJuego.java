@@ -45,8 +45,30 @@ public class ConfiguracionJuego {
     public static final float DURACION_POWERUP = 10f;
     public static final float VELOCIDAD_BONUS = 200f;
 
+    // --- Configuración: Búnkeres ---
+    public static final int   BUNKER_CANTIDAD = 4;
+    public static final float BUNKER_ANCHO = 64f;
+    public static final float BUNKER_ALTO = 48f;
+    public static final int   BUNKER_VIDAS = 3;
+
+    // --- Configuración: Nave Especial (UFO) ---
+    public static final float ESP_ANCHO = 80f;
+    public static final float ESP_ALTO = 40f;
+    public static final float ESP_VELOCIDAD = 150f;
+    public static final float ESP_PROB_APARICION = 0.001f; // Probabilidad por frame (reducida)
+    public static final float ESP_PROB_DISPARO = 2.0f; // Probabilidad de disparo por segundo
+    public static final int ESP_PUNTOS_MIN = 50;
+    public static final int ESP_PUNTOS_MAX = 300;
+
     // Puntuación, vidas y textura por fila (índice 0 = fila superior)
     public static final int[]    ENE_PUNTOS_FILA  = {30, 20, 15, 10};
     public static final int[]    ENE_VIDAS_FILA   = {2,  2,  1,  1};
     public static final String[] ENE_TEXTURA_FILA = {"enemigo2.png", "enemigo2.png", "enemigo1.png", "enemigo1.png"};
+
+    // --- Configuración: Botones Android (Porcentajes y Margen) ---
+    public static final float BTN_MOVER_ANCHO_PORCENTAJE = 0.10f;
+    public static final float BTN_FIRE_ANCHO_PORCENTAJE = 0.10f;
+    public static final float BTN_ALTO_PORCENTAJE = 0.20f;
+    public static final float BTN_FIRE_ALTO_PORCENTAJE = 0.20f;
+    public static final float BTN_MARGEN = 20f;
 }

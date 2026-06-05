@@ -74,6 +74,16 @@ public class Escuadron {
         }
         return false;
     }
+    public int getCantidadNavesVivas(){
+        int vivas = 0;
+        for (NaveEne naveEne : navesEnemigas) {
+            if (naveEne.estaVivo()) {
+                vivas++;
+            }
+        }
+        return vivas;
+    }
+
     public void disparar(){
         //Cada nave dispara segun la probabilidad de disparo
         for (NaveEne naveEne :navesEnemigas){

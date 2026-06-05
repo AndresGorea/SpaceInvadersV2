@@ -12,7 +12,9 @@ import com.politecnicomalaga.sp.model.DisparoEne;
 import com.politecnicomalaga.sp.model.Escuadron;
 import com.politecnicomalaga.sp.model.NaveAmi;
 import com.politecnicomalaga.sp.model.NaveEne;
+import com.politecnicomalaga.sp.model.NaveEspecial;
 import com.politecnicomalaga.sp.model.PowerUp;
+import com.politecnicomalaga.sp.model.Bunker;
 import com.politecnicomalaga.sp.util.Assets;
 
 import java.util.List;
@@ -34,6 +36,16 @@ public class RenderizadorMundo {
         // 1. Dibujar la nave del jugador
         NaveAmi naveAmiga = mundo.getNaveAmiga();
         lote.draw(assets.getTexture(naveAmiga.getTextura()), naveAmiga.getX(), naveAmiga.getY(), naveAmiga.getWidth(), naveAmiga.getHeight());
+
+        // 1.5 Dibujar los Búnkeres
+        List<Bunker> bunkeres = mundo.getBunkeres();
+        if (bunkeres != null) {
+            for (Bunker b : bunkeres) {
+                if (b.estaVivo()) {
+                    lote.draw(assets.getTexture(b.getTextura()), b.getX(), b.getY(), b.getWidth(), b.getHeight());
+                }
+            }
+        }
 
         // 2. Dibujar el batallón de enemigos y sus proyectiles activos
         Batallon batallon = mundo.getBatallon();
@@ -66,6 +78,18 @@ public class RenderizadorMundo {
                 lote.draw(assets.getTexture(p.getTextura()), p.getX(), p.getY(), p.getWidth(), p.getHeight());
             }
         }
+
+        // 5. Dibujar la nave especial
+        NaveEspecial esp = mundo.getNaveEspecial();
+        if (esp != null) {
+            if (esp.estaVivo()) {
+                lote.draw(assets.getTexture(esp.getTextura()), esp.getX(), esp.getY(), esp.getWidth(), esp.getHeight());
+            }
+            // Dibujar sus disparos incluso si la nave ha muerto
+            for (DisparoEne d : esp.getMisDisparos()) {
+                lote.draw(assets.getTexture(d.getTextura()), d.getX(), d.getY(), d.getWidth(), d.getHeight());
+            }
+        }
     }
 
     /**
@@ -82,11 +106,12 @@ public class RenderizadorMundo {
         fuente.setColor(Color.WHITE);
 
         // Dibujar texto de puntuación en la esquina superior izquierda
-        fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 20);
+        fuente.draw(lote, "Nivel: " + estado.getNivel(), 20, altoPantalla - 20);
+        fuente.draw(lote, "Puntuación: " + estado.getPuntuacion(), 20, altoPantalla - 50);
 
         // Dibujar Power-ups activos debajo de la puntuación
         NaveAmi nave = mundo.getNaveAmiga();
-        float yActual = altoPantalla - 60;
+        float yActual = altoPantalla - 90;
         float escalaOriginal = fuente.getScaleX();
         fuente.getData().setScale(1.2f); // Fuente algo más pequeña para los timers
 

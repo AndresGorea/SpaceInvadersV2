@@ -2,6 +2,7 @@ package com.politecnicomalaga.sp.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -20,6 +21,8 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.politecnicomalaga.sp.Main;
 import com.politecnicomalaga.sp.control.ConfiguracionJuego;
 import com.politecnicomalaga.sp.control.Controlador;
+import com.politecnicomalaga.sp.util.Assets;
+import com.politecnicomalaga.sp.util.SettingsManager;
 
 /**
  * Pantalla de inicio del juego que presenta el menú principal.
@@ -31,6 +34,7 @@ public class PantallaMenuPrincipal implements Screen {
     private final Stage  escenario;
     private Skin apariencia;
     private final FondoEfectos fondoEfectos;
+    private Music musicaFondo;
 
     public PantallaMenuPrincipal(final Main juego) {
         this.juego = juego;
@@ -59,6 +63,12 @@ public class PantallaMenuPrincipal implements Screen {
             )
         ));
 
+        // --- HIGH SCORE ---
+        int highScore = SettingsManager.getInstancia().getHighScore();
+        Label etiquetaHighScore = new Label("RECORD: " + highScore, new Label.LabelStyle(juego.getFuente(), Color.YELLOW));
+        etiquetaHighScore.setFontScale(1.2f);
+        etiquetaHighScore.setAlignment(Align.center);
+
         // --- BOTONES ---
         TextButton botonIniciar = crearBotonAnimado("INICIAR");
         TextButton botonOpciones = crearBotonAnimado("CONFIGURACIÓN");
@@ -73,11 +83,18 @@ public class PantallaMenuPrincipal implements Screen {
                     Actions.run(new Runnable() {
                         @Override
                         public void run() {
-                            Controlador.getInstancia().reiniciar();
+                            Controlador.getInstancia().reiniciar(escenario.getViewport().getWorldWidth());
                             juego.setScreen(new PantallaJuego(juego));
                         }
                     })
                 ));
+            }
+        });
+
+        botonOpciones.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                juego.setScreen(new PantallaOpciones(juego));
             }
         });
 
@@ -97,7 +114,8 @@ public class PantallaMenuPrincipal implements Screen {
         });
 
         tabla.add(etiquetaTitulo).padBottom(5).row();
-        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(50).row();
+        tabla.add(new Label("EDICIÓN ARCADE", new Label.LabelStyle(juego.getFuente(), Color.valueOf("aaaaaa")))).padBottom(10).row();
+        tabla.add(etiquetaHighScore).padBottom(30).row();
 
         botonOpciones.addListener(new ClickListener() {
             @Override
@@ -129,7 +147,7 @@ public class PantallaMenuPrincipal implements Screen {
             }
         });
 
-        float anchoBoton = 300f;
+        float anchoBoton = 350f;
         float altoBoton = 60f;
         float rellenoBoton = 10f;
 
@@ -186,7 +204,7 @@ public class PantallaMenuPrincipal implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
+        int ancho = 350;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
@@ -205,6 +223,15 @@ public class PantallaMenuPrincipal implements Screen {
         Gdx.input.setInputProcessor(escenario);
         escenario.getRoot().getColor().a = 0;
         escenario.addAction(Actions.fadeIn(0.5f));
+
+        musicaFondo = Assets.getInstance().getMusic("One_Last_Quarter.mp3");
+        if (musicaFondo != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isMusicaActivada()) {
+            if (!musicaFondo.isPlaying()) {
+                musicaFondo.setVolume(0.15f);
+                musicaFondo.setLooping(true);
+                musicaFondo.play();
+            }
+        }
     }
 
     @Override
@@ -212,8 +239,12 @@ public class PantallaMenuPrincipal implements Screen {
         Gdx.gl.glClearColor(0.01f, 0.01f, 0.05f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        float mundoAncho = escenario.getViewport().getWorldWidth();
+        float mundoAlto = escenario.getViewport().getWorldHeight();
+
+        juego.getLote().setProjectionMatrix(escenario.getCamera().combined);
         juego.getLote().begin();
-        fondoEfectos.renderizar(juego.getLote(), delta);
+        fondoEfectos.renderizar(juego.getLote(), delta, mundoAncho, mundoAlto);
         juego.getLote().end();
 
         escenario.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -232,7 +263,9 @@ public class PantallaMenuPrincipal implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {}
+    public void hide() {
+        // No detener la música aquí para que siga sonando entre pantallas sin interrupción.
+    }
 
     @Override
     public void dispose() {
