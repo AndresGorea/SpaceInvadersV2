@@ -147,7 +147,7 @@ public class PantallaMenuPrincipal implements Screen {
             }
         });
 
-        float anchoBoton = 300f;
+        float anchoBoton = 350f;
         float altoBoton = 60f;
         float rellenoBoton = 10f;
 
@@ -204,7 +204,7 @@ public class PantallaMenuPrincipal implements Screen {
     }
 
     private Texture crearTexturaBoton(Color colorFondo, Color colorBorde, int grosorBorde) {
-        int ancho = 300;
+        int ancho = 350;
         int alto = 60;
         Pixmap pixmap = new Pixmap(ancho, alto, Pixmap.Format.RGBA8888);
         pixmap.setColor(colorFondo);
@@ -225,10 +225,12 @@ public class PantallaMenuPrincipal implements Screen {
         escenario.addAction(Actions.fadeIn(0.5f));
 
         musicaFondo = Assets.getInstance().getMusic("One_Last_Quarter.mp3");
-        if (musicaFondo != null) {
-            musicaFondo.setVolume(0.15f);
-            musicaFondo.setLooping(true);
-            musicaFondo.play();
+        if (musicaFondo != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isMusicaActivada()) {
+            if (!musicaFondo.isPlaying()) {
+                musicaFondo.setVolume(0.15f);
+                musicaFondo.setLooping(true);
+                musicaFondo.play();
+            }
         }
     }
 
@@ -262,9 +264,7 @@ public class PantallaMenuPrincipal implements Screen {
 
     @Override
     public void hide() {
-        if (musicaFondo != null) {
-            musicaFondo.stop();
-        }
+        // No detener la música aquí para que siga sonando entre pantallas sin interrupción.
     }
 
     @Override

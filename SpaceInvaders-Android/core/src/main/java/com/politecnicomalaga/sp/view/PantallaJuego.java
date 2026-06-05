@@ -53,10 +53,12 @@ public class PantallaJuego implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(null);
         musicaFondo = Assets.getInstance().getMusic("One_Last_Quarter.mp3");
-        if (musicaFondo != null) {
-            musicaFondo.setVolume(0.15f);
-            musicaFondo.setLooping(true);
-            musicaFondo.play();
+        if (musicaFondo != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isMusicaActivada()) {
+            if (!musicaFondo.isPlaying()) {
+                musicaFondo.setVolume(0.15f);
+                musicaFondo.setLooping(true);
+                musicaFondo.play();
+            }
         }
     }
 
@@ -241,9 +243,7 @@ public class PantallaJuego implements Screen {
 
     @Override
     public void hide() {
-        if (musicaFondo != null) {
-            musicaFondo.stop();
-        }
+        // No detener la música aquí para que siga sonando entre pantallas sin interrupción.
     }
 
     @Override

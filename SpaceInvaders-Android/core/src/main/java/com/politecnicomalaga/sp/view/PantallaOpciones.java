@@ -97,8 +97,19 @@ public class PantallaOpciones implements Screen {
         botonMusica.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                prefs.setMusicaActivada(!prefs.isMusicaActivada());
-                botonMusica.setText("Musica: " + (prefs.isMusicaActivada() ? "ON" : "OFF"));
+                boolean activa = !prefs.isMusicaActivada();
+                prefs.setMusicaActivada(activa);
+                botonMusica.setText("Musica: " + (activa ? "ON" : "OFF"));
+                com.badlogic.gdx.audio.Music musica = com.politecnicomalaga.sp.util.Assets.getInstance().getMusic("One_Last_Quarter.mp3");
+                if (musica != null) {
+                    if (activa && !musica.isPlaying()) {
+                        musica.setVolume(0.15f);
+                        musica.setLooping(true);
+                        musica.play();
+                    } else if (!activa && musica.isPlaying()) {
+                        musica.stop();
+                    }
+                }
             }
         });
 
@@ -169,7 +180,9 @@ public class PantallaOpciones implements Screen {
         tabla.add(botonPantalla).width(anchoBoton).height(altoBoton).pad(rellenoBoton);
         tabla.add(botonVolumen).width(anchoBoton).height(altoBoton).pad(rellenoBoton).row();
         
-        tabla.add(botonControles).width(anchoBoton).height(altoBoton).pad(rellenoBoton).colspan(2).row();
+        if (com.politecnicomalaga.sp.control.Controlador.getInstancia().esAndroid()) {
+            tabla.add(botonControles).width(anchoBoton).height(altoBoton).pad(rellenoBoton).colspan(2).row();
+        }
         
         tabla.add(botonVolver).width(anchoBoton).height(altoBoton).padTop(20).colspan(2).row();
     }

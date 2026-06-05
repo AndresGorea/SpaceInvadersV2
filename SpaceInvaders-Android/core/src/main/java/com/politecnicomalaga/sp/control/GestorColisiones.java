@@ -147,7 +147,7 @@ public class GestorColisiones {
 
                 // Sonido de PowerUp
                 Sound s = Assets.getInstance().getSound("PowerUp.mp3");
-                if (s != null) {
+                if (s != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isSfxActivado()) {
                     s.play(0.8f);
                 }
             }
