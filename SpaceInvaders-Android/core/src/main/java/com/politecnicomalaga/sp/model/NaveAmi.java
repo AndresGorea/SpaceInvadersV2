@@ -35,7 +35,7 @@ public class NaveAmi extends Nave {
         if (estaVivo()) {
             // Sonido de disparo
             Sound s = Assets.getInstance().getSound("Disparo.mp3");
-            if (s != null) {
+            if (s != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isSfxActivado()) {
                 s.play(0.4f);
             }
 
@@ -105,8 +105,8 @@ public class NaveAmi extends Nave {
 
         // Sonido de recibir daño
         Sound s = Assets.getInstance().getSound("RecibirDaño.mp3");
-        if (s != null) {
-            s.play(0.7f);
+        if (s != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isSfxActivado()) {
+            s.play(0.8f);
         }
 
         super.recibirDisparo();

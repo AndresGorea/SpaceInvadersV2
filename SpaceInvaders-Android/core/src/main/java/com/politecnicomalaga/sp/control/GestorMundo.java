@@ -151,8 +151,8 @@ public class GestorMundo {
 
                 // Sonido de aparición del Ovni Misterioso
                 Sound s = Assets.getInstance().getSound("OvniMisterioso.mp3");
-                if (s != null) {
-                    s.play(0.6f);
+                if (s != null && com.politecnicomalaga.sp.control.GestorPreferencias.getInstancia().isSfxActivado()) {
+                    s.play(0.7f);
                 }
             }
         } else {
